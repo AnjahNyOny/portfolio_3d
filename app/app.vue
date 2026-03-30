@@ -7,12 +7,17 @@
       <p class="text-zinc-500 font-mono">Junior Web Developer // Québec</p>
     </div>
 
-    <ClientOnly>
-      <TheScene />
-    </ClientOnly>
+
+      <ClientOnly>
+        <TheScene />
+      </ClientOnly>
+
   </div>
 </template>
 
 <style>
-body { margin: 0; background: #09090b; }
+body {
+  margin: 0;
+  background: #ff9e28;
+}
 </style>
