@@ -1,0 +1,24 @@
+{
+  "name": "desk-portfolio",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@tresjs/cientos": "^5.6.0",
+    "@tresjs/core": "^5.7.0",
+    "@tresjs/nuxt": "^5.5.0",
+    "@tresjs/post-processing": "^3.6.0",
+    "gsap": "^3.14.2",
+    "nuxt": "^4.4.2",
+    "three": "^0.183.2",
+    "vue": "^3.5.30",
+    "vue-router": "^5.0.4"
+  }
+}
