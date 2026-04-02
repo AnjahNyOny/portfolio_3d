@@ -103,6 +103,23 @@
         Rotation Y (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
         Rotation Z (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
       </div>
+
+      <!-- SECTON LIVRE 3D -->
+      <div v-if="activeElement === 'books'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
+        <h3 class="font-bold text-blue-400 mb-2">📚 Animation Livre 3D</h3>
+        <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
+        Pos Cible X: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Pos Cible Y: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Pos Cible Z: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale X: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale Y: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale Z: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+
+        <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
+        Ouvrir Axe X: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Ouvrir Axe Y: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Ouvrir Axe Z: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+      </div>
     </div>
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size>
       <TresPerspectiveCamera 
@@ -177,7 +194,7 @@
       
       <Suspense>
         <GLTFModel 
-          path="/models/room_v8.glb" 
+          path="/models/room_v9.glb" 
           draco 
           cast-shadow 
           receive-shadow
@@ -209,7 +226,7 @@
         v-if="activeElement === 'phone'" 
         :position="[settings.phone.htmlPosX, settings.phone.htmlPosY, settings.phone.htmlPosZ]" 
       >
-        <Html transform wrapper-class="ecran-phone" 
+        <Html key="html-phone" transform wrapper-class="ecran-phone" 
               :rotation-x="settings.phone.htmlRotX" 
               :rotation-y="settings.phone.htmlRotY" 
               :rotation-z="settings.phone.htmlRotZ" 
@@ -224,6 +241,39 @@
                  class="relative bg-black rounded-[40px] border-[12px] border-zinc-800 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto">
               <iframe src="https://anjahnyony.com/fr/contact" class="w-full h-full border-none"></iframe>
               <div class="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-zinc-800 rounded-b-2xl"></div> <!-- Fake notch -->
+            </div>
+          </Transition>
+        </Html>
+      </TresGroup>
+
+      <!-- CONTENU DES LIVRES -->
+      <TresGroup 
+        v-if="activeElement === 'books'" 
+        :position="[settings.books.htmlPosX, settings.books.htmlPosY, settings.books.htmlPosZ]" 
+      >
+        <Html key="html-books" transform wrapper-class="livre-content" 
+              :rotation-x="settings.books.htmlRotX" 
+              :rotation-y="settings.books.htmlRotY" 
+              :rotation-z="settings.books.htmlRotZ" 
+              :scale="settings.books.scale">
+          <Transition 
+            enter-active-class="transition-opacity duration-1000" 
+            enter-from-class="opacity-0" 
+            leave-active-class="transition-opacity duration-300" 
+            leave-to-class="opacity-0"
+          >
+            <div v-show="showBookContent" :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px' }"
+                 class="relative bg-[#f4ecd8] border-2 border-[#d0c0a0] rounded-r-lg shadow-[inset_10px_0_20px_rgba(0,0,0,0.1)] p-8 pointer-events-auto overflow-y-auto text-[#403020] font-serif">
+              
+              <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">Mon Parcours</h2>
+              <div class="space-y-6">
+                <!-- A remplacer par ton composant vue TheBooksTimeline plus tard ! -->
+                <div class="mb-4">
+                  <h3 class="text-xl font-bold">2026 - Développeur Fullstack</h3>
+                  <p class="opacity-80 italic">Création d'expériences 3D interactives avec Nuxt et TresJS, maîtrisant les ombres et les animations complexes. Un maître de l'illusion spatiale !</p>
+                </div>
+              </div>
+
             </div>
           </Transition>
         </Html>
@@ -263,6 +313,7 @@ const isHovered = ref(false)
 const animating = ref(false)
 
 const showPhoneContent = ref(false)
+const showBookContent = ref(false)
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 const calibrationMode = ref(true) 
@@ -290,11 +341,9 @@ const getPhoneGroup = () => {
   sceneRoot?.traverse((n) => {
     if (n.isMesh && n.name.startsWith('Plane038_') && !phoneGroup) {
       phoneGroup = n.parent
-      console.log(`[GET PHONE] Téléphone trouvé, parent group: ${phoneGroup.name}`)
     }
   })
 
-  // Si on a trouvé le groupe et qu'on n'a pas encore sauvé ses offsets
   if (phoneGroup && !phoneGroup.userData.originalPos) {
     phoneGroup.userData.originalPos = phoneGroup.position.clone()
     phoneGroup.userData.originalRot = phoneGroup.rotation.clone()
@@ -314,6 +363,41 @@ const updatePhoneAnim = () => {
     pg.rotation.x = pg.userData.originalRot.x + (phoneAnimConfig.value.rotX * Math.PI / 180)
     pg.rotation.y = pg.userData.originalRot.y + (phoneAnimConfig.value.rotY * Math.PI / 180)
     pg.rotation.z = pg.userData.originalRot.z + (phoneAnimConfig.value.rotZ * Math.PI / 180)
+  }
+}
+
+// -- GROUPE LIVRES --
+let activeBookBase = null
+let activeBookCover = null
+const bookAnimConfig = ref({
+  targetPosX: 1,
+  targetPosY: 1.723,
+  targetPosZ: 0.76,
+  baseRotX: 0,
+  baseRotY: 0,
+  baseRotZ: 55,
+  coverRotX: 0,
+  coverRotY: 0,
+  coverRotZ: 160
+})
+
+const updateBookAnim = () => {
+  if (activeBookBase && activeBookBase.userData.originalPos && activeElement.value === 'books') {
+    gsap.killTweensOf(activeBookBase.position)
+    gsap.killTweensOf(activeBookBase.rotation)
+    activeBookBase.position.x = bookAnimConfig.value.targetPosX
+    activeBookBase.position.y = bookAnimConfig.value.targetPosY
+    activeBookBase.position.z = bookAnimConfig.value.targetPosZ
+    activeBookBase.rotation.x = activeBookBase.userData.originalRot.x + (bookAnimConfig.value.baseRotX * Math.PI / 180)
+    activeBookBase.rotation.y = activeBookBase.userData.originalRot.y + (bookAnimConfig.value.baseRotY * Math.PI / 180)
+    activeBookBase.rotation.z = activeBookBase.userData.originalRot.z + (bookAnimConfig.value.baseRotZ * Math.PI / 180)
+  }
+
+  if (activeBookCover && activeBookCover.userData.originalRot && activeElement.value === 'books') {
+    gsap.killTweensOf(activeBookCover.rotation)
+    activeBookCover.rotation.x = activeBookCover.userData.originalRot.x + (bookAnimConfig.value.coverRotX * Math.PI / 180)
+    activeBookCover.rotation.y = activeBookCover.userData.originalRot.y + (bookAnimConfig.value.coverRotY * Math.PI / 180)
+    activeBookCover.rotation.z = activeBookCover.userData.originalRot.z + (bookAnimConfig.value.coverRotZ * Math.PI / 180)
   }
 }
 
@@ -397,13 +481,13 @@ const settings = ref({
     height: 800
   },
   books: { 
-    camX: 0.6, camY: 2.5, camZ: 0.8, 
-    lookX: 0.6, lookY: 2.5, lookZ: -0.15,
-    htmlPosX: 0.6, htmlPosY: 2.5, htmlPosZ: -0.15,
-    htmlRotX: 0, htmlRotY: 0.1, htmlRotZ: 0,
-    scale: 0.012,
-    width: 800,
-    height: 600
+    camX: 1.34, camY: 1.84, camZ: 1.29, 
+    lookX: 0.73, lookY: 1.5, lookZ: 0.31,
+    htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
+    htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
+    scale: 0.014,
+    width: 770,
+    height: 1129
   }
 })
 
@@ -457,7 +541,7 @@ const isInteractive = (meshName) => {
   return (
     LAPTOP_PARTS.includes(meshName) ||
     meshName.startsWith(PHONE_PREFIX) ||
-    BOOK_PARTS.includes(meshName) ||
+    meshName.includes('book') || 
     meshName === LIGHT_SWITCH
   )
 }
@@ -470,7 +554,6 @@ const onModelLoaded = (gltf) => {
       if (node.isMesh) {
         node.receiveShadow = true
         
-        // Empêcher les murs transparents/fenêtres de projeter des ombres massives
         const name = node.name.toLowerCase()
         if (name.includes('window') || node.material?.transparent) {
              node.castShadow = false
@@ -489,7 +572,7 @@ const onModelLoaded = (gltf) => {
 
 // 🔍 Clic sur un objet
 const onModelClick = (event) => {
-  if (animating.value || activeElement.value) return // Ignore les autres clics si on est déjà zoomé
+  if (animating.value || activeElement.value) return
 
   const meshName = getHitMeshName(event)
   
@@ -497,11 +580,30 @@ const onModelClick = (event) => {
     zoomTo('laptop')
   } else if (meshName.startsWith(PHONE_PREFIX)) {
     zoomTo('phone')
-  } else if (BOOK_PARTS.includes(meshName)) {
+  } else if (meshName.includes('book')) {
+    let base = event.object
+    if (meshName.includes('cover') || meshName.includes('bookmark')) {
+      base = event.object.parent
+    }
+    if (base) {
+      activeBookBase = base
+      if (!activeBookBase.userData.originalPos) {
+        activeBookBase.userData.originalPos = activeBookBase.position.clone()
+        activeBookBase.userData.originalRot = activeBookBase.rotation.clone()
+      }
+    }
+    
+    // Trouver le cover parmi les enfants
+    const cover = base.children ? base.children.find(c => c.name.startsWith('book_cover')) : null
+    if (cover) {
+      activeBookCover = cover
+      if (!activeBookCover.userData.originalRot) {
+        activeBookCover.userData.originalRot = activeBookCover.rotation.clone()
+      }
+    }
     zoomTo('books')
   } else if (meshName === LIGHT_SWITCH) {
     toggleLight()
-    console.log(isDarkMode.value ? "🌙 Nuit activée !" : "☀️ Jour activé !")
   }
 }
 
@@ -529,13 +631,15 @@ const onPointerOut = () => {
 }
 
 const zoomTo = (target) => {
-  if (activeElement.value !== null || !cameraRef.value) return
+  if (animating.value) return
+  animating.value = true
+  activeElement.value = target
+  showPhoneContent.value = false
+  showBookContent.value = false
 
   const setting = settings.value[target]
   if (!setting) return
 
-  activeElement.value = target // Verrouille l'interface pour empêcher d'autres clics
-  animating.value = true
   isHovered.value = false
   document.body.style.cursor = 'auto'
 
@@ -544,11 +648,9 @@ const zoomTo = (target) => {
 
   const lookAtProxy = { x: controls?.target?.x ?? 0, y: controls?.target?.y ?? 0, z: controls?.target?.z ?? 0 }
 
-  // Animation GSAP de l'objet Téléphone pour qu'il "lévite et tourne"
   if (target === 'phone') {
     const pg = getPhoneGroup()
     if (pg && pg.userData.originalPos) {
-      console.log("Animation GSAP Lancée sur le téléphone")
       gsap.to(pg.position, {
         x: pg.userData.originalPos.x + phoneAnimConfig.value.posX,
         y: pg.userData.originalPos.y + phoneAnimConfig.value.posY,
@@ -563,11 +665,47 @@ const zoomTo = (target) => {
         duration: 1.5,
         ease: 'power2.inOut',
         onComplete: () => {
-          showPhoneContent.value = true // Le téléphone est arrivé, on allume l'écran !
+          showPhoneContent.value = true
         }
       })
     }
-  } // Fin de l'animation objet
+  }
+
+  // Animation GSAP de l'objet Livre (Base + Couverture)
+  if (target === 'books') {
+    if (activeBookBase && activeBookBase.userData.originalPos) {
+      gsap.to(activeBookBase.position, {
+        x: bookAnimConfig.value.targetPosX,
+        y: bookAnimConfig.value.targetPosY,
+        z: bookAnimConfig.value.targetPosZ,
+        duration: 1.5,
+        ease: 'power2.inOut'
+      })
+      gsap.to(activeBookBase.rotation, {
+        x: activeBookBase.userData.originalRot.x + (bookAnimConfig.value.baseRotX * Math.PI / 180),
+        y: activeBookBase.userData.originalRot.y + (bookAnimConfig.value.baseRotY * Math.PI / 180),
+        z: activeBookBase.userData.originalRot.z + (bookAnimConfig.value.baseRotZ * Math.PI / 180),
+        duration: 1.5,
+        ease: 'power2.inOut'
+      })
+    }
+
+    if (activeBookCover && activeBookCover.userData.originalRot) {
+      gsap.to(activeBookCover.rotation, {
+          x: activeBookCover.userData.originalRot.x + (bookAnimConfig.value.coverRotX * Math.PI / 180),
+          y: activeBookCover.userData.originalRot.y + (bookAnimConfig.value.coverRotY * Math.PI / 180),
+          z: activeBookCover.userData.originalRot.z + (bookAnimConfig.value.coverRotZ * Math.PI / 180),
+          duration: 1.2,
+          delay: 0.5,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            showBookContent.value = true
+          }
+      })
+    } else {
+      setTimeout(() => showBookContent.value = true, 1700)
+    }
+  }
 
   gsap.to(cameraRef.value.position, {
     x: setting.camX, y: setting.camY, z: setting.camZ,
@@ -595,9 +733,8 @@ const resetZoom = () => {
   animating.value = true
   activeElement.value = null
 
-  // --- RESTAURER LA SCÈNE (Téléphone) ---
   if (phoneGroup && phoneGroup.userData.originalPos) {
-    showPhoneContent.value = false // Cacher l'écran du tel immédiatement
+    showPhoneContent.value = false
     gsap.killTweensOf(phoneGroup.position)
     gsap.killTweensOf(phoneGroup.rotation)
     gsap.to(phoneGroup.position, {
@@ -611,6 +748,38 @@ const resetZoom = () => {
       x: phoneGroup.userData.originalRot.x,
       y: phoneGroup.userData.originalRot.y,
       z: phoneGroup.userData.originalRot.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+  }
+
+  // --- RESTAURER LA SCÈNE (Livre) ---
+  if (activeBookBase && activeBookBase.userData.originalPos) {
+    showBookContent.value = false // Cacher le texte
+    gsap.killTweensOf(activeBookBase.position)
+    gsap.killTweensOf(activeBookBase.rotation)
+    gsap.to(activeBookBase.position, {
+      x: activeBookBase.userData.originalPos.x,
+      y: activeBookBase.userData.originalPos.y,
+      z: activeBookBase.userData.originalPos.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+    gsap.to(activeBookBase.rotation, {
+      x: activeBookBase.userData.originalRot.x,
+      y: activeBookBase.userData.originalRot.y,
+      z: activeBookBase.userData.originalRot.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+  }
+
+  if (activeBookCover && activeBookCover.userData.originalRot) {
+    gsap.killTweensOf(activeBookCover.rotation)
+    gsap.to(activeBookCover.rotation, {
+      x: activeBookCover.userData.originalRot.x,
+      y: activeBookCover.userData.originalRot.y,
+      z: activeBookCover.userData.originalRot.z,
       duration: 1.5,
       ease: 'power2.inOut'
     })
