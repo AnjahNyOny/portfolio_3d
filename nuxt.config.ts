@@ -1,4 +1,6 @@
 export default defineNuxtConfig({
+  ssr: false,
+  compatibilityDate: '2026-04-01',
   modules: [
     '@nuxtjs/tailwindcss',
     '@tresjs/nuxt'
