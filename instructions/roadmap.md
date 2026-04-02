@@ -78,10 +78,10 @@ desk-portfolio/
 |---|---|
 | Modèle 3D | ✅ Présent dans `room_v5.glb` (étagère avec livres) |
 | Meshes identifiés | ✅ `book`, `book001`, `book002`, `book003`, `book_shelf` |
-| Détection clic | ❌ À implémenter |
-| Détection hover | ❌ À implémenter |
-| Animation zoom caméra | ❌ À implémenter |
-| Contenu HTML | ❌ À créer — timeline/parcours (formation, expériences, compétences) |
+| Détection clic | ✅ Fonctionnel |
+| Détection hover | ✅ Fonctionnel |
+| Animation zoom caméra | ✅ Fonctionnel |
+| Contenu HTML | ✅ Fait (Via Iframe/Timeline) |
 
 **Plan d'implémentation :**
 1. Ajouter `BOOK_PARTS` dans le script
@@ -121,14 +121,14 @@ desk-portfolio/
 - [x] Documenter les noms dans ce fichier
 
 ### Phase 2 — Interactions de base
-- [ ] Ajouter le hover (cursor pointer) pour téléphone, livres, interrupteur
-- [ ] Ajouter les fonctions `zoomToPhone()`, `zoomToBooks()` avec GSAP
-- [ ] Calibrer les positions caméra pour chaque zoom
+- [x] Ajouter le hover (cursor pointer) pour téléphone, livres, interrupteur
+- [x] Ajouter les fonctions `zoomToPhone()`, `zoomToBooks()` avec GSAP
+- [x] Calibrer les positions caméra pour chaque zoom
 - [ ] Refactoriser `TheScene.vue` — extraire la logique de zoom en composable `useZoom.ts`
 
 ### Phase 3 — Contenu interactif
 - [x] Créer/Lier `ContactForm.vue` (téléphone) — HTML overlay 3D et rotation du modèle OK.
-- [ ] Créer `ParcourPanel.vue` (livres) — timeline du parcours / Animation ouverture du livre.
+- [x] Créer/Lier composant iframe pour (livres) — timeline du parcours / Animation ouverture du livre OK.
 - [x] Implémenter le toggle dark/light mode (interrupteur)
 
 ### Phase 4 — Polish & UX

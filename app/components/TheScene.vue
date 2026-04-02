@@ -130,6 +130,23 @@
         Ouvrir Axe Y: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
         Ouvrir Axe Z: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
       </div>
+
+      <!-- SECTON DOSSIER 3D -->
+      <div v-if="activeElement === 'folder'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
+        <h3 class="font-bold text-yellow-400 mb-2">📁 Animation Dossier 3D</h3>
+        <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
+        Pos Cible X: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Pos Cible Y: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Pos Cible Z: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale X: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale Y: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale Z: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+
+        <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
+        Ouvrir Axe X: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Ouvrir Axe Y: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+      </div>
     </div>
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size>
       <TresPerspectiveCamera 
@@ -204,7 +221,7 @@
       
       <Suspense>
         <GLTFModel 
-          path="/models/room_v9.glb" 
+          path="/models/room_v10.glb" 
           draco 
           cast-shadow 
           receive-shadow
@@ -299,7 +316,36 @@
               :rotation-y="settings.books.htmlRotY" 
               :rotation-z="settings.books.htmlRotZ" 
               :scale="settings.books.scale">
+        </Html>
+      </TresGroup>
+      <!-- CONTENU DES DOSSIERS (Projets) -->
+      <TresGroup 
+        v-if="activeElement === 'folder'" 
+        :position="[settings.folder.htmlPosX, settings.folder.htmlPosY, settings.folder.htmlPosZ]" 
+      >
+        <Html key="html-folder" transform wrapper-class="folder-content" 
+              :rotation-x="settings.folder.htmlRotX" 
+              :rotation-y="settings.folder.htmlRotY" 
+              :rotation-z="settings.folder.htmlRotZ" 
+              :scale="settings.folder.scale">
+          <Transition 
+            enter-active-class="transition-opacity duration-1000" 
+            enter-from-class="opacity-0" 
+            leave-active-class="transition-opacity duration-300" 
+            leave-to-class="opacity-0"
+          >
+            <div v-show="showFolderContent" :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px' }"
+                 class="relative bg-white border border-gray-200 shadow-md p-8 pointer-events-auto overflow-y-auto text-gray-800">
+              
+              <h2 class="text-3xl font-bold mb-6 border-b-2 border-gray-200 pb-4 text-orange-500">Projet: Portfolio 3D</h2>
+              <div class="space-y-4">
+                <p>Développement complet de la scène avec Nuxt 4, TresJS et GSAP.</p>
+                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085" alt="Code" class="w-full h-48 object-cover rounded shadow" />
+                <button class="px-4 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-500">Voir le projet</button>
+              </div>
 
+            </div>
+          </Transition>
         </Html>
       </TresGroup>
 
@@ -324,6 +370,7 @@ const animating = ref(false)
 
 const showPhoneContent = ref(false)
 const showBookContent = ref(false)
+const showFolderContent = ref(false)
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 const calibrationMode = ref(true) 
@@ -413,6 +460,40 @@ const updateBookAnim = () => {
   }
 }
 
+const updateFolderAnim = () => {
+  if (activeFolderBase && activeFolderBase.userData.originalPos && activeElement.value === 'folder') {
+    gsap.killTweensOf(activeFolderBase.position)
+    gsap.killTweensOf(activeFolderBase.rotation)
+    activeFolderBase.position.x = folderAnimConfig.value.targetPosX
+    activeFolderBase.position.y = folderAnimConfig.value.targetPosY
+    activeFolderBase.position.z = folderAnimConfig.value.targetPosZ
+    activeFolderBase.rotation.x = activeFolderBase.userData.originalRot.x + (folderAnimConfig.value.baseRotX * Math.PI / 180)
+    activeFolderBase.rotation.y = activeFolderBase.userData.originalRot.y + (folderAnimConfig.value.baseRotY * Math.PI / 180)
+    activeFolderBase.rotation.z = activeFolderBase.userData.originalRot.z + (folderAnimConfig.value.baseRotZ * Math.PI / 180)
+  }
+
+  if (activeFolderCover && activeFolderCover.userData.originalRot && activeElement.value === 'folder') {
+    gsap.killTweensOf(activeFolderCover.rotation)
+    activeFolderCover.rotation.x = activeFolderCover.userData.originalRot.x + (folderAnimConfig.value.coverRotX * Math.PI / 180)
+    activeFolderCover.rotation.y = activeFolderCover.userData.originalRot.y + (folderAnimConfig.value.coverRotY * Math.PI / 180)
+    activeFolderCover.rotation.z = activeFolderCover.userData.originalRot.z + (folderAnimConfig.value.coverRotZ * Math.PI / 180)
+  }
+}
+
+let activeFolderBase = null
+let activeFolderCover = null
+const folderAnimConfig = ref({
+  targetPosX: 0.74,
+  targetPosY: 1,
+  targetPosZ: -0.8,
+  baseRotX: -90,
+  baseRotY: -60,
+  baseRotZ: -90,
+  coverRotX: 180, // Selon l'orientation du hinge, modifie l'axe
+  coverRotY: 0,
+  coverRotZ: 0
+})
+
 // --- GESTION DE LA LUMIÈRE (Interrupteur) ---
 const isDarkMode = ref(false)
 const lightState = ref({
@@ -475,13 +556,13 @@ const toggleLight = () => {
 
 const settings = ref({
   laptop: { 
-    camX: 1.54, camY: 1.81, camZ: 0.90, 
-    lookX: 1.54, lookY: 1.65, lookZ: 0.24,
-    htmlPosX: 1.54, htmlPosY: 1.65, htmlPosZ: 0.24,
-    htmlRotX: -0.33, htmlRotY: 0.03, htmlRotZ: 0.00,
-    scale: 0.0114,
-    width: 1024,
-    height: 830
+    camX: 1.54, camY: 1.91, camZ: 1, 
+    lookX: 1.53, lookY: 1.5, lookZ: 0.07,
+    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
+    htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
+    scale: 0.0175,
+    width: 1400,
+    height: 900
   },
   phone: {
     camX: 1.75, camY: 1.929, camZ: 1.401,
@@ -500,6 +581,15 @@ const settings = ref({
     scale: 0.014,
     width: 770,
     height: 1129
+  },
+  folder: {
+    camX: 1.84, camY: 2.03, camZ: 1.64, 
+    lookX: 1, lookY: 1.68, lookZ: 0.45,
+    htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
+    htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
+    scale: 0.014,
+    width: 800,
+    height: 1200
   }
 })
 
@@ -554,10 +644,37 @@ const isInteractive = (meshName) => {
   
   const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
-  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book') || name.includes('cube')
+  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
   const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
+  const isDrawer = name.includes('drawer')
+  const isFolder = name.includes('folder')
 
-  return isLaptop || isPhone || isBook || isSwitch
+  return isLaptop || isPhone || isBook || isSwitch || isDrawer || isFolder
+}
+
+// Gérer l'ouverture/fermeture du tiroir (sans zoomer)
+const toggleDrawer = (drawerMesh) => {
+  if (animating.value) return
+  
+  // Initialisation de l'état
+  if (drawerMesh.userData.isOpen === undefined) {
+    drawerMesh.userData.originalPos = drawerMesh.position.clone()
+    drawerMesh.userData.isOpen = false
+  }
+
+  const isOpen = drawerMesh.userData.isOpen
+  
+  // Si le bureau est orienté de face, le tiroir s'ouvre généralement sur l'axe X ou Z.
+  // Modifie 'z' ci-dessous en 'x' ou 'y' selon comment ton bureau est orienté dans ThreeJS !
+  const offset = isOpen ? 0 : 0.4
+  
+  gsap.to(drawerMesh.position, {
+    z: drawerMesh.userData.originalPos.z + offset, // << CHANGE LE 'z' ICI par 'x' ou '-x' si ça sort du mauvais côté !
+    duration: 0.8,
+    ease: 'power2.inOut'
+  })
+  
+  drawerMesh.userData.isOpen = !isOpen
 }
 
 // 📥 À la fin du chargement du modèle, forcer les ombres
@@ -594,19 +711,54 @@ const onModelClick = (event) => {
   
   const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
-  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book') || name.includes('cube')
+  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
   const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
+  const isDrawer = name.includes('drawer')
+  const isFolder = name.includes('folder')
 
   if (isLaptop) {
     zoomTo('laptop')
   } else if (isPhone) {
     zoomTo('phone')
+  } else if (isDrawer) {
+    let topDrawer = event.object
+    if (topDrawer.parent && topDrawer.parent.name.toLowerCase().includes('drawer')) {
+      topDrawer = topDrawer.parent
+    }
+    toggleDrawer(topDrawer)
+  } else if (isFolder) {
+    let base = event.object
+    // Remonter jusqu'à la base du dossier (tant que le parent s'appelle aussi folder)
+    while (base.parent && base.parent.name.toLowerCase().includes('folder')) {
+      base = base.parent
+    }
+
+    if (base) {
+      activeFolderBase = base
+      if (!activeFolderBase.userData.originalPos) {
+        activeFolderBase.userData.originalPos = activeFolderBase.position.clone()
+        activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
+      }
+    }
+    
+    let cover = base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    if (!cover && name.includes('cover')) {
+       cover = event.object
+    }
+
+    if (cover) {
+      activeFolderCover = cover
+      if (!activeFolderCover.userData.originalRot) {
+        activeFolderCover.userData.originalRot = activeFolderCover.rotation.clone()
+      }
+    }
+    zoomTo('folder')
   } else if (isBook) {
     let base = event.object
     
-    // Si l'objet est un sous-élément (cube, page, cover), on remonte au groupe parent s'il existe
-    if (event.object.parent && event.object.parent.type === 'Group' && event.object.parent.name !== 'Scene') {
-      base = event.object.parent
+    // Remonter jusqu'à la base du livre (groupe parent)
+    while (base.parent && base.parent.type === 'Group' && base.parent.name !== 'Scene') {
+      base = base.parent
     }
 
     if (base) {
@@ -668,6 +820,7 @@ const zoomTo = (target) => {
   activeElement.value = target
   showPhoneContent.value = false
   showBookContent.value = false
+  showFolderContent.value = false
 
   const setting = settings.value[target]
   if (!setting) return
@@ -736,6 +889,42 @@ const zoomTo = (target) => {
       })
     } else {
       setTimeout(() => showBookContent.value = true, 1700)
+    }
+  }
+
+  // Animation GSAP de l'objet Dossier (Manila Folder)
+  if (target === 'folder') {
+    if (activeFolderBase && activeFolderBase.userData.originalPos) {
+      gsap.to(activeFolderBase.position, {
+        x: folderAnimConfig.value.targetPosX,
+        y: folderAnimConfig.value.targetPosY,
+        z: folderAnimConfig.value.targetPosZ,
+        duration: 1.5,
+        ease: 'power2.inOut'
+      })
+      gsap.to(activeFolderBase.rotation, {
+        x: activeFolderBase.userData.originalRot.x + (folderAnimConfig.value.baseRotX * Math.PI / 180),
+        y: activeFolderBase.userData.originalRot.y + (folderAnimConfig.value.baseRotY * Math.PI / 180),
+        z: activeFolderBase.userData.originalRot.z + (folderAnimConfig.value.baseRotZ * Math.PI / 180),
+        duration: 1.5,
+        ease: 'power2.inOut'
+      })
+    }
+
+    if (activeFolderCover && activeFolderCover.userData.originalRot) {
+      gsap.to(activeFolderCover.rotation, {
+          x: activeFolderCover.userData.originalRot.x + (folderAnimConfig.value.coverRotX * Math.PI / 180),
+          y: activeFolderCover.userData.originalRot.y + (folderAnimConfig.value.coverRotY * Math.PI / 180),
+          z: activeFolderCover.userData.originalRot.z + (folderAnimConfig.value.coverRotZ * Math.PI / 180),
+          duration: 1.2,
+          delay: 0.2, // Ouvre le dossier presque tout de suite
+          ease: 'power2.inOut',
+          onComplete: () => {
+            showFolderContent.value = true
+          }
+      })
+    } else {
+      setTimeout(() => showFolderContent.value = true, 1200)
     }
   }
 
@@ -812,6 +1001,39 @@ const resetZoom = () => {
       x: activeBookCover.userData.originalRot.x,
       y: activeBookCover.userData.originalRot.y,
       z: activeBookCover.userData.originalRot.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+  }
+
+  // --- RESTAURER LA SCÈNE (Dossier Manila) ---
+  if (activeFolderBase && activeFolderBase.userData.originalPos) {
+    showFolderContent.value = false
+    gsap.killTweensOf(activeFolderBase.position)
+    gsap.killTweensOf(activeFolderBase.rotation)
+    gsap.to(activeFolderBase.position, {
+      x: activeFolderBase.userData.originalPos.x,
+      y: activeFolderBase.userData.originalPos.y,
+      z: activeFolderBase.userData.originalPos.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+    gsap.to(activeFolderBase.rotation, {
+      x: activeFolderBase.userData.originalRot.x,
+      y: activeFolderBase.userData.originalRot.y,
+      z: activeFolderBase.userData.originalRot.z,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+  }
+
+  if (activeFolderCover && activeFolderCover.userData.originalRot) {
+    showFolderContent.value = false
+    gsap.killTweensOf(activeFolderCover.rotation)
+    gsap.to(activeFolderCover.rotation, {
+      x: activeFolderCover.userData.originalRot.x,
+      y: activeFolderCover.userData.originalRot.y,
+      z: activeFolderCover.userData.originalRot.z,
       duration: 1.5,
       ease: 'power2.inOut'
     })
