@@ -18,6 +18,16 @@
       💡 Régler Lumières
     </button>
 
+    <!-- 🔍 BOUTON DEBUG MESHS -->
+    <button v-if="calibrationMode" @click="showMeshNames = !showMeshNames" class="absolute top-20 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border" :class="showMeshNames ? 'border-green-500 text-green-400' : 'border-zinc-600'">
+      {{ showMeshNames ? '👁️ Cacher Noms Meshs' : '🔍 Afficher Noms Meshs' }}
+    </button>
+
+    <!-- 🟢 OVERLAY NOM MESH COURANT -->
+    <div v-if="showMeshNames && hoveredMeshName" class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-black/90 text-green-400 p-4 rounded-lg border-2 border-green-500 font-mono text-lg shadow-[0_0_15px_rgba(34,197,94,0.5)] pointer-events-none transition-all">
+      Mesh survolé : <span class="font-bold text-white">{{ hoveredMeshName }}</span>
+    </div>
+
     <!-- 🛠️ INTERFACE DE CALIBRATION LUMIÈRES -->
     <div v-if="calibrationMode && showLightCalibration" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] pointer-events-auto shadow-2xl">
       <div class="flex justify-between items-center mb-2">
@@ -289,7 +299,7 @@
               :rotation-y="settings.books.htmlRotY" 
               :rotation-z="settings.books.htmlRotZ" 
               :scale="settings.books.scale">
-          <TheBooksTimeline :style="{ width: settings.books.width + 'px', maxHeight: settings.books.height + 'px' }" />
+
         </Html>
       </TresGroup>
 
@@ -318,6 +328,8 @@ const showBookContent = ref(false)
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 const calibrationMode = ref(true) 
 const showLightCalibration = ref(false)
+const showMeshNames = ref(false)
+const hoveredMeshName = ref('')
 
 // --- VARIABLES POUR L'ANIMATION DES OBJETS ---
 let phoneGroup = null
@@ -525,10 +537,10 @@ const copyCurrentCamera = () => {
 
 // Fonction pour gérer le clic sur un objet précis
 // Constantes pour identifier les meshes
-const LAPTOP_PARTS = ['laptop_bottom', 'laptop_cover', 'screen', 'Plane006_1', 'Plane006_2', 'Plane002', 'Plane003', 'Plane004'] // Inclus anciens et nouveaux noms au cas où
+const LAPTOP_PARTS = ['laptop_bottom', 'laptop_keybord', 'laptop_cover', 'screen', 'Plane006_1', 'Plane006_2', 'Plane002', 'Plane003', 'Plane004'] // Inclus anciens et nouveaux noms au cas où
 const PHONE_PREFIX = 'Plane038_'
-const BOOK_PARTS = ['book', 'book001', 'book002', 'book003', 'book_shelf']
-const LIGHT_SWITCH = 'light_switch'
+const BOOK_PARTS = ['book', 'book001', 'book002', 'book003', 'book_base', 'book_cover', 'cube006', 'cube006_1', 'cube003', 'cube003_1', 'cube', 'cube_1']
+const LIGHT_SWITCH = ['light_switch', 'light_switch_1']
 
 // Récupère le nom du mesh réellement touché par le rayon
 const getHitMeshName = (event) => {
@@ -538,12 +550,14 @@ const getHitMeshName = (event) => {
 // Helper pour vérifier si on clique sur un élément interactif
 const isInteractive = (meshName) => {
   if (!meshName) return false
-  return (
-    LAPTOP_PARTS.includes(meshName) ||
-    meshName.startsWith(PHONE_PREFIX) ||
-    meshName.includes('book') || 
-    meshName === LIGHT_SWITCH
-  )
+  const name = meshName.toLowerCase()
+  
+  const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
+  const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
+  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book') || name.includes('cube')
+  const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
+
+  return isLaptop || isPhone || isBook || isSwitch
 }
 
 // 📥 À la fin du chargement du modèle, forcer les ombres
@@ -575,16 +589,26 @@ const onModelClick = (event) => {
   if (animating.value || activeElement.value) return
 
   const meshName = getHitMeshName(event)
+  if (!meshName) return
+  const name = meshName.toLowerCase()
   
-  if (LAPTOP_PARTS.includes(meshName)) {
+  const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
+  const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
+  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book') || name.includes('cube')
+  const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
+
+  if (isLaptop) {
     zoomTo('laptop')
-  } else if (meshName.startsWith(PHONE_PREFIX)) {
+  } else if (isPhone) {
     zoomTo('phone')
-  } else if (meshName.includes('book')) {
+  } else if (isBook) {
     let base = event.object
-    if (meshName.includes('cover') || meshName.includes('bookmark')) {
+    
+    // Si l'objet est un sous-élément (cube, page, cover), on remonte au groupe parent s'il existe
+    if (event.object.parent && event.object.parent.type === 'Group' && event.object.parent.name !== 'Scene') {
       base = event.object.parent
     }
+
     if (base) {
       activeBookBase = base
       if (!activeBookBase.userData.originalPos) {
@@ -593,8 +617,14 @@ const onModelClick = (event) => {
       }
     }
     
-    // Trouver le cover parmi les enfants
-    const cover = base.children ? base.children.find(c => c.name.startsWith('book_cover')) : null
+    // Trouver le cover parmi les enfants. Si l'objet contient "cover" dans son nom
+    let cover = base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    
+    // Fallback direct si on a cliqué sur la couv' mais sans hiérarchie enfant
+    if (!cover && name.includes('cover')) {
+       cover = event.object
+    }
+
     if (cover) {
       activeBookCover = cover
       if (!activeBookCover.userData.originalRot) {
@@ -602,7 +632,7 @@ const onModelClick = (event) => {
       }
     }
     zoomTo('books')
-  } else if (meshName === LIGHT_SWITCH) {
+  } else if (isSwitch) {
     toggleLight()
   }
 }
@@ -610,6 +640,7 @@ const onModelClick = (event) => {
 // Mouvement sur le modèle — détecte le mesh survolé en continu
 const onPointerMove = (event) => {
   const meshName = getHitMeshName(event)
+  hoveredMeshName.value = meshName || ''
   
   if (isInteractive(meshName)) {
     if (!isHovered.value) {
@@ -626,6 +657,7 @@ const onPointerMove = (event) => {
 
 // Sortie complète du modèle
 const onPointerOut = () => {
+  hoveredMeshName.value = ''
   isHovered.value = false
   document.body.style.cursor = 'auto'
 }
