@@ -29,7 +29,7 @@
     </div>
 
     <!-- 🛠️ INTERFACE DE CALIBRATION LUMIÈRES -->
-    <div v-if="calibrationMode && showLightCalibration" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] pointer-events-auto shadow-2xl">
+    <div v-if="calibrationMode && showLightCalibration" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] max-h-[80vh] overflow-y-auto pointer-events-auto shadow-2xl">
       <div class="flex justify-between items-center mb-2">
         <h3 class="font-bold text-yellow-400">Calibration Lumières</h3>
         <button @click="showLightCalibration = false" class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
@@ -45,11 +45,21 @@
         <label class="block font-bold text-orange-400 mt-2">Intensité Soleil & Ambiance</label>
         Soleil (Intensité): <input type="number" step="0.5" v-model.number="lightState.window" class="w-full bg-black/50 p-1 mb-1" />
         Ambiance (Jour): <input type="number" step="0.1" v-model.number="lightState.ambient" class="w-full bg-black/50 p-1 mb-1" />
+        Environnement GLOBAL: <input type="number" step="0.1" v-model.number="lightState.envIntensity" class="w-full bg-black/50 p-1 mb-1" @input="updateEnvIntensity" />
         
         <label class="block font-bold text-red-500 mt-2">🎯 Cible du Soleil (Où il pointe)</label>
-        x: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.x" class="w-full bg-black/50 p-1 mb-1" />
-        y: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.y" class="w-full bg-black/50 p-1 mb-1" />
-        z: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.z" class="w-full bg-black/50 p-1 mb-1" />
+        x: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.x" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
+        y: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.y" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
+        z: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.z" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
+
+        <label class="block font-bold text-yellow-300 mt-2">✨ God Ray (Rayon volumétrique)</label>
+        x: <input type="number" step="0.1" v-model.number="lightPos.godRay.x" class="w-full bg-black/50 p-1 mb-1" />
+        y: <input type="number" step="0.1" v-model.number="lightPos.godRay.y" class="w-full bg-black/50 p-1 mb-1" />
+        z: <input type="number" step="0.1" v-model.number="lightPos.godRay.z" class="w-full bg-black/50 p-1 mb-1" />
+        rotX (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotX" class="w-full bg-black/50 p-1 mb-1" />
+        rotY (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotY" class="w-full bg-black/50 p-1 mb-1" />
+        rotZ (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotZ" class="w-full bg-black/50 p-1 mb-1" />
+        Opacité: <input type="number" step="0.05" v-model.number="lightPos.godRay.opacity" class="w-full bg-black/50 p-1 mb-1" @input="updateGodRayOpacity" />
       </div>
       <div>
         <label class="block font-bold text-blue-400">🌙 Lampe Bureau (Nuit)</label>
@@ -182,6 +192,7 @@
       
       <!-- LUMIÈRE FENÊTRE (Jour) -->
       <TresDirectionalLight 
+        ref="sunLightRef"
         :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]" 
         :intensity="lightState.window" 
         color="#fff0dd"
@@ -197,6 +208,52 @@
         <!-- Permet d'orienter spécifiquement la lumière du "soleil" -->
         <TresObject3D attach="target" :position="[lightPos.sunTarget.x, lightPos.sunTarget.y, lightPos.sunTarget.z]" />
       </TresDirectionalLight>
+
+      <!-- ✨ FAUX RAYONS VOLUMÉTRIQUES (GOD RAYS) DE LA FENÊTRE -->
+      <!-- On l'enveloppe dans un Groupe pour pouvoir définir l'origine de rotation (pivot) tout en haut, façon lampe torche ! -->
+      <TresGroup
+        v-if="!isDarkMode" 
+        :position="[lightPos.godRay.x, lightPos.godRay.y, lightPos.godRay.z]" 
+        :rotation="[lightPos.godRay.rotX * (Math.PI / 180), lightPos.godRay.rotY * (Math.PI / 180), lightPos.godRay.rotZ * (Math.PI / 180)]"
+      >
+        <!-- AIDES VISUELLES : Axes X (Rouge), Y (Vert), Z (Bleu) pour guider la visée au point de départ -->
+        <TresAxesHelper v-if="calibrationMode" :args="[5]" />
+
+        <!-- Le mesh est décalé vers le bas (y: -7.5 car longueur 15) pour pivoter depuis sa base -->
+        <!-- La rotation Math.PI/4 (45°) convertit sa forme de losange par défaut en forme carrée ! -->
+        <TresMesh :position="[0, -7.5, 0]" :rotation="[0, Math.PI / 4, 0]">
+          <!-- Cylindre à 4 faces = Pyramide évasée pour la fenêtre -->
+          <TresCylinderGeometry :args="[0.4, 3.0, 15, 4, 1, true]" />
+          <TresShaderMaterial 
+            :transparent="true"
+            :depthWrite="false"
+            :blending="2"
+            :side="2"
+            :uniforms="godRayUniforms"
+            :vertexShader="`
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `"
+            :fragmentShader="`
+              varying vec2 vUv;
+              uniform float uOpacity;
+              void main() {
+                // Disparition douce vers le bas (y=1 est en haut vers la fenêtre, y=0 en bas)
+                float alpha = pow(vUv.y, 1.5);
+                
+                // Adoucissement très léger des 4 arêtes pour un effet poussière de lumière
+                float edges = abs(sin(vUv.x * 3.14159 * 4.0));
+                alpha *= (0.3 + 0.7 * edges);
+                
+                gl_FragColor = vec4(1.0, 0.9, 0.65, alpha * uOpacity);
+              }
+            `"
+          />
+        </TresMesh>
+      </TresGroup>
       
       <!-- LUMIÈRE LAMPE DE BUREAU (Nuit) -->
       <TresPointLight 
@@ -505,10 +562,23 @@ const lightState = ref({
 })
 
 const lightPos = ref({
-  sun: { x: -3, y: 3, z: -1, frustum: 10 },
-  sunTarget: { x: 0, y: 0, z: 0 },
+  sun: { x: -0.5, y: 2.5, z: 1, frustum: 10 },
+  sunTarget: { x: 50, y: 50, z: 50 },
+  godRay: { x: -2.3, y: 3.5, z: 1.7, rotX: 90, rotY: -30, rotZ: 90, opacity: 0.15 },
   desk: { x: 1.5, y: 2.5, z: 0.5 },
 })
+
+const godRayUniforms = shallowReactive({
+  uOpacity: { value: lightPos.value.godRay.opacity }
+})
+
+watch(() => lightPos.value.godRay.opacity, (newOp) => {
+  godRayUniforms.uOpacity.value = newOp
+})
+
+const updateGodRayOpacity = () => {
+  // Optionnel si le watcher est en place
+}
 
 const toggleLight = () => {
   isDarkMode.value = !isDarkMode.value
@@ -592,6 +662,25 @@ const settings = ref({
     height: 1200
   }
 })
+
+const sunLightRef = ref(null)
+
+const updateSunTarget = () => {
+  const light = sunLightRef.value?.instance || sunLightRef.value
+  if (light && light.target) {
+    light.target.updateMatrixWorld()
+  }
+}
+
+const updateEnvIntensity = () => {
+  let sceneRoot = cameraRef.value
+  while (sceneRoot && !sceneRoot.isScene && sceneRoot.parent) {
+    sceneRoot = sceneRoot.parent
+  }
+  if (sceneRoot?.isScene && sceneRoot.environmentIntensity !== undefined) {
+    sceneRoot.environmentIntensity = lightState.value.envIntensity
+  }
+}
 
 // Met à jour la position de la caméra en temps réel depuis le panel de calibration
 const updateCalibration = () => {
@@ -685,11 +774,12 @@ const onModelLoaded = (gltf) => {
       if (node.isMesh) {
         node.receiveShadow = true
         
-        const name = node.name.toLowerCase()
-        if (name.includes('window') || node.material?.transparent) {
-             node.castShadow = false
+        // On retire la condition qui empêchait la 'window' de projeter des ombres !
+        // Ainsi, le Soleil peut traverser les vitres (transparentes) mais être bloqué par les croisillons de la fenêtre !
+        if (node.material?.transparent) {
+          node.castShadow = false
         } else {
-             node.castShadow = true
+          node.castShadow = true
         }
 
         // Améliorer l'acné d'ombre sur les petits détails
