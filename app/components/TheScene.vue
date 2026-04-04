@@ -196,17 +196,15 @@
         ref="sunLightRef"
         :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]" 
         :intensity="lightState.window" 
-        :angle="Math.PI / 4"
-        :penumbra="0.2"
+        :angle="Math.PI / 6" :penumbra="0.3"
         :decay="0"
         :distance="100"
         color="#fff0dd"
         cast-shadow
         :shadow-mapSize-width="4096"
         :shadow-mapSize-height="4096"
-        :shadow-bias="-0.0001"
-      >
-        <!-- Permet d'orienter spécifiquement la lumière du "soleil" à travers la fenêtre -->
+        :shadow-bias="-0.0005"
+        :shadow-normalBias="0.05" >
         <TresObject3D attach="target" :position="[lightPos.sunTarget.x, lightPos.sunTarget.y, lightPos.sunTarget.z]" />
       </TresSpotLight>
 
@@ -412,7 +410,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, shallowReactive } from 'vue'
 import { OrbitControls, GLTFModel, Environment, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
@@ -555,16 +553,20 @@ const folderAnimConfig = ref({
 // --- GESTION DE LA LUMIÈRE (Interrupteur) ---
 const isDarkMode = ref(false)
 const lightState = ref({
-  ambient: 0.7,
-  window: 2.5,
+  ambient: 0.6,      // Remplacez 0.7 par votre "Ambiance (Jour)"
+  window: 2,       // Remplacez 2.5 par votre "Soleil (Intensité)"
   desk: 0,
   nightReflect: 0,
-  envIntensity: 1
+  envIntensity: 0    // Remplacez 1 par votre "Environnement GLOBAL"
 })
 
 const lightPos = ref({
-  sun: { x: -2.5, y: 3, z: 2, frustum: 10 },
-  sunTarget: { x: 14, y: -2, z: 0 },
+  // Remplacez les valeurs de x, y, z et frustum ici :
+  sun: { x: -2.44, y: 3.7, z: 2.1, frustum: 10 }, 
+  
+  // Remplacez les valeurs x, y, z de la cible ici :
+  sunTarget: { x: 13.5, y: -2, z: 0 },
+  
   godRay: { x: -2.3, y: 3.5, z: 1.7, rotX: 90, rotY: -30, rotZ: 90, opacity: 0.15 },
   desk: { x: 1.5, y: 2.5, z: 0.5 },
 })
@@ -687,6 +689,17 @@ const updateEnvIntensity = () => {
   }
 }
 
+// On surveille l'apparition de la lumière dans la scène
+watch(sunLightRef, (nouveauSpotLight) => {
+  if (nouveauSpotLight) {
+    // Un léger délai garantit que Three.js a bien attaché la cible à la scène
+    setTimeout(() => {
+      updateSunTarget()
+      updateEnvIntensity()
+    }, 50)
+  }
+})
+
 // Met à jour la position de la caméra en temps réel depuis le panel de calibration
 const updateCalibration = () => {
   if (activeElement.value && cameraRef.value) {
@@ -771,34 +784,43 @@ const toggleDrawer = (drawerMesh) => {
   drawerMesh.userData.isOpen = !isOpen
 }
 
-// 📥 À la fin du chargement du modèle, forcer les ombres
+// 📥 À la fin du chargement du modèle, configurer les ombres
 const onModelLoaded = (gltf) => {
   const modelToTraverse = gltf?.scene || gltf
   if (modelToTraverse?.traverse) {
     modelToTraverse.traverse((node) => {
       if (node.isMesh) {
-        node.receiveShadow = true
-        
         const name = node.name ? node.name.toLowerCase() : ''
-        // On cible TOUT ce qui est "window", sauf s'il s'appelle "frame" pour ne pénaliser QUE la vitre !
+        
+        // 1. LA VITRE : On la rend TOTALEMENT INVISIBLE pour le test
         if (
-          node.material?.transparent || 
           name.includes('glass') || 
           name.includes('vitre') || 
           (name.includes('window') && !name.includes('frame'))
         ) {
+          node.visible = false // Cache complètement l'objet
           node.castShadow = false
-        } else {
+        } 
+        // 2. LES DÉCHETS BLENDER : On cache les restes booléens
+        else if (name.includes('cube') || name.includes('boolean')) {
+          node.visible = false
+          node.castShadow = false
+        } 
+        // 3. TOUT LE RESTE (Murs, meubles) : Projettent et reçoivent l'ombre
+        else {
+          node.visible = true
           node.castShadow = true
-        }
-
-        // Améliorer l'acné d'ombre sur les petits détails
-        if (node.material) {
-          node.material.shadowSide = 1 // THREE.BackSide diminue l'acné d'ombre
+          node.receiveShadow = true
+          
+          // IMPORTANT : On s'assure que l'ombre est calculée normalement (FrontSide)
+          if (node.material) {
+            node.material.shadowSide = 0 
+          }
         }
       }
     })
   }
+  updateEnvIntensity()
 }
 
 // 🔍 Clic sur un objet
