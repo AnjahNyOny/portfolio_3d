@@ -191,23 +191,24 @@
       <TresAmbientLight :intensity="lightState.ambient" />
       
       <!-- LUMIÈRE FENÊTRE (Jour) -->
-      <TresDirectionalLight 
+      <!-- On passe d'une DirectionalLight à une SpotLight pour éviter que la lumière ne passe par-dessus les murs sans plafond ! -->
+      <TresSpotLight 
         ref="sunLightRef"
         :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]" 
         :intensity="lightState.window" 
+        :angle="Math.PI / 4"
+        :penumbra="0.2"
+        :decay="0"
+        :distance="100"
         color="#fff0dd"
-        cast-shadow 
-        :shadow-mapSize-width="2048"
-        :shadow-mapSize-height="2048"
-        :shadow-camera-left="-lightPos.sun.frustum"
-        :shadow-camera-right="lightPos.sun.frustum"
-        :shadow-camera-top="lightPos.sun.frustum"
-        :shadow-camera-bottom="-lightPos.sun.frustum"
+        cast-shadow
+        :shadow-mapSize-width="4096"
+        :shadow-mapSize-height="4096"
         :shadow-bias="-0.0001"
       >
-        <!-- Permet d'orienter spécifiquement la lumière du "soleil" -->
+        <!-- Permet d'orienter spécifiquement la lumière du "soleil" à travers la fenêtre -->
         <TresObject3D attach="target" :position="[lightPos.sunTarget.x, lightPos.sunTarget.y, lightPos.sunTarget.z]" />
-      </TresDirectionalLight>
+      </TresSpotLight>
 
       <!-- ✨ FAUX RAYONS VOLUMÉTRIQUES (GOD RAYS) DE LA FENÊTRE -->
       <!-- On l'enveloppe dans un Groupe pour pouvoir définir l'origine de rotation (pivot) tout en haut, façon lampe torche ! -->
@@ -278,7 +279,7 @@
       
       <Suspense>
         <GLTFModel 
-          path="/models/room_v10.glb" 
+          path="/models/room_v11.glb" 
           draco 
           cast-shadow 
           receive-shadow
@@ -562,8 +563,8 @@ const lightState = ref({
 })
 
 const lightPos = ref({
-  sun: { x: -0.5, y: 2.5, z: 1, frustum: 10 },
-  sunTarget: { x: 50, y: 50, z: 50 },
+  sun: { x: -2.5, y: 3, z: 2, frustum: 10 },
+  sunTarget: { x: 14, y: -2, z: 0 },
   godRay: { x: -2.3, y: 3.5, z: 1.7, rotX: 90, rotY: -30, rotZ: 90, opacity: 0.15 },
   desk: { x: 1.5, y: 2.5, z: 0.5 },
 })
@@ -672,6 +673,10 @@ const updateSunTarget = () => {
   }
 }
 
+watch(() => lightPos.value.sunTarget, () => {
+  updateSunTarget()
+}, { deep: true, immediate: true })
+
 const updateEnvIntensity = () => {
   let sceneRoot = cameraRef.value
   while (sceneRoot && !sceneRoot.isScene && sceneRoot.parent) {
@@ -774,9 +779,14 @@ const onModelLoaded = (gltf) => {
       if (node.isMesh) {
         node.receiveShadow = true
         
-        // On retire la condition qui empêchait la 'window' de projeter des ombres !
-        // Ainsi, le Soleil peut traverser les vitres (transparentes) mais être bloqué par les croisillons de la fenêtre !
-        if (node.material?.transparent) {
+        const name = node.name ? node.name.toLowerCase() : ''
+        // On cible TOUT ce qui est "window", sauf s'il s'appelle "frame" pour ne pénaliser QUE la vitre !
+        if (
+          node.material?.transparent || 
+          name.includes('glass') || 
+          name.includes('vitre') || 
+          (name.includes('window') && !name.includes('frame'))
+        ) {
           node.castShadow = false
         } else {
           node.castShadow = true
