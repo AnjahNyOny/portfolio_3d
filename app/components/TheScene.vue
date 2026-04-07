@@ -13,9 +13,23 @@
       </button>
     </Transition>
 
+    <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
+    <button 
+      @click="calibrationMode = !calibrationMode" 
+      class="absolute bottom-4 right-4 z-[100] p-2 rounded-lg text-xs font-bold border-2 transition-all pointer-events-auto shadow-lg"
+      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-600 text-zinc-400'"
+    >
+      {{ calibrationMode ? '🔓 Calibration ON' : '🔒 Calibration OFF' }}
+    </button>
+
     <!-- 💡 BOUTON POUR AFFICHER LA CALIBRATION LUMIÈRE -->
     <button v-if="calibrationMode && !showLightCalibration" @click="showLightCalibration = true" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-zinc-600">
       💡 Régler Lumières
+    </button>
+
+    <!-- 📷 BOUTON POUR AFFICHER LA CALIBRATION CAMÉRA -->
+    <button v-if="calibrationMode && !showCameraCalibration" @click="showCameraCalibration = true" class="absolute top-10 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-cyan-600">
+      📷 Régler Caméra
     </button>
 
     <!-- 🔍 BOUTON DEBUG MESHS -->
@@ -67,6 +81,130 @@
         y: <input type="number" step="0.5" v-model.number="lightPos.desk.y" class="w-full bg-black/50 p-1 mb-1" />
         z: <input type="number" step="0.5" v-model.number="lightPos.desk.z" class="w-full bg-black/50 p-1 mb-1" />
         Lampe (Intensité): <input type="number" step="1" v-model.number="lightState.desk" class="w-full bg-black/50 p-1 mb-1" />
+      </div>
+    </div>
+
+    <!-- 📷 INTERFACE DE CALIBRATION CAMÉRA -->
+    <div v-if="calibrationMode && showCameraCalibration" class="absolute top-10 left-[280px] z-[100] bg-zinc-900/95 text-white p-4 rounded-lg text-xs w-[280px] max-h-[85vh] overflow-y-auto pointer-events-auto shadow-2xl border border-cyan-700/50">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-cyan-400 text-sm">📷 Calibration Caméra</h3>
+        <button @click="showCameraCalibration = false" class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
+      </div>
+
+      <!-- LIVE READOUT -->
+      <div class="mb-3 p-2 bg-black/60 rounded border border-zinc-700">
+        <label class="block font-bold text-green-400 mb-1">🔴 Position actuelle (LIVE)</label>
+        <div class="font-mono text-[10px] text-green-300 space-y-0.5">
+          <div>Cam: x={{ liveCamPos.x }} y={{ liveCamPos.y }} z={{ liveCamPos.z }}</div>
+          <div>Target: x={{ liveCamTarget.x }} y={{ liveCamTarget.y }} z={{ liveCamTarget.z }}</div>
+          <div class="text-yellow-300 mt-1">Polar: {{ liveAngles.polar }}° | Azimuth: {{ liveAngles.azimuth }}° | Dist: {{ liveAngles.distance }}</div>
+        </div>
+      </div>
+
+      <!-- POSITION PAR DÉFAUT (HOME) -->
+      <div class="mb-3 border-b border-zinc-600 pb-3">
+        <label class="block font-bold text-cyan-300 mb-1">🏠 Position d'accueil (Home)</label>
+        <div class="mb-2">
+          <label class="block text-zinc-400">Caméra Position</label>
+          x: <input type="number" step="0.1" v-model.number="defaultCamPos.x" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          y: <input type="number" step="0.1" v-model.number="defaultCamPos.y" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          z: <input type="number" step="0.1" v-model.number="defaultCamPos.z" class="w-full bg-black/50 p-1 mb-1 rounded" />
+        </div>
+        <div class="mb-2">
+          <label class="block text-zinc-400">LookAt (Cible)</label>
+          x: <input type="number" step="0.1" v-model.number="defaultLookAt.x" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          y: <input type="number" step="0.1" v-model.number="defaultLookAt.y" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          z: <input type="number" step="0.1" v-model.number="defaultLookAt.z" class="w-full bg-black/50 p-1 mb-1 rounded" />
+        </div>
+      </div>
+
+      <!-- ORBIT CONSTRAINTS -->
+      <div class="mb-3 border-b border-zinc-600 pb-3">
+        <label class="block font-bold text-yellow-300 mb-2">🔒 Limites Orbit Controls</label>
+        
+        <!-- ZOOM (DISTANCE) -->
+        <div class="mb-3 p-2 bg-black/40 rounded">
+          <label class="block font-bold text-blue-300 text-[11px] mb-1">🔍 Zoom (Distance)</label>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Combien l'utilisateur peut zoomer/dézoomer. Plus petit = plus proche du bureau, plus grand = plus de recul.</p>
+          <div class="grid grid-cols-2 gap-1">
+            <div>
+              <label class="block text-zinc-400 text-[10px]">Min (zoom max)</label>
+              <input type="range" min="0.5" max="5" step="0.1" v-model.number="orbitLimits.minDistance" class="w-full" />
+              <input type="number" step="0.1" v-model.number="orbitLimits.minDistance" class="w-full bg-black/50 p-1 rounded text-center" />
+            </div>
+            <div>
+              <label class="block text-zinc-400 text-[10px]">Max (dézoom max)</label>
+              <input type="range" min="2" max="15" step="0.5" v-model.number="orbitLimits.maxDistance" class="w-full" />
+              <input type="number" step="0.5" v-model.number="orbitLimits.maxDistance" class="w-full bg-black/50 p-1 rounded text-center" />
+            </div>
+          </div>
+        </div>
+
+        <!-- POLAR (VERTICAL) -->
+        <div class="mb-3 p-2 bg-black/40 rounded">
+          <label class="block font-bold text-orange-300 text-[11px] mb-1">📐 Angle Polaire (Haut ↕ Bas)</label>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la hauteur de la vue. 0° = plongée au-dessus. 90° = vue horizontale. 180° = vue d'en bas.</p>
+          <div class="font-mono text-[9px] text-zinc-600 mb-2 leading-tight whitespace-pre">  0° = 🔽 Vue plafond (plongée)
+ 45° = ↘ Vue 3/4 plongeante
+ 60° = ↗ Vue isométrique ← actuel min
+ 79° = → Vue quasi-horizontale ← actuel max
+ 90° = → Pile horizontale
+180° = 🔼 Vue sol (contre-plongée)</div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-orange-400 text-[10px] w-8">Min</span>
+            <input type="range" min="0" max="90" step="1" v-model.number="orbitLimits.minPolarDeg" class="flex-1" />
+            <input type="number" step="1" v-model.number="orbitLimits.minPolarDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <span class="text-zinc-500 text-[9px]">°</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-orange-400 text-[10px] w-8">Max</span>
+            <input type="range" min="0" max="90" step="1" v-model.number="orbitLimits.maxPolarDeg" class="flex-1" />
+            <input type="number" step="1" v-model.number="orbitLimits.maxPolarDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <span class="text-zinc-500 text-[9px]">°</span>
+          </div>
+          <div class="text-green-400 text-[10px] mt-1 font-mono">👁️ Actuel : {{ liveAngles.polar }}°</div>
+        </div>
+
+        <!-- AZIMUTH (HORIZONTAL) -->
+        <div class="mb-2 p-2 bg-black/40 rounded">
+          <label class="block font-bold text-pink-300 text-[11px] mb-1">🧭 Angle Azimut (Gauche ↔ Droite)</label>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la rotation horizontale autour de la pièce. Permet de limiter pour ne pas voir derrière les murs.</p>
+          <div class="font-mono text-[9px] text-zinc-600 mb-2 leading-tight whitespace-pre">-90° = ← Mur de gauche
+  0° = ↑ Face (devant le bureau)
+ +90° = → Mur de droite
++180° = ↓ Derrière (mur du fond)</div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-pink-400 text-[10px] w-8">Min</span>
+            <input type="range" min="-180" max="0" step="1" v-model.number="orbitLimits.minAzimuthDeg" class="flex-1" />
+            <input type="number" step="1" v-model.number="orbitLimits.minAzimuthDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <span class="text-zinc-500 text-[9px]">°</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-pink-400 text-[10px] w-8">Max</span>
+            <input type="range" min="0" max="180" step="1" v-model.number="orbitLimits.maxAzimuthDeg" class="flex-1" />
+            <input type="number" step="1" v-model.number="orbitLimits.maxAzimuthDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <span class="text-zinc-500 text-[9px]">°</span>
+          </div>
+          <div class="text-green-400 text-[10px] mt-1 font-mono">👁️ Actuel : {{ liveAngles.azimuth }}°</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="space-y-2">
+        <button @click="captureCurrentView" class="w-full bg-cyan-600 hover:bg-cyan-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+          📸 Capturer la vue actuelle → Home
+        </button>
+        <button @click="testHomePosition" class="w-full bg-green-600 hover:bg-green-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+          ▶️ Tester (Aller à Home)
+        </button>
+        <button @click="copyCameraCode" class="w-full bg-purple-600 hover:bg-purple-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+          📋 Copier le code
+        </button>
+      </div>
+
+      <!-- CODE OUTPUT -->
+      <div v-if="cameraCodeOutput" class="mt-3 p-2 bg-black/80 rounded border border-purple-500 font-mono text-[10px] text-purple-300 whitespace-pre-wrap">
+        {{ cameraCodeOutput }}
       </div>
     </div>
 
@@ -161,20 +299,22 @@
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size>
       <TresPerspectiveCamera 
         ref="cameraRef" 
-        :position="[4, 3, 4]" 
-        :look-at="[0, 1, 0]" 
+        :position="[defaultCamPos.x, defaultCamPos.y, defaultCamPos.z]" 
+        :look-at="[defaultLookAt.x, defaultLookAt.y, defaultLookAt.z]" 
       />
       
       <OrbitControls 
         ref="controlsRef" 
         :enabled="!animating"
         :enable-pan="calibrationMode"
-        :min-distance="1" 
-        :max-distance="calibrationMode ? 50 : 7" 
-        :min-polar-angle="calibrationMode ? 0 : Math.PI / 3"
-        :max-polar-angle="calibrationMode ? Math.PI : Math.PI / 2 - 0.2"
-        :min-azimuth-angle="calibrationMode ? -Infinity : -Math.PI / 70"
-        :max-azimuth-angle="calibrationMode ? Infinity : Math.PI / 2"
+        :target="[defaultLookAt.x, defaultLookAt.y, defaultLookAt.z]"
+        :min-distance="orbitLimits.minDistance" 
+        :max-distance="calibrationMode ? 50 : orbitLimits.maxDistance" 
+        :min-polar-angle="calibrationMode ? 0 : (orbitLimits.minPolarDeg * Math.PI / 180)"
+        :max-polar-angle="calibrationMode ? Math.PI : (orbitLimits.maxPolarDeg * Math.PI / 180)"
+        :min-azimuth-angle="calibrationMode ? -Infinity : (orbitLimits.minAzimuthDeg * Math.PI / 180)"
+        :max-azimuth-angle="calibrationMode ? Infinity : (orbitLimits.maxAzimuthDeg * Math.PI / 180)"
+        @change="updateLiveCamReadout"
       />
 
       <!-- 🟢 AIDES VISUELLES : Marqueurs sphériques pour les lumières (Seulement en mode Calibration) -->
@@ -277,7 +417,7 @@
       
       <Suspense>
         <GLTFModel 
-          path="/models/room_v11.glb" 
+          path="/models/room_v12.glb" 
           draco 
           cast-shadow 
           receive-shadow
@@ -410,7 +550,7 @@
 </template>
 
 <script setup>
-import { ref, watch, shallowReactive } from 'vue'
+import { ref, watch, shallowReactive, onMounted, nextTick } from 'vue'
 import { OrbitControls, GLTFModel, Environment, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
@@ -429,10 +569,127 @@ const showBookContent = ref(false)
 const showFolderContent = ref(false)
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
-const calibrationMode = ref(true) 
+const calibrationMode = ref(false) 
 const showLightCalibration = ref(false)
+const showCameraCalibration = ref(false)
 const showMeshNames = ref(false)
 const hoveredMeshName = ref('')
+
+// --- 📷 CALIBRATION CAMÉRA ---
+const defaultCamPos = ref({ x: 1.79, y: 2.26, z: 2.58 })
+const defaultLookAt = ref({ x: 1.31, y: 1.62, z: 0.06 })
+
+const orbitLimits = ref({
+  minDistance: 1,
+  maxDistance: 4.89,
+  minPolarDeg: 63,    // Haut : vue isométrique (ne pas voir au-dessus des murs)
+  maxPolarDeg: 97,    // Bas : vue quasi-horizontale (ne pas passer sous le sol)
+  minAzimuthDeg: -10, // Gauche : limite mur gauche
+  maxAzimuthDeg: 90   // Droite : limite mur droite
+})
+
+const liveCamPos = ref({ x: '...', y: '...', z: '...' })
+const liveCamTarget = ref({ x: '...', y: '...', z: '...' })
+const liveAngles = ref({ polar: '...', azimuth: '...', distance: '...' })
+const cameraCodeOutput = ref('')
+
+const updateLiveCamReadout = () => {
+  if (cameraRef.value) {
+    liveCamPos.value = {
+      x: cameraRef.value.position.x.toFixed(2),
+      y: cameraRef.value.position.y.toFixed(2),
+      z: cameraRef.value.position.z.toFixed(2)
+    }
+  }
+  const rawRef = controlsRef.value
+  const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
+  if (controls?.target) {
+    liveCamTarget.value = {
+      x: controls.target.x.toFixed(2),
+      y: controls.target.y.toFixed(2),
+      z: controls.target.z.toFixed(2)
+    }
+    // Compute live polar & azimuth angles
+    const dx = cameraRef.value.position.x - controls.target.x
+    const dy = cameraRef.value.position.y - controls.target.y
+    const dz = cameraRef.value.position.z - controls.target.z
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
+    const polar = Math.acos(Math.min(Math.max(dy / dist, -1), 1)) * (180 / Math.PI)
+    const azimuth = Math.atan2(dx, dz) * (180 / Math.PI)
+    liveAngles.value = {
+      polar: polar.toFixed(1),
+      azimuth: azimuth.toFixed(1),
+      distance: dist.toFixed(2)
+    }
+  }
+}
+
+const captureCurrentView = () => {
+  if (!cameraRef.value) return
+  defaultCamPos.value.x = Number(cameraRef.value.position.x.toFixed(2))
+  defaultCamPos.value.y = Number(cameraRef.value.position.y.toFixed(2))
+  defaultCamPos.value.z = Number(cameraRef.value.position.z.toFixed(2))
+  
+  const rawRef = controlsRef.value
+  const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
+  if (controls?.target) {
+    defaultLookAt.value.x = Number(controls.target.x.toFixed(2))
+    defaultLookAt.value.y = Number(controls.target.y.toFixed(2))
+    defaultLookAt.value.z = Number(controls.target.z.toFixed(2))
+  }
+}
+
+const testHomePosition = () => {
+  if (animating.value || activeElement.value) return
+  animating.value = true
+
+  const rawRef = controlsRef.value
+  const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
+  const lookAtProxy = {
+    x: controls?.target?.x ?? 0,
+    y: controls?.target?.y ?? 0,
+    z: controls?.target?.z ?? 0
+  }
+
+  gsap.to(cameraRef.value.position, {
+    x: defaultCamPos.value.x,
+    y: defaultCamPos.value.y,
+    z: defaultCamPos.value.z,
+    duration: 1.5,
+    ease: 'power2.inOut',
+    onUpdate: () => {
+      cameraRef.value.lookAt(lookAtProxy.x, lookAtProxy.y, lookAtProxy.z)
+    }
+  })
+
+  gsap.to(lookAtProxy, {
+    x: defaultLookAt.value.x,
+    y: defaultLookAt.value.y,
+    z: defaultLookAt.value.z,
+    duration: 1.5,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      if (controls?.target) {
+        controls.target.set(defaultLookAt.value.x, defaultLookAt.value.y, defaultLookAt.value.z)
+      }
+      cameraRef.value.lookAt(defaultLookAt.value.x, defaultLookAt.value.y, defaultLookAt.value.z)
+      animating.value = false
+    }
+  })
+}
+
+const copyCameraCode = () => {
+  const code = `// 📷 Position caméra calibrée
+const defaultCamPos = { x: ${defaultCamPos.value.x}, y: ${defaultCamPos.value.y}, z: ${defaultCamPos.value.z} }
+const defaultLookAt = { x: ${defaultLookAt.value.x}, y: ${defaultLookAt.value.y}, z: ${defaultLookAt.value.z} }
+// Orbit limits
+minDistance: ${orbitLimits.value.minDistance}
+maxDistance: ${orbitLimits.value.maxDistance}
+minPolar: ${orbitLimits.value.minPolarDeg}° | maxPolar: ${orbitLimits.value.maxPolarDeg}°
+minAzimuth: ${orbitLimits.value.minAzimuthDeg}° | maxAzimuth: ${orbitLimits.value.maxAzimuthDeg}°`
+  cameraCodeOutput.value = code
+  navigator.clipboard?.writeText(code)
+}
 
 // --- VARIABLES POUR L'ANIMATION DES OBJETS ---
 let phoneGroup = null
@@ -582,6 +839,19 @@ watch(() => lightPos.value.godRay.opacity, (newOp) => {
 const updateGodRayOpacity = () => {
   // Optionnel si le watcher est en place
 }
+
+// 📷 Forcer le target d'OrbitControls au chargement initial
+watch(controlsRef, (newRef) => {
+  if (newRef) {
+    nextTick(() => {
+      const controls = newRef?.value ?? newRef?.instance ?? newRef
+      if (controls?.target) {
+        controls.target.set(defaultLookAt.value.x, defaultLookAt.value.y, defaultLookAt.value.z)
+        controls.update?.()
+      }
+    })
+  }
+}, { immediate: true })
 
 const toggleLight = () => {
   isDarkMode.value = !isDarkMode.value
@@ -1164,7 +1434,7 @@ const resetZoom = () => {
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
 
-  const resetTarget = { x: 0, y: 1, z: 0 }
+  const resetTarget = { x: defaultLookAt.value.x, y: defaultLookAt.value.y, z: defaultLookAt.value.z }
   const lookAtProxy = { 
     x: controls?.target?.x ?? 0, 
     y: controls?.target?.y ?? 0, 
@@ -1172,7 +1442,7 @@ const resetZoom = () => {
   }
 
   gsap.to(cameraRef.value.position, {
-    x: 4, y: 3, z: 4,
+    x: defaultCamPos.value.x, y: defaultCamPos.value.y, z: defaultCamPos.value.z,
     duration: 1.5, ease: "power2.inOut",
     onUpdate: () => {
       cameraRef.value.lookAt(lookAtProxy.x, lookAtProxy.y, lookAtProxy.z)
