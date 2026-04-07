@@ -3,16 +3,6 @@
     class="relative h-screen w-full bg-zinc-950 overflow-hidden"
   >
     
-    <Transition name="fade">
-      <button 
-        v-if="activeElement"
-        @click.stop="resetZoom"
-        class="absolute top-10 left-10 z-[100] bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all pointer-events-auto"
-      >
-        ← Retour au bureau
-      </button>
-    </Transition>
-
     <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
     <button 
       @click="calibrationMode = !calibrationMode" 
@@ -299,21 +289,20 @@
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size>
       <TresPerspectiveCamera 
         ref="cameraRef" 
-        :position="[defaultCamPos.x, defaultCamPos.y, defaultCamPos.z]" 
-        :look-at="[defaultLookAt.x, defaultLookAt.y, defaultLookAt.z]" 
+        :position="[1.79, 2.26, 2.58]" 
+        :look-at="[1.31, 1.62, 0.06]" 
       />
       
       <OrbitControls 
         ref="controlsRef" 
-        :enabled="!animating"
+        :enabled="!animating && !activeElement"
         :enable-pan="calibrationMode"
-        :target="[defaultLookAt.x, defaultLookAt.y, defaultLookAt.z]"
         :min-distance="orbitLimits.minDistance" 
-        :max-distance="calibrationMode ? 50 : orbitLimits.maxDistance" 
-        :min-polar-angle="calibrationMode ? 0 : (orbitLimits.minPolarDeg * Math.PI / 180)"
-        :max-polar-angle="calibrationMode ? Math.PI : (orbitLimits.maxPolarDeg * Math.PI / 180)"
-        :min-azimuth-angle="calibrationMode ? -Infinity : (orbitLimits.minAzimuthDeg * Math.PI / 180)"
-        :max-azimuth-angle="calibrationMode ? Infinity : (orbitLimits.maxAzimuthDeg * Math.PI / 180)"
+        :max-distance="(calibrationMode || activeElement) ? 50 : orbitLimits.maxDistance" 
+        :min-polar-angle="(calibrationMode || activeElement) ? 0 : (orbitLimits.minPolarDeg * Math.PI / 180)"
+        :max-polar-angle="(calibrationMode || activeElement) ? Math.PI : (orbitLimits.maxPolarDeg * Math.PI / 180)"
+        :min-azimuth-angle="(calibrationMode || activeElement) ? -Infinity : (orbitLimits.minAzimuthDeg * Math.PI / 180)"
+        :max-azimuth-angle="(calibrationMode || activeElement) ? Infinity : (orbitLimits.maxAzimuthDeg * Math.PI / 180)"
         @change="updateLiveCamReadout"
       />
 
@@ -438,7 +427,52 @@
               :rotation-y="settings.laptop.htmlRotY" 
               :rotation-z="settings.laptop.htmlRotZ" 
               :scale="settings.laptop.scale">
-          <iframe src="https://anjahnyony.com" 
+          
+          <!-- MODE INTRO -->
+          <div v-if="showIntro" 
+               :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
+               class="bg-zinc-950 rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
+            <div class="p-12 max-w-2xl text-center">
+              <!-- Ligne décorative -->
+              <div class="flex items-center justify-center gap-4 mb-8">
+                <div class="h-px w-16 bg-gradient-to-r from-transparent to-white/30"></div>
+                <span class="text-white/30 text-xs tracking-[0.3em] uppercase font-light">Portfolio</span>
+                <div class="h-px w-16 bg-gradient-to-l from-transparent to-white/30"></div>
+              </div>
+
+              <!-- Nom -->
+              <h1 class="text-5xl font-black text-white tracking-wide mb-3">
+                ANJAH NY ONY
+              </h1>
+              
+              <!-- Titre -->
+              <p class="text-lg font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-8">
+                Développeur Web Fullstack
+              </p>
+              
+              <!-- Description -->
+              <p class="text-white/60 leading-relaxed text-sm mb-8">
+                Passionné par l’innovation numérique, je conçois des solutions web modernes, fluides et performantes. De la conception de bases de données à la création d’interfaces intuitives, je transforme des idées complexes en outils fonctionnels. Ce site et son CMS ont été entièrement bâtis par mes soins.
+              </p>
+
+              <!-- Badges -->
+              <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Développeur Full-Stack Junior</span>
+                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Spécialiste Vue.js & Node.js</span>
+                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Recherche 1er Emploi à Québec</span>
+                <span class="px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-xs text-cyan-400">Permis de Travail Ouvert 🇨🇦</span>
+              </div>
+
+              <!-- Localisation -->
+              <div class="flex items-center justify-center gap-2 text-white/30 text-xs">
+                <span>📍</span>
+                <span>Saint-Anselme, Québec, Canada</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODE SITE WEB -->
+          <iframe v-else src="https://anjahnyony.com" 
                   :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
                   class="border-none bg-white rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)]"></iframe>
         </Html>
@@ -488,14 +522,58 @@
             <div v-show="showBookContent" :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px' }"
                  class="relative bg-[#f4ecd8] border-2 border-[#d0c0a0] rounded-r-lg shadow-[inset_10px_0_20px_rgba(0,0,0,0.1)] p-8 pointer-events-auto overflow-y-auto text-[#403020] font-serif">
               
-              <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">Mon Parcours</h2>
-              <div class="space-y-6">
-                <!-- A remplacer par ton composant vue TheBooksTimeline plus tard ! -->
-                <div class="mb-4">
-                  <h3 class="text-xl font-bold">2026 - Développeur Fullstack</h3>
-                  <p class="opacity-80 italic">Création d'expériences 3D interactives avec Nuxt et TresJS, maîtrisant les ombres et les animations complexes. Un maître de l'illusion spatiale !</p>
+              <!-- LIVRE : STACK & SKILLS -->
+              <template v-if="selectedBook === 'stack'">
+                <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">⚡ Stack & Skills</h2>
+                <div class="space-y-5">
+                  <div class="mb-4">
+                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Frontend</h3>
+                    <div class="space-y-2">
+                      <div v-for="skill in ['Vue.js / Nuxt', 'TresJS / Three.js', 'GSAP Animations', 'TailwindCSS', 'HTML5 / CSS3']" :key="skill" class="flex items-center gap-2">
+                        <span class="text-green-700">✦</span>
+                        <span class="font-medium">{{ skill }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Backend</h3>
+                    <div class="space-y-2">
+                      <div v-for="skill in ['Node.js / Express', 'MongoDB', 'Firebase', 'REST APIs', 'Socket.io']" :key="skill" class="flex items-center gap-2">
+                        <span class="text-blue-700">✦</span>
+                        <span class="font-medium">{{ skill }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Outils & Déploiement</h3>
+                    <div class="space-y-2">
+                      <div v-for="skill in ['Git / GitHub', 'Blender (3D)', 'Figma', 'Vercel / Netlify']" :key="skill" class="flex items-center gap-2">
+                        <span class="text-purple-700">✦</span>
+                        <span class="font-medium">{{ skill }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </template>
+
+              <!-- LIVRE : À PROPOS -->
+              <template v-else>
+                <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">📖 Mon Parcours</h2>
+                <div class="space-y-6">
+                  <div class="mb-4">
+                    <h3 class="text-xl font-bold">2026 — Développeur Fullstack</h3>
+                    <p class="opacity-80 italic">Création d'expériences 3D interactives avec Nuxt et TresJS, maîtrisant les ombres et les animations complexes.</p>
+                  </div>
+                  <div class="mb-4">
+                    <h3 class="text-xl font-bold">Portfolio 3D Interactif</h3>
+                    <p class="opacity-80 italic">Ce projet même — une scène de bureau immersive où chaque objet raconte une partie de mon histoire.</p>
+                  </div>
+                  <div class="mb-4">
+                    <h3 class="text-xl font-bold">Passionné & Curieux</h3>
+                    <p class="opacity-80 italic">Basé au Québec, je transforme les idées en expériences web mémorables. Fan de jeux de société, de cinéma et de code propre.</p>
+                  </div>
+                </div>
+              </template>
 
             </div>
           </Transition>
@@ -531,13 +609,47 @@
             leave-to-class="opacity-0"
           >
             <div v-show="showFolderContent" :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px' }"
-                 class="relative bg-white border border-gray-200 shadow-md p-8 pointer-events-auto overflow-y-auto text-gray-800">
+                 class="relative bg-white border border-gray-200 shadow-md pointer-events-auto overflow-y-auto text-gray-800">
               
-              <h2 class="text-3xl font-bold mb-6 border-b-2 border-gray-200 pb-4 text-orange-500">Projet: Portfolio 3D</h2>
-              <div class="space-y-4">
-                <p>Développement complet de la scène avec Nuxt 4, TresJS et GSAP.</p>
-                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085" alt="Code" class="w-full h-48 object-cover rounded shadow" />
-                <button class="px-4 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-500">Voir le projet</button>
+              <!-- EN-TÊTE PROJET -->
+              <div class="sticky top-0 z-10 px-8 pt-6 pb-4 bg-white border-b border-gray-100">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="text-3xl">{{ currentProject.badge }}</span>
+                  <div>
+                    <h2 class="text-2xl font-bold" :style="{ color: currentProject.color }">{{ currentProject.title }}</h2>
+                    <p class="text-sm text-gray-500 italic">{{ currentProject.tagline }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="px-8 py-6 space-y-6">
+                <!-- DESCRIPTION -->
+                <p class="text-gray-600 leading-relaxed">{{ currentProject.description }}</p>
+
+                <!-- FEATURES -->
+                <div class="space-y-3">
+                  <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400">Fonctionnalités clés</h3>
+                  <div v-for="feat in currentProject.features" :key="feat.title" 
+                       class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                    <span class="text-xl flex-shrink-0">{{ feat.icon }}</span>
+                    <div>
+                      <h4 class="font-bold text-gray-800 text-sm">{{ feat.title }}</h4>
+                      <p class="text-gray-500 text-xs leading-relaxed">{{ feat.desc }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STACK -->
+                <div>
+                  <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">Technologies</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span v-for="tech in currentProject.stack" :key="tech"
+                          class="px-3 py-1 rounded-full text-xs font-semibold border"
+                          :style="{ color: currentProject.color, borderColor: currentProject.color + '40', backgroundColor: currentProject.color + '10' }">
+                      {{ tech }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -550,12 +662,107 @@
 </template>
 
 <script setup>
-import { ref, watch, shallowReactive, onMounted, nextTick } from 'vue'
+import { ref, watch, shallowReactive, onMounted, nextTick, computed } from 'vue'
 import { OrbitControls, GLTFModel, Environment, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
 import TheBooksTimeline from './TheBooksTimeline.vue'
 
+const props = defineProps({
+  selectedProject: { type: String, default: null },
+  selectedBook: { type: String, default: null },
+  showIntro: { type: Boolean, default: false }
+})
+
+// --- DONNÉES DES PROJETS ---
+const projects = {
+  monopoly: {
+    title: 'Monopoly Madagascar',
+    badge: '🎲',
+    color: '#e74c3c',
+    tagline: 'Réinvention numérique et immersive du célèbre jeu de société',
+    description: 'Transportée au cœur de Madagascar. Investissez, négociez et bâtissez votre empire en Ariary dans cette expérience multijoueur haut de gamme.',
+    features: [
+      { icon: '🔄', title: 'Multijoueur Temps Réel', desc: 'Synchronisation fluide des joueurs via une architecture API robuste.' },
+      { icon: '✨', title: 'Design Premium', desc: 'Interface responsive utilisant le Glassmorphism et des animations GSAP.' },
+      { icon: '💰', title: 'Système Économique', desc: 'Gestion des transactions en Ariary, enchères, hypothèques et constructions.' },
+      { icon: '🦎', title: 'Personnalisation', desc: 'Plus de 80 pions animaux endémiques de Madagascar.' },
+    ],
+    stack: ['Vue.js', 'Node.js', 'GSAP', 'Socket.io'],
+  },
+  cms: {
+    title: 'CMS Propriétaire',
+    badge: '📝',
+    color: '#3498db',
+    tagline: 'Panneau de contrôle robuste pour une autonomie totale',
+    description: 'Un système de gestion de contenu développé avec Node.js, offrant un contrôle complet sur le contenu du site.',
+    features: [
+      { icon: '📄', title: 'Gestion de Contenu', desc: 'Édition en direct des sections du site avec mode aperçu.' },
+      { icon: '📁', title: 'Bibliothèque de Médias', desc: 'Système de téléchargement drag-and-drop et gestion du stockage serveur.' },
+      { icon: '📬', title: 'Messagerie Intégrée', desc: 'Centralisation des demandes clients via une boîte de réception connectée.' },
+    ],
+    stack: ['Node.js', 'Express', 'MongoDB', 'EJS'],
+  },
+  portfolio: {
+    title: 'Portfolio & Site Vitrine',
+    badge: '🌐',
+    color: '#2ecc71',
+    tagline: 'Site moderne optimisé pour l\'UX et le SEO',
+    description: 'Un site bilingue bâti avec Vue.js, pensé pour une expérience utilisateur irréprochable.',
+    features: [
+      { icon: '🧭', title: 'Navigation Dynamique', desc: 'Barre de navigation et section Hero percutante.' },
+      { icon: '🌍', title: 'Bilinguisme', desc: 'Français/Anglais avec détection automatique de la langue.' },
+      { icon: '📱', title: 'Mobile First', desc: 'Design adaptatif pour tous les appareils.' },
+    ],
+    stack: ['Vue.js', 'Nuxt', 'i18n', 'TailwindCSS'],
+  },
+  movie: {
+    title: 'Perfect-Movie',
+    badge: '🎬',
+    color: '#9b59b6',
+    tagline: 'Ne perdez plus jamais un film de vue',
+    description: 'Avez-vous déjà vu un extrait sur TikTok et oublié le nom du film ? Perfect-Movie est la solution. Créez votre liste, regardez la bande-annonce, et notez vos films.',
+    features: [
+      { icon: '🔍', title: 'Recherche', desc: 'Trouvez n\'importe quel film et ajoutez-le à votre liste.' },
+      { icon: '🎥', title: 'Bandes-annonces', desc: 'Visionnez la bande-annonce directement dans l\'app.' },
+      { icon: '⭐', title: 'Notes & Avis', desc: 'Marquez comme terminé, notez et commentez.' },
+    ],
+    stack: ['Vue.js', 'TMDb API', 'Firebase'],
+  },
+  soccer: {
+    title: 'Club de Soccer',
+    badge: '⚽',
+    color: '#f39c12',
+    tagline: 'Vitrine pour un club de soccer',
+    description: 'Un site web pour faire découvrir le club, ses joueurs, ses résultats et sa philosophie.',
+    features: [
+      { icon: '👥', title: 'Présentation', desc: 'L\'équipe, le staff et la philosophie du club.' },
+      { icon: '📅', title: 'Calendrier', desc: 'Matchs à venir et résultats passés.' },
+      { icon: '📸', title: 'Galerie', desc: 'Photos et moments forts du club.' },
+    ],
+    stack: ['HTML', 'CSS', 'JavaScript'],
+  },
+}
+
+// --- DONNÉES DES LIVRES ---
+const books = {
+  stack: {
+    title: 'Stack & Skills',
+    icon: '⚡',
+  },
+  about: {
+    title: 'À propos de moi',
+    icon: '📖',
+  },
+}
+
+const currentProject = computed(() => {
+  return props.selectedProject ? projects[props.selectedProject] : projects.monopoly
+})
+
+const currentBook = computed(() => {
+  return props.selectedBook ? books[props.selectedBook] : books.stack
+})
 const cameraRef = ref(null)
 const controlsRef = ref(null)
 
@@ -798,7 +1005,7 @@ let activeFolderCover = null
 const folderAnimConfig = ref({
   targetPosX: 0.74,
   targetPosY: 1,
-  targetPosZ: -0.8,
+  targetPosZ: 0.2,
   baseRotX: -90,
   baseRotY: -60,
   baseRotZ: -90,
@@ -1464,6 +1671,14 @@ const resetZoom = () => {
     }
   })
 }
+
+// 🎮 Expose les actions pour le menu externe
+defineExpose({
+  zoomTo,
+  resetZoom,
+  toggleLight,
+  activeElement,
+})
 </script>
 
 <style scoped>
