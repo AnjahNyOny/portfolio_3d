@@ -1,4 +1,7 @@
 export default defineNuxtConfig({
+  app: {
+    baseURL: '/portfolio_3d/'
+  },
   ssr: false,
   compatibilityDate: '2026-04-01',
   modules: [
