@@ -109,7 +109,7 @@ onUnmounted(() => {
 </script>
 
 <style>
-@import '@fontsource-variable/inter/latin.css';
+@import '@fontsource-variable/inter/wght.css';
 
 body {
   margin: 0;
