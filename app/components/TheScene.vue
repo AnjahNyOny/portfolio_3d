@@ -401,14 +401,13 @@
         color="#3b82f6" 
       />
 
-      <Suspense>
-        <Environment preset="city" />
-      </Suspense>
+      
       
       <Suspense>
         <GLTFModel 
           path="/models/room_v13.glb" 
-          draco 
+          draco
+          draco-decoder-path="/draco/"
           cast-shadow 
           receive-shadow
           @load="onModelLoaded"
@@ -838,7 +837,7 @@
 
 <script setup>
 import { ref, watch, shallowReactive, onMounted, nextTick, computed } from 'vue'
-import { OrbitControls, GLTFModel, Environment, Html } from '@tresjs/cientos'
+import { OrbitControls, GLTFModel, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
 import TheBooksTimeline from './TheBooksTimeline.vue'
