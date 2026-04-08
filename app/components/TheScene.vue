@@ -5,6 +5,7 @@
     
     <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
     <button 
+      v-if="ENABLE_CALIBRATION_UI"
       @click="calibrationMode = !calibrationMode" 
       class="absolute bottom-4 right-4 z-[100] p-2 rounded-lg text-xs font-bold border-2 transition-all pointer-events-auto shadow-lg"
       :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-600 text-zinc-400'"
@@ -961,6 +962,8 @@ const showBookContent = ref(false)
 const showFolderContent = ref(false)
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
+// 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
+const ENABLE_CALIBRATION_UI = false
 const calibrationMode = ref(false) 
 const showLightCalibration = ref(false)
 const showCameraCalibration = ref(false)
