@@ -401,9 +401,7 @@
         color="#3b82f6" 
       />
 
-      <Suspense>
-        <Environment preset="city" />
-      </Suspense>
+      
       
       <Suspense>
         <GLTFModel 
@@ -838,7 +836,7 @@
 
 <script setup>
 import { ref, watch, shallowReactive, onMounted, nextTick, computed } from 'vue'
-import { OrbitControls, GLTFModel, Environment, Html } from '@tresjs/cientos'
+import { OrbitControls, GLTFModel, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
 import TheBooksTimeline from './TheBooksTimeline.vue'
