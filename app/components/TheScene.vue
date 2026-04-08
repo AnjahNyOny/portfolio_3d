@@ -406,7 +406,8 @@
       <Suspense>
         <GLTFModel 
           path="/models/room_v13.glb" 
-          draco 
+          draco
+          draco-decoder-path="/draco/"
           cast-shadow 
           receive-shadow
           @load="onModelLoaded"

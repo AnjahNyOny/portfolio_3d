@@ -29,6 +29,9 @@ export default defineNuxtConfig({
     },
   },
 
+  // ⚡ Écran de chargement SPA — s'affiche AVANT que le JS ne charge
+  spaLoadingTemplate: true,
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@tresjs/nuxt'
