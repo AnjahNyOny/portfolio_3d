@@ -286,7 +286,7 @@
         Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
       </div>
     </div>
-    <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size>
+    <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size @pointer-missed="onPointerMissed">
       <TresPerspectiveCamera 
         ref="cameraRef" 
         :position="[1.79, 2.26, 2.58]" 
@@ -406,7 +406,7 @@
       
       <Suspense>
         <GLTFModel 
-          path="/models/room_v12.glb" 
+          path="/models/room_v13.glb" 
           draco 
           cast-shadow 
           receive-shadow
@@ -430,41 +430,41 @@
           
           <!-- MODE INTRO -->
           <div v-if="showIntro" 
-               :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
-               class="bg-zinc-950 rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
-            <div class="p-12 max-w-2xl text-center">
+               :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden', backgroundColor: ot.bg, color: ot.text }"
+               class="rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
+            <div class="p-16 max-w-2xl text-center">
               <!-- Ligne décorative -->
-              <div class="flex items-center justify-center gap-4 mb-8">
-                <div class="h-px w-16 bg-gradient-to-r from-transparent to-white/30"></div>
-                <span class="text-white/30 text-xs tracking-[0.3em] uppercase font-light">Portfolio</span>
-                <div class="h-px w-16 bg-gradient-to-l from-transparent to-white/30"></div>
+              <div class="flex items-center justify-center gap-4 mb-12">
+                <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
+                <span class="tracking-[0.3em] uppercase font-light" :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
+                <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
               </div>
 
               <!-- Nom -->
-              <h1 class="text-5xl font-black text-white tracking-wide mb-3">
+              <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">
                 ANJAH NY ONY
               </h1>
               
               <!-- Titre -->
-              <p class="text-lg font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-8">
+              <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12" style="font-size: 32px;">
                 Développeur Web Fullstack
               </p>
               
               <!-- Description -->
-              <p class="text-white/60 leading-relaxed text-sm mb-8">
-                Passionné par l’innovation numérique, je conçois des solutions web modernes, fluides et performantes. De la conception de bases de données à la création d’interfaces intuitives, je transforme des idées complexes en outils fonctionnels. Ce site et son CMS ont été entièrement bâtis par mes soins.
+              <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">
+                Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes. De la conception de bases de données à la création d'interfaces intuitives, je transforme des idées complexes en outils fonctionnels.
               </p>
 
               <!-- Badges -->
-              <div class="flex flex-wrap justify-center gap-2 mb-8">
-                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Développeur Full-Stack Junior</span>
-                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Spécialiste Vue.js & Node.js</span>
-                <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">Recherche 1er Emploi à Québec</span>
-                <span class="px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-xs text-cyan-400">Permis de Travail Ouvert 🇨🇦</span>
+              <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Développeur Full-Stack Junior</span>
+                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Spécialiste Vue.js & Node.js</span>
+                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Recherche 1er Emploi à Québec</span>
+                <span class="px-5 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400" style="font-size: 16px;">Permis de Travail Ouvert 🇨🇦</span>
               </div>
 
               <!-- Localisation -->
-              <div class="flex items-center justify-center gap-2 text-white/30 text-xs">
+              <div class="flex items-center justify-center gap-2" :style="{ color: ot.textFaint, fontSize: '16px' }">
                 <span>📍</span>
                 <span>Saint-Anselme, Québec, Canada</span>
               </div>
@@ -494,10 +494,62 @@
             leave-active-class="transition-opacity duration-300" 
             leave-to-class="opacity-0"
           >
-            <div v-show="showPhoneContent" :style="{ width: settings.phone.width + 'px', height: settings.phone.height + 'px' }"
-                 class="relative bg-black rounded-[40px] border-[12px] border-zinc-800 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto">
-              <iframe src="https://anjahnyony.com/fr/contact" class="w-full h-full border-none"></iframe>
-              <div class="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-zinc-800 rounded-b-2xl"></div> <!-- Fake notch -->
+            <div v-show="showPhoneContent" :style="{ width: settings.phone.width + 'px', height: settings.phone.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+                 class="relative rounded-[40px] border-[12px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-y-auto pointer-events-auto"
+                 :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-300'"
+                 style="scrollbar-width: thin;">
+              
+              <!-- Fake notch -->
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 rounded-b-2xl z-10" :class="isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'"></div>
+
+              <div class="p-10 pt-16 space-y-10">
+                <div class="text-center space-y-3">
+                  <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 text-3xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    ✉️
+                  </div>
+                  <h2 class="text-4xl font-black">Contact</h2>
+                  <p :style="{ color: ot.textFaint, fontSize: '18px' }">Envoyez-moi un message</p>
+                </div>
+
+                <form class="space-y-6" @submit.prevent>
+                  <div class="space-y-2">
+                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Nom</label>
+                    <input type="text" placeholder="Votre nom" 
+                           class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
+                           :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Email</label>
+                    <input type="email" placeholder="votre@email.com" 
+                           class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
+                           :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Message</label>
+                    <textarea placeholder="Comment puis-je vous aider ?" rows="4"
+                              class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium resize-none"
+                              :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }"></textarea>
+                  </div>
+
+                  <button type="submit" 
+                          class="w-full py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 transition-all transform hover:scale-[1.02] shadow-lg shadow-cyan-500/20"
+                          style="font-size: 22px;">
+                    Envoyer
+                  </button>
+                </form>
+
+                <div class="pt-6 mt-6 text-center space-y-4" :style="{ borderTop: '1px solid ' + ot.border }">
+                  <p class="font-bold flex items-center justify-center gap-3" :style="{ color: ot.textMuted, fontSize: '18px' }">
+                    <span>📍</span> Québec, Canada
+                  </p>
+                  <p class="font-mono text-cyan-500 font-bold" style="font-size: 16px;">
+                    contact@anjahnyony.com
+                  </p>
+                </div>
+              </div>
+
             </div>
           </Transition>
         </Html>
@@ -519,58 +571,167 @@
             leave-active-class="transition-opacity duration-300" 
             leave-to-class="opacity-0"
           >
-            <div v-show="showBookContent" :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px' }"
-                 class="relative bg-[#f4ecd8] border-2 border-[#d0c0a0] rounded-r-lg shadow-[inset_10px_0_20px_rgba(0,0,0,0.1)] p-8 pointer-events-auto overflow-y-auto text-[#403020] font-serif">
+            <div v-show="showBookContent" :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+                 class="relative pointer-events-auto overflow-y-auto"
+                 style="scrollbar-width: thin;">
               
               <!-- LIVRE : STACK & SKILLS -->
               <template v-if="selectedBook === 'stack'">
-                <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">⚡ Stack & Skills</h2>
-                <div class="space-y-5">
-                  <div class="mb-4">
-                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Frontend</h3>
-                    <div class="space-y-2">
-                      <div v-for="skill in ['Vue.js / Nuxt', 'TresJS / Three.js', 'GSAP Animations', 'TailwindCSS', 'HTML5 / CSS3']" :key="skill" class="flex items-center gap-2">
-                        <span class="text-green-700">✦</span>
-                        <span class="font-medium">{{ skill }}</span>
+                <div class="p-12 space-y-12">
+                  <div class="text-center space-y-4">
+                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <span style="font-size: 28px;">⚡</span>
+                      <span class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '18px' }">Stack & Skills</span>
+                    </div>
+                    <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Compétences</h2>
+                    <p :style="{ color: ot.textFaint, fontSize: '22px' }">Technologies et outils que je maîtrise</p>
+                  </div>
+
+                  <!-- FRONTEND -->
+                  <div class="space-y-5">
+                    <h3 class="font-bold uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-3" style="font-size: 20px;">
+                      <span class="w-10 h-px bg-emerald-400/40"></span> Frontend
+                    </h3>
+                    <div class="grid gap-4">
+                      <div v-for="skill in [{name: 'Vue.js / Nuxt', level: 90}, {name: 'TresJS / Three.js', level: 75}, {name: 'GSAP Animations', level: 85}, {name: 'TailwindCSS', level: 90}, {name: 'HTML5 / CSS3', level: 95}]" :key="skill.name"
+                           class="p-5 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <div class="flex justify-between items-center mb-3">
+                          <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name }}</span>
+                          <span class="text-emerald-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
+                        </div>
+                        <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
+                          <div class="h-full rounded-full bg-gradient-to-r from-emerald-500/60 to-emerald-400/40" :style="{ width: skill.level + '%' }"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="mb-4">
-                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Backend</h3>
-                    <div class="space-y-2">
-                      <div v-for="skill in ['Node.js / Express', 'MongoDB', 'Firebase', 'REST APIs', 'Socket.io']" :key="skill" class="flex items-center gap-2">
-                        <span class="text-blue-700">✦</span>
-                        <span class="font-medium">{{ skill }}</span>
+
+                  <!-- BACKEND -->
+                  <div class="space-y-5">
+                    <h3 class="font-bold uppercase tracking-[0.2em] text-blue-400 flex items-center gap-3" style="font-size: 20px;">
+                      <span class="w-10 h-px bg-blue-400/40"></span> Backend & BDD
+                    </h3>
+                    <div class="grid gap-4">
+                      <div v-for="skill in [{name: 'Node.js / Express', level: 90}, {name: 'MySQL / UML', level: 85}, {name: 'REST APIs', level: 90}, {name: 'MongoDB', level: 70}, {name: 'Socket.io', level: 75}]" :key="skill.name"
+                           class="p-5 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <div class="flex justify-between items-center mb-3">
+                          <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name }}</span>
+                          <span class="text-blue-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
+                        </div>
+                        <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
+                          <div class="h-full rounded-full bg-gradient-to-r from-blue-500/60 to-blue-400/40" :style="{ width: skill.level + '%' }"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="mb-4">
-                    <h3 class="text-lg font-bold text-[#8b6914] mb-2">Outils & Déploiement</h3>
-                    <div class="space-y-2">
-                      <div v-for="skill in ['Git / GitHub', 'Blender (3D)', 'Figma', 'Vercel / Netlify']" :key="skill" class="flex items-center gap-2">
-                        <span class="text-purple-700">✦</span>
-                        <span class="font-medium">{{ skill }}</span>
+
+                  <!-- OUTILS -->
+                  <div class="space-y-5">
+                    <h3 class="font-bold uppercase tracking-[0.2em] text-purple-400 flex items-center gap-3" style="font-size: 20px;">
+                      <span class="w-10 h-px bg-purple-400/40"></span> Outils
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                      <span v-for="tool in ['Git', 'GitHub', 'VS Code', 'Déploiement', 'SEO', 'Agile']" :key="tool"
+                            class="px-5 py-3 rounded-xl font-medium border border-purple-400/15 text-purple-300"
+                            :style="{ fontSize: '18px', background: 'rgba(168,85,247,0.06)' }">
+                        {{ tool }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- SOFT SKILLS + LANGUES -->
+                  <div class="space-y-5">
+                    <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3" :style="{ color: ot.textFaint, fontSize: '20px' }">
+                      <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Soft Skills
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                      <span v-for="soft in ['Autonomie', 'Curiosité', 'Esprit d\'équipe', 'Patience', 'Adaptabilité']" :key="soft"
+                            class="px-5 py-3 rounded-xl font-medium" :style="{ fontSize: '18px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">
+                        {{ soft }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-5 mt-8">
+                    <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3" :style="{ color: ot.textFaint, fontSize: '20px' }">
+                      <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Langues
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="p-5 rounded-xl text-center" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Français</p>
+                        <p :style="{ color: ot.textFaint, fontSize: '16px' }">Courant</p>
+                      </div>
+                      <div class="p-5 rounded-xl text-center" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Anglais</p>
+                        <p :style="{ color: ot.textFaint, fontSize: '16px' }">Intermédiaire (B1-B2)</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </template>
 
+              <!-- LIVRE : PARCOURS TIMELINE -->
+              <TheBooksTimeline v-else-if="selectedBook === 'timeline'" />
+
               <!-- LIVRE : À PROPOS -->
               <template v-else>
-                <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-[#d0c0a0] pb-4">📖 Mon Parcours</h2>
-                <div class="space-y-6">
-                  <div class="mb-4">
-                    <h3 class="text-xl font-bold">2026 — Développeur Fullstack</h3>
-                    <p class="opacity-80 italic">Création d'expériences 3D interactives avec Nuxt et TresJS, maîtrisant les ombres et les animations complexes.</p>
+                <div class="p-12 space-y-12">
+                  <div class="text-center space-y-4">
+                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <span style="font-size: 28px;">📖</span>
+                      <span class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '18px' }">À propos</span>
+                    </div>
+                    <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Mon Parcours</h2>
                   </div>
-                  <div class="mb-4">
-                    <h3 class="text-xl font-bold">Portfolio 3D Interactif</h3>
-                    <p class="opacity-80 italic">Ce projet même — une scène de bureau immersive où chaque objet raconte une partie de mon histoire.</p>
-                  </div>
-                  <div class="mb-4">
-                    <h3 class="text-xl font-bold">Passionné & Curieux</h3>
-                    <p class="opacity-80 italic">Basé au Québec, je transforme les idées en expériences web mémorables. Fan de jeux de société, de cinéma et de code propre.</p>
+
+                  <!-- TIMELINE -->
+                  <div class="relative space-y-10 pl-10" :style="{ borderLeft: '3px solid ' + ot.border }">
+                    <div class="relative">
+                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-cyan-500" :style="{ border: '4px solid ' + ot.bg }"></div>
+                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <div class="flex items-center gap-4 mb-4">
+                          <span style="font-size: 36px;">💻</span>
+                          <div>
+                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Développeur Full-Stack</h3>
+                            <p class="text-cyan-400" style="font-size: 18px;">H&S Consulting</p>
+                          </div>
+                        </div>
+                        <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">09/2025 — 10/2025 · Remote, Canada</p>
+                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Création complète d'un site corporatif et d'un CMS propriétaire (Node.js/Vue.js). Architecture de la base de données MySQL, développement des API REST, et gestion complète du déploiement avec optimisation SEO.</p>
+                      </div>
+                    </div>
+
+                    <div class="relative">
+                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-amber-500" :style="{ border: '4px solid ' + ot.bg }"></div>
+                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <div class="flex items-center gap-4 mb-4">
+                          <span style="font-size: 36px;">🎓</span>
+                          <div>
+                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Licence Pro. Génie Logiciel</h3>
+                            <p class="text-amber-400" style="font-size: 18px;">ENI Madagascar</p>
+                          </div>
+                        </div>
+                        <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">05/2025</p>
+                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Équivalence au Québec : Baccalauréat en informatique. Apprentissage approfondi de l'informatique, modélisation de bases de données, et structuration de projets logiciels complexes.</p>
+                      </div>
+                    </div>
+
+                    <div class="relative">
+                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-emerald-500" :style="{ border: '4px solid ' + ot.bg }"></div>
+                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                        <div class="flex items-center gap-4 mb-4">
+                          <span style="font-size: 36px;">🚀</span>
+                          <div>
+                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Profil Actuel</h3>
+                            <p class="text-emerald-400" style="font-size: 18px;">Disponible immédiatement</p>
+                          </div>
+                        </div>
+                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Résident à Saint-Anselme (Québec) avec un Permis de Travail Ouvert valide jusqu'en Octobre 2026. Doté d'une forte capacité d'apprentissage, je suis prêt à relever de nouveaux défis !</p>
+                        <div class="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full border border-emerald-400/20 text-emerald-400" style="font-size: 18px; background: rgba(16,185,129,0.06);">
+                          🇨🇦 Permis de Travail Ouvert
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -608,44 +769,57 @@
             leave-active-class="transition-opacity duration-300" 
             leave-to-class="opacity-0"
           >
-            <div v-show="showFolderContent" :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px' }"
-                 class="relative bg-white border border-gray-200 shadow-md pointer-events-auto overflow-y-auto text-gray-800">
+            <div v-show="showFolderContent" :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+                 class="relative pointer-events-auto overflow-y-auto"
+                 style="scrollbar-width: thin;">
               
-              <!-- EN-TÊTE PROJET -->
-              <div class="sticky top-0 z-10 px-8 pt-6 pb-4 bg-white border-b border-gray-100">
-                <div class="flex items-center gap-3 mb-2">
-                  <span class="text-3xl">{{ currentProject.badge }}</span>
-                  <div>
-                    <h2 class="text-2xl font-bold" :style="{ color: currentProject.color }">{{ currentProject.title }}</h2>
-                    <p class="text-sm text-gray-500 italic">{{ currentProject.tagline }}</p>
-                  </div>
+              <!-- HERO IMAGE -->
+              <div class="relative w-full" style="height: 45%;">
+                <img :src="currentProject.image" class="w-full h-full object-cover" :alt="currentProject.title" />
+                <div class="absolute inset-0" :style="{ background: `linear-gradient(to top, ${ot.bg} 0%, transparent 60%)` }"></div>
+                <!-- BADGE flottant -->
+                <div class="absolute top-8 right-8 w-20 h-20 rounded-3xl flex items-center justify-center text-4xl"
+                     :style="{ backgroundColor: currentProject.color + '20', border: '2px solid ' + currentProject.color + '40', backdropFilter: 'blur(8px)' }">
+                  {{ currentProject.badge }}
                 </div>
               </div>
 
-              <div class="px-8 py-6 space-y-6">
+              <!-- CONTENU -->
+              <div class="relative px-16 -mt-20 pb-16 space-y-12" style="z-index: 2;">
+                <!-- TITRE -->
+                <div>
+                  <h2 class="font-black tracking-tight leading-tight mb-4" :style="{ color: currentProject.color, fontSize: '64px' }">
+                    {{ currentProject.title }}
+                  </h2>
+                  <p class="italic" :style="{ color: ot.textFaint, fontSize: '24px' }">{{ currentProject.tagline }}</p>
+                </div>
+
                 <!-- DESCRIPTION -->
-                <p class="text-gray-600 leading-relaxed">{{ currentProject.description }}</p>
+                <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '22px' }">{{ currentProject.description }}</p>
 
                 <!-- FEATURES -->
-                <div class="space-y-3">
-                  <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400">Fonctionnalités clés</h3>
-                  <div v-for="feat in currentProject.features" :key="feat.title" 
-                       class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                    <span class="text-xl flex-shrink-0">{{ feat.icon }}</span>
-                    <div>
-                      <h4 class="font-bold text-gray-800 text-sm">{{ feat.title }}</h4>
-                      <p class="text-gray-500 text-xs leading-relaxed">{{ feat.desc }}</p>
+                <div class="space-y-6">
+                  <h3 class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '20px' }">Fonctionnalités clés</h3>
+                  <div class="grid gap-4">
+                    <div v-for="feat in currentProject.features" :key="feat.title" 
+                         class="flex items-start gap-6 p-8 rounded-2xl"
+                         :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <span class="flex-shrink-0 mt-1" style="font-size: 36px;">{{ feat.icon }}</span>
+                      <div>
+                        <h4 class="font-bold mb-2" :style="{ color: ot.text, fontSize: '24px' }">{{ feat.title }}</h4>
+                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '18px' }">{{ feat.desc }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- STACK -->
                 <div>
-                  <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">Technologies</h3>
-                  <div class="flex flex-wrap gap-2">
+                  <h3 class="font-bold uppercase tracking-[0.2em] mb-6" :style="{ color: ot.textFaint, fontSize: '20px' }">Technologies</h3>
+                  <div class="flex flex-wrap gap-4">
                     <span v-for="tech in currentProject.stack" :key="tech"
-                          class="px-3 py-1 rounded-full text-xs font-semibold border"
-                          :style="{ color: currentProject.color, borderColor: currentProject.color + '40', backgroundColor: currentProject.color + '10' }">
+                          class="px-6 py-3 rounded-full font-semibold border"
+                          :style="{ fontSize: '18px', color: currentProject.color, borderColor: currentProject.color + '30', backgroundColor: currentProject.color + '10' }">
                       {{ tech }}
                     </span>
                   </div>
@@ -674,12 +848,15 @@ const props = defineProps({
   showIntro: { type: Boolean, default: false }
 })
 
+const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled'])
+
 // --- DONNÉES DES PROJETS ---
 const projects = {
   monopoly: {
     title: 'Monopoly Madagascar',
     badge: '🎲',
     color: '#e74c3c',
+    image: '/images/projects/monopoly.png',
     tagline: 'Réinvention numérique et immersive du célèbre jeu de société',
     description: 'Transportée au cœur de Madagascar. Investissez, négociez et bâtissez votre empire en Ariary dans cette expérience multijoueur haut de gamme.',
     features: [
@@ -694,6 +871,7 @@ const projects = {
     title: 'CMS Propriétaire',
     badge: '📝',
     color: '#3498db',
+    image: '/images/projects/cms.png',
     tagline: 'Panneau de contrôle robuste pour une autonomie totale',
     description: 'Un système de gestion de contenu développé avec Node.js, offrant un contrôle complet sur le contenu du site.',
     features: [
@@ -707,6 +885,7 @@ const projects = {
     title: 'Portfolio & Site Vitrine',
     badge: '🌐',
     color: '#2ecc71',
+    image: '/images/projects/portfolio.png',
     tagline: 'Site moderne optimisé pour l\'UX et le SEO',
     description: 'Un site bilingue bâti avec Vue.js, pensé pour une expérience utilisateur irréprochable.',
     features: [
@@ -720,6 +899,7 @@ const projects = {
     title: 'Perfect-Movie',
     badge: '🎬',
     color: '#9b59b6',
+    image: '/images/projects/movie.png',
     tagline: 'Ne perdez plus jamais un film de vue',
     description: 'Avez-vous déjà vu un extrait sur TikTok et oublié le nom du film ? Perfect-Movie est la solution. Créez votre liste, regardez la bande-annonce, et notez vos films.',
     features: [
@@ -733,6 +913,7 @@ const projects = {
     title: 'Club de Soccer',
     badge: '⚽',
     color: '#f39c12',
+    image: '/images/projects/soccer.png',
     tagline: 'Vitrine pour un club de soccer',
     description: 'Un site web pour faire découvrir le club, ses joueurs, ses résultats et sa philosophie.',
     features: [
@@ -754,6 +935,10 @@ const books = {
     title: 'À propos de moi',
     icon: '📖',
   },
+  timeline: {
+    title: 'Mon Parcours',
+    icon: '⏳',
+  }
 }
 
 const currentProject = computed(() => {
@@ -1016,6 +1201,15 @@ const folderAnimConfig = ref({
 
 // --- GESTION DE LA LUMIÈRE (Interrupteur) ---
 const isDarkMode = ref(false)
+
+// Thème dynamique pour les overlays (clair/sombre)
+const ot = computed(() => isDarkMode.value ? {
+  bg: '#0a0a0f', text: '#ffffff', textMuted: 'rgba(255,255,255,0.5)', textFaint: 'rgba(255,255,255,0.3)',
+  card: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.06)', bar: 'rgba(255,255,255,0.05)',
+} : {
+  bg: '#ffffff', text: '#1a1a2e', textMuted: 'rgba(0,0,0,0.55)', textFaint: 'rgba(0,0,0,0.3)',
+  card: 'rgba(0,0,0,0.03)', border: 'rgba(0,0,0,0.08)', bar: 'rgba(0,0,0,0.06)',
+})
 const lightState = ref({
   ambient: 0.6,      // Remplacez 0.7 par votre "Ambiance (Jour)"
   window: 2,       // Remplacez 2.5 par votre "Soleil (Intensité)"
@@ -1061,7 +1255,10 @@ watch(controlsRef, (newRef) => {
 }, { immediate: true })
 
 const toggleLight = () => {
+  if (animating.value) return
   isDarkMode.value = !isDarkMode.value
+  
+  emit('theme-toggled', isDarkMode.value)
   
   // Trouve la scène principale de ThreeJS pour ajuster l'Environment map
   let sceneRoot = cameraRef.value
@@ -1092,7 +1289,7 @@ const toggleLight = () => {
       window: 2.5,    // Merveilleuses ombres directionnelles
       desk: 0,
       nightReflect: 0,
-      envIntensity: 1, // On rallume l'environnement pour les textures
+      envIntensity: 0, // Retour à l'environnement initial (0 et non 1)
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => {
@@ -1230,7 +1427,7 @@ const isInteractive = (meshName) => {
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
   const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
   const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
-  const isDrawer = name.includes('drawer')
+  const isDrawer = name.includes('drawer_bottom')
   const isFolder = name.includes('folder')
 
   return isLaptop || isPhone || isBook || isSwitch || isDrawer || isFolder
@@ -1259,6 +1456,7 @@ const toggleDrawer = (drawerMesh) => {
   })
   
   drawerMesh.userData.isOpen = !isOpen
+  emit('drawer-state', drawerMesh.userData.isOpen)
 }
 
 // 📥 À la fin du chargement du modèle, configurer les ombres
@@ -1302,7 +1500,11 @@ const onModelLoaded = (gltf) => {
 
 // 🔍 Clic sur un objet
 const onModelClick = (event) => {
-  if (animating.value || activeElement.value) return
+  if (animating.value) return
+  if (activeElement.value) {
+    emit('background-click')
+    return
+  }
 
   const meshName = getHitMeshName(event)
   if (!meshName) return
@@ -1310,9 +1512,9 @@ const onModelClick = (event) => {
   
   const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
-  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
+  const isBook = (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')) && !name.includes('shelf')
   const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
-  const isDrawer = name.includes('drawer')
+  const isDrawer = name.includes('drawer_bottom')
   const isFolder = name.includes('folder')
 
   if (isLaptop) {
@@ -1320,11 +1522,11 @@ const onModelClick = (event) => {
   } else if (isPhone) {
     zoomTo('phone')
   } else if (isDrawer) {
-    let topDrawer = event.object
-    if (topDrawer.parent && topDrawer.parent.name.toLowerCase().includes('drawer')) {
-      topDrawer = topDrawer.parent
+    let bottomDrawer = event.object
+    if (bottomDrawer.parent && bottomDrawer.parent.name.toLowerCase().includes('drawer_bottom')) {
+      bottomDrawer = bottomDrawer.parent
     }
-    toggleDrawer(topDrawer)
+    toggleDrawer(bottomDrawer)
   } else if (isFolder) {
     let base = event.object
     // Remonter jusqu'à la base du dossier (tant que le parent s'appelle aussi folder)
@@ -1340,9 +1542,13 @@ const onModelClick = (event) => {
       }
     }
     
-    let cover = base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
     if (!cover && name.includes('cover')) {
        cover = event.object
+       // Si on a cliqué sur le cover, on cherche la base comme parent
+       if (cover.parent && cover.parent.name.toLowerCase().includes('folder')) {
+           activeFolderBase = cover.parent
+       }
     }
 
     if (cover) {
@@ -1351,6 +1557,13 @@ const onModelClick = (event) => {
         activeFolderCover.userData.originalRot = activeFolderCover.rotation.clone()
       }
     }
+    
+    // Extraire l'id du projet du nom du mesh (ex: 'folder_portfolio' -> 'portfolio' / 'folder_portfolio_cover' -> 'portfolio')
+    const match = name.match(/folder_([a-zA-Z0-9]+)/i)
+    if (match && match[1]) {
+      emit('select-project', match[1].toLowerCase())
+    }
+
     zoomTo('folder')
   } else if (isBook) {
     let base = event.object
@@ -1369,7 +1582,7 @@ const onModelClick = (event) => {
     }
     
     // Trouver le cover parmi les enfants. Si l'objet contient "cover" dans son nom
-    let cover = base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
     
     // Fallback direct si on a cliqué sur la couv' mais sans hiérarchie enfant
     if (!cover && name.includes('cover')) {
@@ -1382,6 +1595,13 @@ const onModelClick = (event) => {
         activeBookCover.userData.originalRot = activeBookCover.rotation.clone()
       }
     }
+    
+    // Extraire l'id du livre (ex: 'book_stack' -> 'stack')
+    const match = name.match(/book_([^_]+)/i)
+    if (match && match[1]) {
+      emit('select-book', match[1].toLowerCase())
+    }
+
     zoomTo('books')
   } else if (isSwitch) {
     toggleLight()
@@ -1411,6 +1631,125 @@ const onPointerOut = () => {
   hoveredMeshName.value = ''
   isHovered.value = false
   document.body.style.cursor = 'auto'
+}
+
+// Clic dans le vide
+const onPointerMissed = () => {
+  if (activeElement.value && !animating.value) {
+    emit('background-click')
+  }
+}
+
+// Simule un clic sur un élément 3D depuis le menu
+const activateItemByName = (type, id) => {
+  let rootScene = cameraRef.value
+  if (!rootScene) return
+  while (rootScene.parent) {
+    rootScene = rootScene.parent
+  }
+
+  if (type === 'drawer') {
+    // Trouve précisément le tiroir du bas
+    const drawer = rootScene.children.find(child => child.name && child.name.toLowerCase().includes('drawer_bottom'))
+    if (drawer) {
+      toggleDrawer(drawer)
+    } else {
+      // Traverse au cas où
+      let found = null
+      rootScene.traverse((child) => {
+        if (!found && child.name && child.name.toLowerCase().includes('drawer_bottom')) {
+          found = child
+        }
+      })
+      if (found) toggleDrawer(found)
+    }
+    return
+  }
+
+  if (type === 'folder') {
+    // S'assurer que le tiroir est ouvert en arrière-plan pour les coordonnées locales
+    let drawer = null
+    rootScene.traverse((child) => {
+      if (!drawer && child.name && child.name.toLowerCase().includes('drawer_bottom')) {
+        drawer = child
+      }
+    })
+    if (drawer) {
+      if (drawer.userData.isOpen === undefined) {
+        drawer.userData.originalPos = drawer.position.clone()
+        drawer.userData.isOpen = false
+      }
+      if (!drawer.userData.isOpen) {
+        toggleDrawer(drawer)
+      }
+    }
+
+    const baseName = `folder_${id}`
+    const coverName = `folder_${id}_cover`
+    
+    let base = null
+    let cover = null
+    
+    rootScene.traverse((child) => {
+      // On cherche exactement "folder_nom" ou on tolère s'il a ".001"
+      if (!base && child.name && child.name.toLowerCase().startsWith(baseName.toLowerCase()) && !child.name.toLowerCase().includes('cover') && !child.name.toLowerCase().includes('paper')) {
+          base = child
+      }
+      if (!cover && child.name && child.name.toLowerCase().startsWith(coverName.toLowerCase())) cover = child
+    })
+
+    if (base) {
+      // Remonter jusqu'à la racine du groupe dossier (même logique que onModelClick)
+      while (base.parent && base.parent.name.toLowerCase().includes('folder')) {
+        base = base.parent
+      }
+
+      activeFolderBase = base
+      if (!activeFolderBase.userData.originalPos) {
+        activeFolderBase.userData.originalPos = activeFolderBase.position.clone()
+        activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
+      }
+    }
+    
+    if (cover) {
+      activeFolderCover = cover
+      if (!activeFolderCover.userData.originalRot) {
+        activeFolderCover.userData.originalRot = activeFolderCover.rotation.clone()
+      }
+    }
+    
+    zoomTo('folder')
+  } else if (type === 'books') {
+    const baseName = `book_${id}`
+    let baseObj = null
+    
+    rootScene.traverse((child) => {
+      if (child.name === baseName) baseObj = child
+    })
+
+    if (baseObj) {
+      let baseGroup = baseObj
+      while (baseGroup.parent && baseGroup.parent.type === 'Group' && baseGroup.parent.name !== 'Scene') {
+        baseGroup = baseGroup.parent
+      }
+
+      activeBookBase = baseGroup
+      if (!activeBookBase.userData.originalPos) {
+        activeBookBase.userData.originalPos = activeBookBase.position.clone()
+        activeBookBase.userData.originalRot = activeBookBase.rotation.clone()
+      }
+
+      let cover = baseGroup.children ? baseGroup.children.find(c => c.name.toLowerCase().includes('cover')) : null
+      if (cover) {
+        activeBookCover = cover
+        if (!activeBookCover.userData.originalRot) {
+          activeBookCover.userData.originalRot = activeBookCover.rotation.clone()
+        }
+      }
+    }
+
+    zoomTo('books')
+  }
 }
 
 const zoomTo = (target) => {
@@ -1672,12 +2011,13 @@ const resetZoom = () => {
   })
 }
 
-// 🎮 Expose les actions pour le menu externe
+// 🎮 Expose les actions pour le menu
 defineExpose({
   zoomTo,
   resetZoom,
   toggleLight,
   activeElement,
+  activateItemByName
 })
 </script>
 

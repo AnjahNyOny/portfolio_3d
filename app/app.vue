@@ -2,12 +2,24 @@
   <div class="h-screen w-screen bg-zinc-950 overflow-hidden">
 
     <ClientOnly>
-      <TheScene ref="sceneRef" :selected-project="selectedProject" :selected-book="selectedBook" :show-intro="showIntro" />
+      <TheScene 
+        ref="sceneRef" 
+        :selected-project="selectedProject" 
+        :selected-book="selectedBook" 
+        :show-intro="showIntro"
+        @select-project="selectedProject = $event"
+        @select-book="selectedBook = $event"
+        @drawer-state="isDrawerOpen = $event"
+        @background-click="handleBack"
+        @theme-toggled="isDarkMode = $event"
+      />
     </ClientOnly>
 
     <!-- 🎮 MENU GAME-STYLE -->
     <TheGameMenu 
       :visible="!sceneActive" 
+      :drawer-open="isDrawerOpen"
+      :is-dark-mode="isDarkMode"
       @navigate="handleMenuNavigate" 
     />
 
@@ -26,12 +38,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const sceneRef = ref(null)
 const selectedProject = ref(null)
 const selectedBook = ref(null)
 const showIntro = ref(false)
+const isDrawerOpen = ref(false)
+const isDarkMode = ref(false)
 
 // Réactivement tracker si un élément est actif dans la scène
 const sceneActive = computed(() => {
@@ -46,13 +60,17 @@ const handleMenuNavigate = (payload) => {
       showIntro.value = true
       sceneRef.value.zoomTo('laptop')
       break
+    case 'drawer':
+      // Ouvre/Ferme le tiroir sans zoomer dessus
+      sceneRef.value.activateItemByName('drawer')
+      break
     case 'folder':
       selectedProject.value = payload.folder
-      sceneRef.value.zoomTo('folder')
+      sceneRef.value.activateItemByName('folder', payload.folder)
       break
     case 'books':
       selectedBook.value = payload.book
-      sceneRef.value.zoomTo('books')
+      sceneRef.value.activateItemByName('books', payload.book)
       break
     case 'phone':
       sceneRef.value.zoomTo('phone')
@@ -60,6 +78,9 @@ const handleMenuNavigate = (payload) => {
     case 'laptop':
       showIntro.value = false
       sceneRef.value.zoomTo('laptop')
+      break
+    case 'toggle-light':
+      sceneRef.value.toggleLight()
       break
   }
 }
@@ -70,6 +91,21 @@ const handleBack = () => {
   selectedBook.value = null
   showIntro.value = false
 }
+
+// Touche Escape globale pour quitter un élément actif
+const handleGlobalKeydown = (e) => {
+  if (e.key === 'Escape' && sceneActive.value) {
+    handleBack()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown)
+})
 </script>
 
 <style>

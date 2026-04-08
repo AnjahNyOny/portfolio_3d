@@ -3,7 +3,6 @@
     <div 
       v-if="visible" 
       class="game-menu"
-      @keydown="handleKeydown"
       tabindex="0"
       ref="menuRef"
     >
@@ -11,7 +10,7 @@
       <div class="menu-header">
         <h1 class="menu-title">ANJAH NY ONY</h1>
         <p class="menu-subtitle">Junior Web Developer · Québec</p>
-        <div class="menu-divider"></div>
+        <div class="menu-divider mt-4"></div>
       </div>
 
       <!-- MENU ITEMS -->
@@ -45,6 +44,18 @@
         </div>
       </nav>
 
+      <!-- BOUTON MODE SOMBRE (même style que les items du menu) -->
+      <div class="menu-item-wrapper">
+        <button
+          class="menu-item"
+          @click="emit('navigate', { action: 'toggle-light' })"
+          tabindex="-1"
+        >
+          <span class="item-indicator">▸</span>
+          <span class="item-label">{{ isDarkMode ? 'Mode Clair' : 'Mode Sombre' }}</span>
+        </button>
+      </div>
+
       <!-- FOOTER -->
       <div class="menu-footer">
         <div class="menu-divider"></div>
@@ -62,7 +73,22 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  visible: { type: Boolean, default: true }
+  visible: { type: Boolean, default: true },
+  drawerOpen: { type: Boolean, default: false },
+  isDarkMode: { type: Boolean, default: false }
+})
+
+watch(() => props.drawerOpen, (val) => {
+  if (val) {
+    if (expandedSection.value !== 'projets') {
+      expandedSection.value = 'projets'
+    }
+  } else {
+    // Si le drawer se ferme, on referme la section Projets
+    if (expandedSection.value === 'projets') {
+      expandedSection.value = null
+    }
+  }
 })
 
 const emit = defineEmits(['navigate'])
@@ -71,8 +97,8 @@ const menuRef = ref(null)
 const focusIndex = ref(0)
 const expandedSection = ref(null)
 
-// Structure du menu
-const menuStructure = [
+// Structure du menu (Réactif)
+const menuStructure = computed(() => [
   { 
     id: 'intro', 
     label: 'Introduction', 
@@ -81,6 +107,7 @@ const menuStructure = [
   { 
     id: 'projets', 
     label: 'Projets', 
+    action: 'drawer',
     hasChildren: true,
     children: [
       { id: 'projet-monopoly', label: 'Monopoly Madagascar', action: 'folder', folder: 'monopoly', badge: '🎲' },
@@ -106,13 +133,13 @@ const menuStructure = [
     id: 'contact', 
     label: 'Contact', 
     action: 'phone'
-  },
-]
+  }
+])
 
 // Flatten pour la navigation clavier
 const flatItems = computed(() => {
   const items = []
-  for (const item of menuStructure) {
+  for (const item of menuStructure.value) {
     items.push({ ...item, isChild: false })
     if (item.hasChildren && expandedSection.value === item.id) {
       for (const child of item.children) {
@@ -127,8 +154,12 @@ const selectItem = (item, index) => {
   focusIndex.value = index
   
   if (item.hasChildren) {
-    // Toggle le sous-menu
-    expandedSection.value = expandedSection.value === item.id ? null : item.id
+    // Si l'item a une action (ex: drawer), l'UI s'ouvrira toute seule via la prop drawerOpen une fois le vrai tiroir ouvert.
+    if (item.action) {
+      emit('navigate', { action: item.action })
+    } else {
+      expandedSection.value = expandedSection.value === item.id ? null : item.id
+    }
     return
   }
 
@@ -160,7 +191,16 @@ const handleKeydown = (e) => {
       break
     case 'Escape':
       if (expandedSection.value) {
-        expandedSection.value = null
+        // Retrouver l'index du parent pour ne pas être "out of bounds" après la fermeture
+        const parentIndex = flatItems.value.findIndex(i => i.id === expandedSection.value)
+        if (parentIndex !== -1) focusIndex.value = parentIndex
+        
+        // Si c'est l'accordion projet, on envoie la demande de fermeture du drawer à la 3D
+        if (expandedSection.value === 'projets') {
+          emit('navigate', { action: 'drawer' })
+        } else {
+          expandedSection.value = null
+        }
       }
       break
     case 'ArrowRight':
@@ -185,8 +225,9 @@ watch(() => props.visible, (val) => {
   if (val) {
     nextTick(() => {
       menuRef.value?.focus()
-      focusIndex.value = 0
-      expandedSection.value = null
+      // Fix: Mettre l'index de focus sur "Projets" si déroulé, sinon à 0
+      focusIndex.value = expandedSection.value ? flatItems.value.findIndex(i => i.id === expandedSection.value) : 0
+      // On ne reset PAS expandedSection.value = null; le tiroir peut être encore ouvert !
     })
   }
 })
