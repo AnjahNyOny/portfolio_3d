@@ -74,11 +74,20 @@ watch(() => props.drawerOpen, (val) => {
   }
 })
 
-const emit = defineEmits(['navigate'])
+const emit = defineEmits(['navigate', 'preview'])
 
 const menuRef = ref(null)
 const focusIndex = ref(0)
 const expandedSection = ref(null)
+
+watch(focusIndex, (newIdx) => {
+  const item = flatItems.value[newIdx]
+  if (item && item.action !== 'intro') {
+     emit('preview', item)
+  } else {
+     emit('preview', null)
+  }
+})
 
 // Icones SVG
 const ico = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
@@ -109,6 +118,12 @@ const menuStructure = computed(() => [
       { id: 'projet-movie', label: 'Perfect-Movie', action: 'folder', folder: 'movie', badge: 'star' },
       { id: 'projet-soccer', label: 'Soccer Interculturel Bellechasse', action: 'folder', folder: 'soccer', badge: 'camera' },
     ]
+  },
+  {
+    id: 'timeline',
+    label: 'Mon Parcours',
+    action: 'books',
+    book: 'timeline'
   },
   {
     id: 'stack',

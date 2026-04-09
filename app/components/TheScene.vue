@@ -645,117 +645,113 @@
                   <p :style="{ color: ot.textFaint, fontSize: '22px' }">Technologies et outils que je maîtrise</p>
                 </div>
 
-                <!-- FRONTEND -->
-                <div class="space-y-5">
-                  <h3 class="font-bold uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-3"
-                    style="font-size: 20px;">
-                    <span class="w-10 h-px bg-emerald-400/40"></span> Frontend
-                  </h3>
-                  <div class="grid gap-4">
-                    <div
-                      v-for="skill in [{ name: 'Vue.js / Nuxt', level: 90 }, { name: 'TresJS / Three.js', level: 75 }, { name: 'GSAP Animations', level: 85 }, { name: 'TailwindCSS', level: 90 }, { name: 'HTML5 / CSS3', level: 95 }]"
-                      :key="skill.name" class="p-5 rounded-xl"
-                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <div class="flex justify-between items-center mb-3">
-                        <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name
-                          }}</span>
-                        <span class="text-emerald-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
-                      </div>
-                      <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
-                        <div class="h-full rounded-full bg-gradient-to-r from-emerald-500/60 to-emerald-400/40"
-                          :style="{ width: skill.level + '%' }"></div>
+                <!-- CONTENU DES COMPÉTENCES -->
+                <div class="space-y-6">
+
+                  <!-- FRONTEND -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-emerald-500/10 text-emerald-500 shrink-0 border border-emerald-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['monitor']"></span>
+                    </div>
+                    <div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Développement Frontend</h3>
+                      <p class="font-medium leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">JavaScript, HTML5, CSS3, TailwindCSS</p>
+                    </div>
+                  </div>
+
+                  <!-- FRAMEWORK -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-cyan-500/10 text-cyan-500 shrink-0 border border-cyan-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['sparkles']"></span>
+                    </div>
+                    <div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Framework</h3>
+                      <p class="font-medium leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Vue.js</p>
+                    </div>
+                  </div>
+
+                  <!-- BACKEND -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-blue-500/10 text-blue-500 shrink-0 border border-blue-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['cog']"></span>
+                    </div>
+                    <div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Développement Backend</h3>
+                      <p class="font-medium leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Node.js, Express.js, APIs RESTful</p>
+                    </div>
+                  </div>
+
+                  <!-- DATABASE -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-indigo-500/10 text-indigo-500 shrink-0 border border-indigo-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['database']"></span>
+                    </div>
+                    <div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Bases de Données</h3>
+                      <p class="font-medium leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">MySQL (conception et gestion), Modélisation UML</p>
+                    </div>
+                  </div>
+
+                  <!-- OUTILS -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-purple-500/10 text-purple-500 shrink-0 border border-purple-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['wrench']"></span>
+                    </div>
+                    <div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Outils et Environnement</h3>
+                      <p class="font-medium leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Git, GitHub, VS Code</p>
+                    </div>
+                  </div>
+
+                  <!-- SOFT SKILLS -->
+                  <div class="p-6 rounded-2xl flex flex-col sm:flex-row items-start gap-5 transition-transform hover:scale-[1.01]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-amber-500/10 text-amber-500 shrink-0 border border-amber-500/20">
+                      <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['star']"></span>
+                    </div>
+                    <div class="w-full">
+                      <h3 class="font-bold mb-4 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Soft Skills</h3>
+                      <div class="flex flex-wrap gap-3">
+                        <span v-for="soft in ['Autonomie', 'Ecoute', 'Patience', 'Gestion du stress', 'Curiosité', 'Soif d\'apprendre', 'Esprit d\'équipe']" :key="soft"
+                          class="px-4 py-2 rounded-lg font-medium"
+                          :style="{ fontSize: '16px', color: ot.textMuted, background: ot.bg, border: '1px solid ' + ot.border }">
+                          {{ soft }}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- BACKEND -->
-                <div class="space-y-5">
-                  <h3 class="font-bold uppercase tracking-[0.2em] text-blue-400 flex items-center gap-3"
-                    style="font-size: 20px;">
-                    <span class="w-10 h-px bg-blue-400/40"></span> Backend & BDD
-                  </h3>
-                  <div class="grid gap-4">
-                    <div
-                      v-for="skill in [{ name: 'Node.js / Express', level: 90 }, { name: 'MySQL / UML', level: 85 }, { name: 'REST APIs', level: 90 }, { name: 'MongoDB', level: 70 }, { name: 'Socket.io', level: 75 }]"
-                      :key="skill.name" class="p-5 rounded-xl"
-                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <div class="flex justify-between items-center mb-3">
-                        <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name
-                          }}</span>
-                        <span class="text-blue-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
+                  <!-- EDUCATION & LANGUES-->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-2xl flex flex-col items-center text-center transition-transform hover:scale-[1.02]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="w-14 h-14 rounded-full flex items-center justify-center bg-rose-500/10 text-rose-500 mb-4 border border-rose-500/20">
+                        <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['graduation']"></span>
                       </div>
-                      <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
-                        <div class="h-full rounded-full bg-gradient-to-r from-blue-500/60 to-blue-400/40"
-                          :style="{ width: skill.level + '%' }"></div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Éducation</h3>
+                      <p class="font-medium" :style="{ color: ot.textMuted, fontSize: '20px' }">Licence Professionnel</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl flex flex-col items-center text-center transition-transform hover:scale-[1.02]" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="w-14 h-14 rounded-full flex items-center justify-center bg-sky-500/10 text-sky-500 mb-4 border border-sky-500/20">
+                        <span style="width: 28px; height: 28px; display: inline-flex;" v-html="projectIcons['globe']"></span>
                       </div>
+                      <h3 class="font-bold mb-2 uppercase tracking-[0.1em]" :style="{ color: ot.text, fontSize: '18px' }">Langues</h3>
+                      <p class="font-medium" :style="{ color: ot.textMuted, fontSize: '20px' }">Français (Courant)<br>Anglais (Intermédiaire)</p>
                     </div>
                   </div>
-                </div>
 
-                <!-- OUTILS -->
-                <div class="space-y-5">
-                  <h3 class="font-bold uppercase tracking-[0.2em] text-purple-400 flex items-center gap-3"
-                    style="font-size: 20px;">
-                    <span class="w-10 h-px bg-purple-400/40"></span> Outils
-                  </h3>
-                  <div class="flex flex-wrap gap-3">
-                    <span v-for="tool in ['Git', 'GitHub', 'VS Code', 'Déploiement', 'SEO', 'Agile']" :key="tool"
-                      class="px-5 py-3 rounded-xl font-medium border border-purple-400/15 text-purple-300"
-                      :style="{ fontSize: '18px', background: 'rgba(168,85,247,0.06)' }">
-                      {{ tool }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- SOFT SKILLS + LANGUES -->
-                <div class="space-y-5">
-                  <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3"
-                    :style="{ color: ot.textFaint, fontSize: '20px' }">
-                    <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Soft Skills
-                  </h3>
-                  <div class="flex flex-wrap gap-3">
-                    <span v-for="soft in ['Autonomie', 'Curiosité', 'Esprit d\'équipe', 'Patience', 'Adaptabilité']"
-                      :key="soft" class="px-5 py-3 rounded-xl font-medium"
-                      :style="{ fontSize: '18px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">
-                      {{ soft }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="space-y-5 mt-8">
-                  <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3"
-                    :style="{ color: ot.textFaint, fontSize: '20px' }">
-                    <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Langues
-                  </h3>
-                  <div class="grid grid-cols-2 gap-4">
-                    <div class="p-5 rounded-xl text-center"
-                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Français</p>
-                      <p :style="{ color: ot.textFaint, fontSize: '16px' }">Courant</p>
-                    </div>
-                    <div class="p-5 rounded-xl text-center"
-                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Anglais</p>
-                      <p :style="{ color: ot.textFaint, fontSize: '16px' }">Intermédiaire (B1-B2)</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </template>
 
             <!-- LIVRE : PARCOURS TIMELINE -->
-            <TheBooksTimeline v-else-if="selectedBook === 'timeline'" />
-
-            <!-- LIVRE : À PROPOS -->
-            <template v-else>
-              <div class="p-12 space-y-12">
+            <template v-else-if="selectedBook === 'timeline'">
+               <div class="p-12 space-y-12">
                 <div class="text-center space-y-4">
                   <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full"
                     :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                    <span style="font-size: 28px; width: 28px; height: 28px;" v-html="projectIcons['filetext']"></span>
+                    <span style="font-size: 28px; width: 28px; height: 28px;" v-html="projectIcons['calendar']"></span>
                     <span class="font-bold uppercase tracking-[0.2em]"
-                      :style="{ color: ot.textFaint, fontSize: '18px' }">À propos</span>
+                      :style="{ color: ot.textFaint, fontSize: '18px' }">Mon Parcours</span>
                   </div>
                   <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Mon Parcours</h2>
                 </div>
@@ -771,7 +767,7 @@
                         <div>
                           <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Développeur Full-Stack
                           </h3>
-                          <p class="text-cyan-400" style="font-size: 18px;">H&S Consulting</p>
+                          <p class="font-medium" :style="{ color: props.isDarkMode ? '#22d3ee' : '#0891b2', fontSize: '18px' }">H&S Consulting</p>
                         </div>
                       </div>
                       <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">09/2025 — 10/2025 ·
@@ -792,7 +788,7 @@
                         <div>
                           <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Licence Pro. Génie
                             Logiciel</h3>
-                          <p class="text-amber-400" style="font-size: 18px;">ENI Madagascar</p>
+                          <p class="font-medium" :style="{ color: props.isDarkMode ? '#fbbf24' : '#b45309', fontSize: '18px' }">ENI Madagascar</p>
                         </div>
                       </div>
                       <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">05/2025</p>
@@ -810,19 +806,74 @@
                         <span style="font-size: 36px; width: 36px; height: 36px;" v-html="projectIcons['rocket']"></span>
                         <div>
                           <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Profil Actuel</h3>
-                          <p class="text-emerald-400" style="font-size: 18px;">Disponible immédiatement</p>
+                          <p class="font-medium" :style="{ color: props.isDarkMode ? '#34d399' : '#047857', fontSize: '18px' }">Disponible immédiatement</p>
                         </div>
                       </div>
                       <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Résident à
                         Saint-Anselme (Québec) avec un Permis de Travail Ouvert valide jusqu'en Octobre 2026. Doté d'une
                         forte capacité d'apprentissage, je suis prêt à relever de nouveaux défis !</p>
                       <div
-                        class="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full border border-emerald-400/20 text-emerald-400"
-                        style="font-size: 18px; background: rgba(16,185,129,0.06);">
+                        class="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full border"
+                        :style="{
+                          fontSize: '18px',
+                          color: props.isDarkMode ? '#34d399' : '#047857',
+                          backgroundColor: props.isDarkMode ? 'rgba(16,185,129,0.06)' : 'rgba(16,185,129,0.1)',
+                          borderColor: props.isDarkMode ? 'rgba(52,211,153,0.2)' : 'rgba(4,120,87,0.2)'
+                        }">
                         <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['globe']"></span> Permis de Travail Ouvert
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- LIVRE : À PROPOS -->
+            <template v-else>
+              <div class="p-12 space-y-10">
+                <div class="text-center space-y-4">
+                  <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <span style="font-size: 28px; width: 28px; height: 28px;" v-html="projectIcons['filetext']"></span>
+                    <span class="font-bold uppercase tracking-[0.2em]"
+                      :style="{ color: ot.textFaint, fontSize: '18px' }">À propos de moi</span>
+                  </div>
+                  <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Qui suis-je ?</h2>
+                </div>
+
+                <div class="p-8 rounded-2xl flex flex-col gap-6" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                  <p class="leading-relaxed font-medium" :style="{ color: ot.textMuted, fontSize: '22px' }">
+                    Bonjour ! Je m'appelle <strong :style="{ color: ot.text }">ANJAH Rakotovao</strong>. Développeur Full-Stack, je suis passionné par la création d'expériences numériques immersives et performantes.
+                  </p>
+                  
+                  <p class="leading-relaxed font-medium" :style="{ color: ot.textMuted, fontSize: '22px' }">
+                    Mon approche du développement repose sur trois piliers fondamentaux :
+                  </p>
+
+                  <ul class="space-y-4 ml-2">
+                    <li class="flex items-center gap-4">
+                      <span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border" :style="{ backgroundColor: props.isDarkMode ? 'rgba(34,211,238,0.1)' : 'rgba(8,145,178,0.05)', borderColor: props.isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(8,145,178,0.2)', color: props.isDarkMode ? '#22d3ee' : '#0891b2' }">
+                         <span style="width: 20px; height: 20px;" v-html="projectIcons['monitor']"></span>
+                      </span>
+                      <span :style="{ color: ot.text, fontSize: '20px' }"><strong>L'Esthétique :</strong> Concevoir des interfaces belles et intuitives.</span>
+                    </li>
+                    <li class="flex items-center gap-4">
+                      <span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border" :style="{ backgroundColor: props.isDarkMode ? 'rgba(52,211,153,0.1)' : 'rgba(4,120,87,0.05)', borderColor: props.isDarkMode ? 'rgba(52,211,153,0.2)' : 'rgba(4,120,87,0.2)', color: props.isDarkMode ? '#34d399' : '#047857' }">
+                         <span style="width: 20px; height: 20px;" v-html="projectIcons['zap']"></span>
+                      </span>
+                      <span :style="{ color: ot.text, fontSize: '20px' }"><strong>La Performance :</strong> Coder des applications rapides et optimisées.</span>
+                    </li>
+                    <li class="flex items-center gap-4">
+                      <span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border" :style="{ backgroundColor: props.isDarkMode ? 'rgba(168,85,247,0.1)' : 'rgba(126,34,206,0.05)', borderColor: props.isDarkMode ? 'rgba(168,85,247,0.2)' : 'rgba(126,34,206,0.2)', color: props.isDarkMode ? '#a855f7' : '#7e22ce' }">
+                         <span style="width: 20px; height: 20px;" v-html="projectIcons['cog']"></span>
+                      </span>
+                      <span :style="{ color: ot.text, fontSize: '20px' }"><strong>La Robustesse :</strong> Bâtir des architectures backend solides.</span>
+                    </li>
+                  </ul>
+
+                  <p class="leading-relaxed font-medium mt-2" :style="{ color: ot.textMuted, fontSize: '22px' }">
+                    Mon parcours académique à Madagascar et mon expérience m'ont doté d'une forte autonomie, que je suis prêt à mettre au service de vos projets.  
+                  </p>
                 </div>
               </div>
             </template>
@@ -1197,7 +1248,7 @@ async function submitContact() {
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
-const ENABLE_CALIBRATION_UI = false
+const ENABLE_CALIBRATION_UI = true
 const calibrationMode = ref(false)
 const showLightCalibration = ref(false)
 const showCameraCalibration = ref(false)
@@ -1463,7 +1514,7 @@ const lightPos = ref({
   sunTarget: { x: 13.5, y: -2, z: 0 },
 
   godRay: { x: -2.3, y: 3.5, z: 1.7, rotX: 90, rotY: -30, rotZ: 90, opacity: 0.15 },
-  desk: { x: 1.5, y: 2.5, z: 0.5 },
+  desk: { x: 2, y: 3, z: 2 },
 })
 
 const godRayUniforms = shallowReactive({
@@ -1655,20 +1706,7 @@ const getHitMeshName = (event) => {
   return event?.intersection?.object?.name || event?.object?.name || ''
 }
 
-// Helper pour vérifier si on clique sur un élément interactif
-const isInteractive = (meshName) => {
-  if (!meshName) return false
-  const name = meshName.toLowerCase()
-
-  const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
-  const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
-  const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
-  const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
-  const isDrawer = name.includes('drawer_bottom')
-  const isFolder = name.includes('folder')
-
-  return isLaptop || isPhone || isBook || isSwitch || isDrawer || isFolder
-}
+// L'ancien isInteractive a été fusionné dans getInteractiveData plus bas
 
 // Gérer l'ouverture/fermeture du tiroir (sans zoomer)
 const toggleDrawer = (drawerMesh) => {
@@ -1736,57 +1774,93 @@ const onModelLoaded = (gltf) => {
 }
 
 // 🔍 Clic sur un objet
+// 🔍 Fonction unifiée pour identifier un groupe interactif complet depuis n'importe quel mesh enfant
+const getInteractiveData = (mesh) => {
+  if (!mesh) return null
+  let node = mesh
+  let hitType = null
+
+  // 1. Déterminer la catégorie en remontant l'arbre (bubble up)
+  while (node && node.type !== 'Scene' && node.name !== 'Scene') {
+    const name = node.name.toLowerCase()
+
+    if (name.includes('shelf') || name.includes('book_shelf')) {
+      // On l'ignore, mais on n'arrête PAS la boucle pour laisser le livre prendre le dessus
+    } else if (!hitType) {
+      if (name.includes('laptop') || name.includes('macbook') || LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))) hitType = 'laptop'
+      else if (name.includes('phone') || name.startsWith(PHONE_PREFIX.toLowerCase())) hitType = 'phone'
+      else if (name.includes('drawer_bottom')) hitType = 'drawer'
+      else if (name.includes('folder')) hitType = 'folder'
+      else if (LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')) hitType = 'switch'
+      else if ((BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) hitType = 'book'
+    }
+    node = node.parent
+  }
+
+  if (!hitType) return null
+
+  // 2. Trouver le groupe parent racine de l'objet entier qui englobe toutes ses sous-parties
+  if (hitType === 'phone') return { type: 'phone', group: getPhoneGroup() }
+
+  if (hitType === 'laptop' || hitType === 'switch') {
+    let rootScene = mesh
+    while (rootScene && rootScene.parent) rootScene = rootScene.parent // Remonter au sommet
+    
+    let fragments = []
+    rootScene.traverse((child) => {
+      const cname = child.name ? child.name.toLowerCase() : ''
+      if (hitType === 'laptop' && (cname.includes('laptop') || cname.includes('macbook') || LAPTOP_PARTS.some(p => cname.includes(p.toLowerCase())))) {
+        fragments.push(child)
+      }
+      if (hitType === 'switch' && (LIGHT_SWITCH.some(p => cname.includes(p.toLowerCase())) || cname.includes('light_switch'))) {
+         fragments.push(child)
+      }
+    })
+    return { type: hitType, group: fragments }
+  }
+
+  let root = mesh
+  if (hitType === 'drawer') {
+    while (root.parent && root.parent.name.toLowerCase().includes('drawer_bottom')) root = root.parent
+  } else if (hitType === 'folder') {
+     while (root.parent && root.parent.name.toLowerCase().includes('folder')) root = root.parent
+  } else {
+    while (root.parent && root.parent.type === 'Group' && root.parent.name !== 'Scene') {
+      root = root.parent
+    }
+  }
+
+  return { type: hitType, group: root }
+}
+
+// 🔍 Clic sur un objet
 const onModelClick = (event) => {
   if (animating.value) return
-  if (activeElement.value) {
-    emit('background-click')
+  if (activeElement.value !== null) {
+    emit('background-click') // Zoom out si on clique n'importe où alors qu'un élément est ouvert
     return
   }
 
-  const meshName = getHitMeshName(event)
-  if (!meshName) return
-  const name = meshName.toLowerCase()
+  const data = getInteractiveData(event.object || event.intersection?.object)
+  if (!data) return
 
-  const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
-  const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
-  const isBook = (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')) && !name.includes('shelf')
-  const isSwitch = LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')
-  const isDrawer = name.includes('drawer_bottom')
-  const isFolder = name.includes('folder')
+  const { type, group } = data
 
-  if (isLaptop) {
+  if (type === 'laptop') {
     zoomTo('laptop')
-  } else if (isPhone) {
+  } else if (type === 'phone') {
     zoomTo('phone')
-  } else if (isDrawer) {
-    let bottomDrawer = event.object
-    if (bottomDrawer.parent && bottomDrawer.parent.name.toLowerCase().includes('drawer_bottom')) {
-      bottomDrawer = bottomDrawer.parent
-    }
-    toggleDrawer(bottomDrawer)
-  } else if (isFolder) {
-    let base = event.object
-    // Remonter jusqu'à la base du dossier (tant que le parent s'appelle aussi folder)
-    while (base.parent && base.parent.name.toLowerCase().includes('folder')) {
-      base = base.parent
+  } else if (type === 'drawer') {
+    toggleDrawer(group)
+  } else if (type === 'folder') {
+    activeFolderBase = group
+    if (!activeFolderBase.userData.originalPos) {
+      activeFolderBase.userData.originalPos = activeFolderBase.position.clone()
+      activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
     }
 
-    if (base) {
-      activeFolderBase = base
-      if (!activeFolderBase.userData.originalPos) {
-        activeFolderBase.userData.originalPos = activeFolderBase.position.clone()
-        activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
-      }
-    }
-
-    let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
-    if (!cover && name.includes('cover')) {
-      cover = event.object
-      // Si on a cliqué sur le cover, on cherche la base comme parent
-      if (cover.parent && cover.parent.name.toLowerCase().includes('folder')) {
-        activeFolderBase = cover.parent
-      }
-    }
+    let cover = group.children ? group.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    if (!cover && event.object.name.toLowerCase().includes('cover')) cover = event.object
 
     if (cover) {
       activeFolderCover = cover
@@ -1795,36 +1869,19 @@ const onModelClick = (event) => {
       }
     }
 
-    // Extraire l'id du projet du nom du mesh (ex: 'folder_portfolio' -> 'portfolio' / 'folder_portfolio_cover' -> 'portfolio')
-    const match = name.match(/folder_([a-zA-Z0-9]+)/i)
-    if (match && match[1]) {
-      emit('select-project', match[1].toLowerCase())
-    }
+    const match = (event.object?.name || group.name).match(/folder_([a-zA-Z0-9]+)/i) || group.name.match(/folder_([a-zA-Z0-9]+)/i)
+    if (match && match[1]) emit('select-project', match[1].toLowerCase())
 
     zoomTo('folder')
-  } else if (isBook) {
-    let base = event.object
-
-    // Remonter jusqu'à la base du livre (groupe parent)
-    while (base.parent && base.parent.type === 'Group' && base.parent.name !== 'Scene') {
-      base = base.parent
+  } else if (type === 'book') {
+    activeBookBase = group
+    if (!activeBookBase.userData.originalPos) {
+      activeBookBase.userData.originalPos = activeBookBase.position.clone()
+      activeBookBase.userData.originalRot = activeBookBase.rotation.clone()
     }
 
-    if (base) {
-      activeBookBase = base
-      if (!activeBookBase.userData.originalPos) {
-        activeBookBase.userData.originalPos = activeBookBase.position.clone()
-        activeBookBase.userData.originalRot = activeBookBase.rotation.clone()
-      }
-    }
-
-    // Trouver le cover parmi les enfants. Si l'objet contient "cover" dans son nom
-    let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
-
-    // Fallback direct si on a cliqué sur la couv' mais sans hiérarchie enfant
-    if (!cover && name.includes('cover')) {
-      cover = event.object
-    }
+    let cover = group.children ? group.children.find(c => c.name.toLowerCase().includes('cover')) : null
+    if (!cover && event.object.name.toLowerCase().includes('cover')) cover = event.object
 
     if (cover) {
       activeBookCover = cover
@@ -1833,32 +1890,141 @@ const onModelClick = (event) => {
       }
     }
 
-    // Extraire l'id du livre (ex: 'book_stack' -> 'stack')
-    const match = name.match(/book_([^_]+)/i)
-    if (match && match[1]) {
-      emit('select-book', match[1].toLowerCase())
-    }
+    const match = group.name.match(/book_([^_]+)/i) || (event.object?.name || '').match(/book_([^_]+)/i)
+    if (match && match[1]) emit('select-book', match[1].toLowerCase())
 
     zoomTo('books')
-  } else if (isSwitch) {
+  } else if (type === 'switch') {
     toggleLight()
+  }
+}
+
+let currentHoveredGroup = null
+let currentHoveredType = null
+
+const highlightGroup = (groupOrArray, isHovering) => {
+  if (!groupOrArray) return // On retire le && animating.value pour pouvoir "éteindre" l'effet pendant l'animation
+
+  const isArray = Array.isArray(groupOrArray)
+  const canScale = isArray ? false : !groupOrArray.name.toLowerCase().includes('drawer')
+  const elements = isArray ? groupOrArray : [groupOrArray]
+
+  if (isHovering && !animating.value) { // On n'illumine que s'il n'y a pas d'animation en cours
+    if (canScale && !isArray) {
+      const group = groupOrArray
+      if (!group.userData.originalScale) {
+        group.userData.originalScale = group.scale.clone()
+      }
+      gsap.to(group.scale, { 
+        x: group.userData.originalScale.x * 1.02, 
+        y: group.userData.originalScale.y * 1.02, 
+        z: group.userData.originalScale.z * 1.02, 
+        duration: 0.2, 
+        ease: 'power2.out' 
+      })
+    }
+
+    elements.forEach(element => {
+      element.traverse((child) => {
+        if (child.isMesh && child.material) {
+          if (!child.userData.hasClonedMaterial) {
+             if (Array.isArray(child.material)) {
+                 child.material = child.material.map(m => m.clone())
+             } else {
+                 child.material = child.material.clone()
+             }
+             child.userData.hasClonedMaterial = true
+          }
+          
+          let mats = Array.isArray(child.material) ? child.material : [child.material]
+          mats.forEach(mat => {
+              if (mat.emissive) {
+                  if (!mat.userData) mat.userData = {}
+                  if (!mat.userData.originalEmissive) {
+                      mat.userData.originalEmissive = mat.emissive.clone()
+                  }
+                  // Ajoute une lueur blanche/grise
+                  gsap.to(mat.emissive, { r: 0.15, g: 0.15, b: 0.15, duration: 0.2 })
+              }
+          })
+        }
+      })
+    })
+  } else if (!isHovering) {
+    // Restaurer
+    if (canScale && !isArray && groupOrArray.userData.originalScale) {
+      const group = groupOrArray
+      gsap.to(group.scale, { 
+        x: group.userData.originalScale.x, 
+        y: group.userData.originalScale.y, 
+        z: group.userData.originalScale.z, 
+        duration: 0.2, 
+        ease: 'power2.out' 
+      })
+    }
+    
+    elements.forEach(element => {
+      element.traverse((child) => {
+        if (child.isMesh && child.material) {
+          let mats = Array.isArray(child.material) ? child.material : [child.material]
+          mats.forEach(mat => {
+              if (mat.emissive && mat.userData?.originalEmissive) {
+                  gsap.to(mat.emissive, { 
+                    r: mat.userData.originalEmissive.r, 
+                    g: mat.userData.originalEmissive.g, 
+                    b: mat.userData.originalEmissive.b, 
+                    duration: 0.2 
+                  })
+              }
+          })
+        }
+      })
+    })
   }
 }
 
 // Mouvement sur le modèle — détecte le mesh survolé en continu
 const onPointerMove = (event) => {
-  const meshName = getHitMeshName(event)
-  hoveredMeshName.value = meshName || ''
+  if (animating.value || activeElement.value !== null) {
+    if (isHovered.value) {
+      isHovered.value = false
+      document.body.style.cursor = 'auto'
+    }
+    if (currentHoveredGroup) {
+      highlightGroup(currentHoveredGroup, false)
+      currentHoveredGroup = null
+      currentHoveredType = null
+    }
+    return 
+  }
 
-  if (isInteractive(meshName)) {
+  const data = getInteractiveData(event.object || event.intersection?.object)
+  hoveredMeshName.value = data ? data.type : ''
+
+  if (data) {
     if (!isHovered.value) {
       isHovered.value = true
       document.body.style.cursor = 'pointer'
     }
+
+    const { type, group } = data
+    if (currentHoveredType !== type || (type !== 'laptop' && type !== 'switch' && currentHoveredGroup !== group)) {
+      if (currentHoveredGroup) highlightGroup(currentHoveredGroup, false)
+      currentHoveredGroup = group
+      currentHoveredType = type
+      highlightGroup(currentHoveredGroup, true)
+    }
   } else {
+    // Plus rien n'est survolé (ou un élément est en mode "ouvert")
     if (isHovered.value) {
       isHovered.value = false
       document.body.style.cursor = 'auto'
+      
+      if (currentHoveredGroup) {
+        highlightGroup(currentHoveredGroup, false)
+        currentHoveredGroup = null
+        currentHoveredType = null
+      }
     }
   }
 }
@@ -1868,6 +2034,12 @@ const onPointerOut = () => {
   hoveredMeshName.value = ''
   isHovered.value = false
   document.body.style.cursor = 'auto'
+  
+  if (currentHoveredGroup) {
+    highlightGroup(currentHoveredGroup, false)
+    currentHoveredGroup = null
+    currentHoveredType = null
+  }
 }
 
 // Clic dans le vide
@@ -2002,6 +2174,12 @@ const zoomTo = (target) => {
 
   isHovered.value = false
   document.body.style.cursor = 'auto'
+  
+  if (currentHoveredGroup) {
+    highlightGroup(currentHoveredGroup, false)
+    currentHoveredGroup = null
+    currentHoveredType = null
+  }
 
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
@@ -2247,6 +2425,70 @@ const resetZoom = () => {
     }
   })
 }
+const previewItem = (item) => {
+  if (animating.value || activeElement.value !== null) return
+
+  const clearHover = () => {
+    if (currentHoveredGroup) {
+      highlightGroup(currentHoveredGroup, false)
+      currentHoveredGroup = null
+      currentHoveredType = null
+    }
+    hoveredMeshName.value = ''
+  }
+
+  if (!item || item.action === 'intro') {
+    clearHover()
+    return
+  }
+
+  const { action, id, book } = item
+  let rootScene = cameraRef.value
+  if (!rootScene) return
+  while (rootScene.parent) {
+    rootScene = rootScene.parent
+  }
+
+  let lookupType = null
+  if (action === 'drawer' || action === 'folder') lookupType = action
+  else if (action === 'phone') lookupType = 'phone'
+  else if (action === 'books') lookupType = 'book'
+  else if (action === 'toggle-light') lookupType = 'switch'
+
+  if (!lookupType) return clearHover()
+
+  let foundMesh = null
+  rootScene.traverse((child) => {
+    if (foundMesh) return
+    const name = child.name ? child.name.toLowerCase() : ''
+    
+    if (lookupType === 'phone' && name.startsWith(PHONE_PREFIX.toLowerCase())) foundMesh = child
+    else if (lookupType === 'drawer' && name.includes('drawer_bottom')) foundMesh = child
+    else if (lookupType === 'folder' && id && name.startsWith(`folder_${id}`.toLowerCase()) && !name.includes('cover') && !name.includes('paper')) foundMesh = child
+    else if (lookupType === 'folder' && !id && name.includes('folder')) foundMesh = child
+    else if (lookupType === 'switch' && LIGHT_SWITCH.some(p => name.includes(p.toLowerCase()))) foundMesh = child
+    else if (lookupType === 'book' && book && name === `book_${book}`) foundMesh = child
+    else if (lookupType === 'book' && !book && (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) {
+      if (!name.includes('shelf') && !name.includes('book_shelf')) foundMesh = child
+    }
+  })
+
+  // getInteractiveData requires ANY mesh of that type to fetch the full array/group logic!
+  const data = foundMesh ? getInteractiveData(foundMesh) : null
+  hoveredMeshName.value = data ? data.type : ''
+
+  if (data) {
+    const { type, group } = data
+    if (currentHoveredType !== type || (type !== 'laptop' && type !== 'switch' && currentHoveredGroup !== group)) {
+      if (currentHoveredGroup) highlightGroup(currentHoveredGroup, false)
+      currentHoveredGroup = group
+      currentHoveredType = type
+      highlightGroup(currentHoveredGroup, true)
+    }
+  } else {
+    clearHover()
+  }
+}
 
 // 🎮 Expose les actions pour le menu
 defineExpose({
@@ -2254,7 +2496,8 @@ defineExpose({
   resetZoom,
   toggleLight,
   activeElement,
-  activateItemByName
+  activateItemByName,
+  previewItem
 })
 </script>
 
