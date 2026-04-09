@@ -6,11 +6,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'fr' },
-      title: 'Anjah Ny Ony — Développeur Web Fullstack | Portfolio 3D',
+      title: 'Anjah Rakotovao — Développeur Web Fullstack | Portfolio 3D',
       meta: [
-        { name: 'description', content: 'Portfolio interactif 3D de Anjah Ny Ony, développeur web fullstack spécialisé Vue.js, Nuxt, Node.js. Basé au Québec, Canada.' },
+        { name: 'description', content: 'Portfolio interactif 3D de Anjah Rakotovao, développeur web fullstack spécialisé Vue.js, Nuxt, Node.js. Basé au Québec, Canada.' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { property: 'og:title', content: 'Anjah Ny Ony — Web Developer' },
+        { property: 'og:title', content: 'Anjah Rakotovao — Web Developer' },
         { property: 'og:description', content: 'Découvrez mon portfolio interactif en 3D. Développeur fullstack Vue.js & Node.js au Québec.' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://portfolio.anjahnyony.com' },
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'Anjah Ny Ony — Web Developer' },
+        { name: 'twitter:title', content: 'Anjah Rakotovao — Web Developer' },
         { name: 'twitter:description', content: 'Portfolio interactif 3D — Développeur fullstack Vue.js & Node.js' },
         { name: 'twitter:image', content: 'https://portfolio.anjahnyony.com/og-card.png' },
         { name: 'theme-color', content: '#09090b' },
@@ -39,8 +39,8 @@ export default defineNuxtConfig({
 
   build: {
     transpile: [
-      'three', 
-      '@tresjs/core', 
+      'three',
+      '@tresjs/core',
       '@tresjs/cientos'
     ],
   },

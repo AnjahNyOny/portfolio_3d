@@ -1,4 +1,4 @@
-# 🖥️ Portfolio 3D Interactif — Anjah Ny Ony
+# 🖥️ Portfolio 3D Interactif — Anjah Rakotovao
 
 > **Vision** : Un portfolio immersif où le visiteur explore un bureau 3D low-poly et interagit avec les objets pour découvrir mon profil, mes projets et me contacter.
 

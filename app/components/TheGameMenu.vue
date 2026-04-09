@@ -1,36 +1,23 @@
 <template>
   <Transition name="menu-fade">
-    <div 
-      v-if="visible" 
-      class="game-menu"
-      tabindex="0"
-      ref="menuRef"
-    >
+    <div v-if="visible" class="game-menu" tabindex="0" ref="menuRef">
       <!-- HEADER -->
       <div class="menu-header">
-        <h1 class="menu-title">ANJAH NY ONY</h1>
+        <h1 class="menu-title">ANJAH Rakotovao</h1>
         <p class="menu-subtitle">Junior Web Developer · Québec</p>
         <div class="menu-divider mt-4"></div>
       </div>
 
       <!-- MENU ITEMS -->
       <nav class="menu-nav">
-        <div 
-          v-for="(item, index) in flatItems" 
-          :key="item.id"
-          class="menu-item-wrapper"
-        >
-          <button
-            :class="[
-              'menu-item',
-              { 'active': focusIndex === index },
-              { 'sub-item': item.isChild },
-              { 'has-children': item.hasChildren },
-              { 'expanded': item.hasChildren && expandedSection === item.id }
-            ]"
-            @click="selectItem(item, index)"
-            @mouseenter="focusIndex = index"
-          >
+        <div v-for="(item, index) in flatItems" :key="item.id" class="menu-item-wrapper">
+          <button :class="[
+            'menu-item',
+            { 'active': focusIndex === index },
+            { 'sub-item': item.isChild },
+            { 'has-children': item.hasChildren },
+            { 'expanded': item.hasChildren && expandedSection === item.id }
+          ]" @click="selectItem(item, index)" @mouseenter="focusIndex = index">
             <span class="item-indicator">
               <template v-if="item.hasChildren">
                 {{ expandedSection === item.id ? '▾' : '▸' }}
@@ -39,18 +26,14 @@
               <template v-else>▸</template>
             </span>
             <span class="item-label">{{ item.label }}</span>
-            <span v-if="item.badge" class="item-badge">{{ item.badge }}</span>
+            <span v-if="item.badge" class="item-badge" v-html="icons[item.badge]"></span>
           </button>
         </div>
       </nav>
 
       <!-- BOUTON MODE SOMBRE (même style que les items du menu) -->
       <div class="menu-item-wrapper">
-        <button
-          class="menu-item"
-          @click="emit('navigate', { action: 'toggle-light' })"
-          tabindex="-1"
-        >
+        <button class="menu-item" @click="emit('navigate', { action: 'toggle-light' })" tabindex="-1">
           <span class="item-indicator">▸</span>
           <span class="item-label">{{ isDarkMode ? 'Mode Clair' : 'Mode Sombre' }}</span>
         </button>
@@ -97,41 +80,51 @@ const menuRef = ref(null)
 const focusIndex = ref(0)
 const expandedSection = ref(null)
 
+// Icones SVG
+const ico = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+const icons = {
+  dice: ico('<rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>'),
+  monitor: ico('<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>'),
+  globe: ico('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'),
+  star: ico('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  camera: ico('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>')
+}
+
 // Structure du menu (Réactif)
 const menuStructure = computed(() => [
-  { 
-    id: 'intro', 
-    label: 'Introduction', 
+  {
+    id: 'intro',
+    label: 'Introduction',
     action: 'intro'
   },
-  { 
-    id: 'projets', 
-    label: 'Projets', 
+  {
+    id: 'projets',
+    label: 'Projets',
     action: 'drawer',
     hasChildren: true,
     children: [
-      { id: 'projet-monopoly', label: 'Monopoly Madagascar', action: 'folder', folder: 'monopoly', badge: '🎲' },
-      { id: 'projet-cms', label: 'CMS Propriétaire', action: 'folder', folder: 'cms', badge: '📝' },
-      { id: 'projet-portfolio', label: 'Portfolio Bilingue', action: 'folder', folder: 'portfolio', badge: '🌐' },
-      { id: 'projet-movie', label: 'Perfect-Movie', action: 'folder', folder: 'movie', badge: '🎬' },
-      { id: 'projet-soccer', label: 'Club de Soccer', action: 'folder', folder: 'soccer', badge: '⚽' },
+      { id: 'projet-monopoly', label: 'Monopoly Madagascar', action: 'folder', folder: 'monopoly', badge: 'dice' },
+      { id: 'projet-cms', label: 'CMS Propriétaire', action: 'folder', folder: 'cms', badge: 'monitor' },
+      { id: 'projet-portfolio', label: 'Portfolio Bilingue', action: 'folder', folder: 'portfolio', badge: 'globe' },
+      { id: 'projet-movie', label: 'Perfect-Movie', action: 'folder', folder: 'movie', badge: 'star' },
+      { id: 'projet-soccer', label: 'Soccer Interculturel Bellechasse', action: 'folder', folder: 'soccer', badge: 'camera' },
     ]
   },
-  { 
-    id: 'stack', 
-    label: 'Stack & Skills', 
+  {
+    id: 'stack',
+    label: 'Stack & Skills',
     action: 'books',
     book: 'stack'
   },
-  { 
-    id: 'about', 
-    label: 'À propos', 
+  {
+    id: 'about',
+    label: 'À propos',
     action: 'books',
     book: 'about'
   },
-  { 
-    id: 'contact', 
-    label: 'Contact', 
+  {
+    id: 'contact',
+    label: 'Contact',
     action: 'phone'
   }
 ])
@@ -152,7 +145,7 @@ const flatItems = computed(() => {
 
 const selectItem = (item, index) => {
   focusIndex.value = index
-  
+
   if (item.hasChildren) {
     // Si l'item a une action (ex: drawer), l'UI s'ouvrira toute seule via la prop drawerOpen une fois le vrai tiroir ouvert.
     if (item.action) {
@@ -174,7 +167,7 @@ const selectItem = (item, index) => {
 
 const handleKeydown = (e) => {
   const len = flatItems.value.length
-  
+
   switch (e.key) {
     case 'ArrowUp':
       e.preventDefault()
@@ -194,7 +187,7 @@ const handleKeydown = (e) => {
         // Retrouver l'index du parent pour ne pas être "out of bounds" après la fermeture
         const parentIndex = flatItems.value.findIndex(i => i.id === expandedSection.value)
         if (parentIndex !== -1) focusIndex.value = parentIndex
-        
+
         // Si c'est l'accordion projet, on envoie la demande de fermeture du drawer à la 3D
         if (expandedSection.value === 'projets') {
           emit('navigate', { action: 'drawer' })
@@ -452,23 +445,56 @@ onUnmounted(() => {
   animation: itemSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.menu-item-wrapper:nth-child(1) { animation-delay: 0.1s; }
-.menu-item-wrapper:nth-child(2) { animation-delay: 0.15s; }
-.menu-item-wrapper:nth-child(3) { animation-delay: 0.2s; }
-.menu-item-wrapper:nth-child(4) { animation-delay: 0.25s; }
-.menu-item-wrapper:nth-child(5) { animation-delay: 0.3s; }
-.menu-item-wrapper:nth-child(6) { animation-delay: 0.35s; }
-.menu-item-wrapper:nth-child(7) { animation-delay: 0.4s; }
-.menu-item-wrapper:nth-child(8) { animation-delay: 0.45s; }
-.menu-item-wrapper:nth-child(9) { animation-delay: 0.5s; }
-.menu-item-wrapper:nth-child(10) { animation-delay: 0.55s; }
-.menu-item-wrapper:nth-child(11) { animation-delay: 0.6s; }
+.menu-item-wrapper:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.menu-item-wrapper:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.menu-item-wrapper:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.menu-item-wrapper:nth-child(4) {
+  animation-delay: 0.25s;
+}
+
+.menu-item-wrapper:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+.menu-item-wrapper:nth-child(6) {
+  animation-delay: 0.35s;
+}
+
+.menu-item-wrapper:nth-child(7) {
+  animation-delay: 0.4s;
+}
+
+.menu-item-wrapper:nth-child(8) {
+  animation-delay: 0.45s;
+}
+
+.menu-item-wrapper:nth-child(9) {
+  animation-delay: 0.5s;
+}
+
+.menu-item-wrapper:nth-child(10) {
+  animation-delay: 0.55s;
+}
+
+.menu-item-wrapper:nth-child(11) {
+  animation-delay: 0.6s;
+}
 
 @keyframes itemSlideIn {
   from {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);

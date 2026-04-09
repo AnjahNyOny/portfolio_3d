@@ -1,43 +1,45 @@
 <template>
-  <div 
-    class="relative h-screen w-full bg-zinc-950 overflow-hidden"
-  >
-    
+  <div class="relative h-screen w-full bg-zinc-950 overflow-hidden">
+
     <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
-    <button 
-      v-if="ENABLE_CALIBRATION_UI"
-      @click="calibrationMode = !calibrationMode" 
+    <button v-if="ENABLE_CALIBRATION_UI" @click="calibrationMode = !calibrationMode"
       class="absolute bottom-4 right-4 z-[100] p-2 rounded-lg text-xs font-bold border-2 transition-all pointer-events-auto shadow-lg"
-      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-600 text-zinc-400'"
-    >
+      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-600 text-zinc-400'">
       {{ calibrationMode ? '🔓 Calibration ON' : '🔒 Calibration OFF' }}
     </button>
 
     <!-- 💡 BOUTON POUR AFFICHER LA CALIBRATION LUMIÈRE -->
-    <button v-if="calibrationMode && !showLightCalibration" @click="showLightCalibration = true" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-zinc-600">
+    <button v-if="calibrationMode && !showLightCalibration" @click="showLightCalibration = true"
+      class="absolute top-10 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-zinc-600">
       💡 Régler Lumières
     </button>
 
     <!-- 📷 BOUTON POUR AFFICHER LA CALIBRATION CAMÉRA -->
-    <button v-if="calibrationMode && !showCameraCalibration" @click="showCameraCalibration = true" class="absolute top-10 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-cyan-600">
+    <button v-if="calibrationMode && !showCameraCalibration" @click="showCameraCalibration = true"
+      class="absolute top-10 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-cyan-600">
       📷 Régler Caméra
     </button>
 
     <!-- 🔍 BOUTON DEBUG MESHS -->
-    <button v-if="calibrationMode" @click="showMeshNames = !showMeshNames" class="absolute top-20 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border" :class="showMeshNames ? 'border-green-500 text-green-400' : 'border-zinc-600'">
+    <button v-if="calibrationMode" @click="showMeshNames = !showMeshNames"
+      class="absolute top-20 left-10 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border"
+      :class="showMeshNames ? 'border-green-500 text-green-400' : 'border-zinc-600'">
       {{ showMeshNames ? '👁️ Cacher Noms Meshs' : '🔍 Afficher Noms Meshs' }}
     </button>
 
     <!-- 🟢 OVERLAY NOM MESH COURANT -->
-    <div v-if="showMeshNames && hoveredMeshName" class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-black/90 text-green-400 p-4 rounded-lg border-2 border-green-500 font-mono text-lg shadow-[0_0_15px_rgba(34,197,94,0.5)] pointer-events-none transition-all">
+    <div v-if="showMeshNames && hoveredMeshName"
+      class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-black/90 text-green-400 p-4 rounded-lg border-2 border-green-500 font-mono text-lg shadow-[0_0_15px_rgba(34,197,94,0.5)] pointer-events-none transition-all">
       Mesh survolé : <span class="font-bold text-white">{{ hoveredMeshName }}</span>
     </div>
 
     <!-- 🛠️ INTERFACE DE CALIBRATION LUMIÈRES -->
-    <div v-if="calibrationMode && showLightCalibration" class="absolute top-10 left-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] max-h-[80vh] overflow-y-auto pointer-events-auto shadow-2xl">
+    <div v-if="calibrationMode && showLightCalibration"
+      class="absolute top-10 left-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] max-h-[80vh] overflow-y-auto pointer-events-auto shadow-2xl">
       <div class="flex justify-between items-center mb-2">
         <h3 class="font-bold text-yellow-400">Calibration Lumières</h3>
-        <button @click="showLightCalibration = false" class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
+        <button @click="showLightCalibration = false"
+          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
       </div>
       <div class="mb-2 border-b border-zinc-600 pb-2">
         <label class="block font-bold">☀️ Soleil Pos (Jour)</label>
@@ -46,40 +48,53 @@
         z: <input type="number" step="0.5" v-model.number="lightPos.sun.z" class="w-full bg-black/50 p-1 mb-1" />
         <label class="block font-bold text-gray-400">Taille de l'ombre (Frustum)</label>
         <input type="number" step="1" v-model.number="lightPos.sun.frustum" class="w-full bg-black/50 p-1 mb-1" />
-        
+
         <label class="block font-bold text-orange-400 mt-2">Intensité Soleil & Ambiance</label>
-        Soleil (Intensité): <input type="number" step="0.5" v-model.number="lightState.window" class="w-full bg-black/50 p-1 mb-1" />
-        Ambiance (Jour): <input type="number" step="0.1" v-model.number="lightState.ambient" class="w-full bg-black/50 p-1 mb-1" />
-        Environnement GLOBAL: <input type="number" step="0.1" v-model.number="lightState.envIntensity" class="w-full bg-black/50 p-1 mb-1" @input="updateEnvIntensity" />
-        
+        Soleil (Intensité): <input type="number" step="0.5" v-model.number="lightState.window"
+          class="w-full bg-black/50 p-1 mb-1" />
+        Ambiance (Jour): <input type="number" step="0.1" v-model.number="lightState.ambient"
+          class="w-full bg-black/50 p-1 mb-1" />
+        Environnement GLOBAL: <input type="number" step="0.1" v-model.number="lightState.envIntensity"
+          class="w-full bg-black/50 p-1 mb-1" @input="updateEnvIntensity" />
+
         <label class="block font-bold text-red-500 mt-2">🎯 Cible du Soleil (Où il pointe)</label>
-        x: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.x" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
-        y: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.y" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
-        z: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.z" class="w-full bg-black/50 p-1 mb-1" @input="updateSunTarget" />
+        x: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.x" class="w-full bg-black/50 p-1 mb-1"
+          @input="updateSunTarget" />
+        y: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.y" class="w-full bg-black/50 p-1 mb-1"
+          @input="updateSunTarget" />
+        z: <input type="number" step="0.5" v-model.number="lightPos.sunTarget.z" class="w-full bg-black/50 p-1 mb-1"
+          @input="updateSunTarget" />
 
         <label class="block font-bold text-yellow-300 mt-2">✨ God Ray (Rayon volumétrique)</label>
         x: <input type="number" step="0.1" v-model.number="lightPos.godRay.x" class="w-full bg-black/50 p-1 mb-1" />
         y: <input type="number" step="0.1" v-model.number="lightPos.godRay.y" class="w-full bg-black/50 p-1 mb-1" />
         z: <input type="number" step="0.1" v-model.number="lightPos.godRay.z" class="w-full bg-black/50 p-1 mb-1" />
-        rotX (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotX" class="w-full bg-black/50 p-1 mb-1" />
-        rotY (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotY" class="w-full bg-black/50 p-1 mb-1" />
-        rotZ (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotZ" class="w-full bg-black/50 p-1 mb-1" />
-        Opacité: <input type="number" step="0.05" v-model.number="lightPos.godRay.opacity" class="w-full bg-black/50 p-1 mb-1" @input="updateGodRayOpacity" />
+        rotX (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotX"
+          class="w-full bg-black/50 p-1 mb-1" />
+        rotY (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotY"
+          class="w-full bg-black/50 p-1 mb-1" />
+        rotZ (deg): <input type="number" step="5" v-model.number="lightPos.godRay.rotZ"
+          class="w-full bg-black/50 p-1 mb-1" />
+        Opacité: <input type="number" step="0.05" v-model.number="lightPos.godRay.opacity"
+          class="w-full bg-black/50 p-1 mb-1" @input="updateGodRayOpacity" />
       </div>
       <div>
         <label class="block font-bold text-blue-400">🌙 Lampe Bureau (Nuit)</label>
         x: <input type="number" step="0.5" v-model.number="lightPos.desk.x" class="w-full bg-black/50 p-1 mb-1" />
         y: <input type="number" step="0.5" v-model.number="lightPos.desk.y" class="w-full bg-black/50 p-1 mb-1" />
         z: <input type="number" step="0.5" v-model.number="lightPos.desk.z" class="w-full bg-black/50 p-1 mb-1" />
-        Lampe (Intensité): <input type="number" step="1" v-model.number="lightState.desk" class="w-full bg-black/50 p-1 mb-1" />
+        Lampe (Intensité): <input type="number" step="1" v-model.number="lightState.desk"
+          class="w-full bg-black/50 p-1 mb-1" />
       </div>
     </div>
 
     <!-- 📷 INTERFACE DE CALIBRATION CAMÉRA -->
-    <div v-if="calibrationMode && showCameraCalibration" class="absolute top-10 left-[280px] z-[100] bg-zinc-900/95 text-white p-4 rounded-lg text-xs w-[280px] max-h-[85vh] overflow-y-auto pointer-events-auto shadow-2xl border border-cyan-700/50">
+    <div v-if="calibrationMode && showCameraCalibration"
+      class="absolute top-10 left-[280px] z-[100] bg-zinc-900/95 text-white p-4 rounded-lg text-xs w-[280px] max-h-[85vh] overflow-y-auto pointer-events-auto shadow-2xl border border-cyan-700/50">
       <div class="flex justify-between items-center mb-3">
         <h3 class="font-bold text-cyan-400 text-sm">📷 Calibration Caméra</h3>
-        <button @click="showCameraCalibration = false" class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
+        <button @click="showCameraCalibration = false"
+          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
       </div>
 
       <!-- LIVE READOUT -->
@@ -88,7 +103,8 @@
         <div class="font-mono text-[10px] text-green-300 space-y-0.5">
           <div>Cam: x={{ liveCamPos.x }} y={{ liveCamPos.y }} z={{ liveCamPos.z }}</div>
           <div>Target: x={{ liveCamTarget.x }} y={{ liveCamTarget.y }} z={{ liveCamTarget.z }}</div>
-          <div class="text-yellow-300 mt-1">Polar: {{ liveAngles.polar }}° | Azimuth: {{ liveAngles.azimuth }}° | Dist: {{ liveAngles.distance }}</div>
+          <div class="text-yellow-300 mt-1">Polar: {{ liveAngles.polar }}° | Azimuth: {{ liveAngles.azimuth }}° | Dist:
+            {{ liveAngles.distance }}</div>
         </div>
       </div>
 
@@ -97,36 +113,46 @@
         <label class="block font-bold text-cyan-300 mb-1">🏠 Position d'accueil (Home)</label>
         <div class="mb-2">
           <label class="block text-zinc-400">Caméra Position</label>
-          x: <input type="number" step="0.1" v-model.number="defaultCamPos.x" class="w-full bg-black/50 p-1 mb-1 rounded" />
-          y: <input type="number" step="0.1" v-model.number="defaultCamPos.y" class="w-full bg-black/50 p-1 mb-1 rounded" />
-          z: <input type="number" step="0.1" v-model.number="defaultCamPos.z" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          x: <input type="number" step="0.1" v-model.number="defaultCamPos.x"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
+          y: <input type="number" step="0.1" v-model.number="defaultCamPos.y"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
+          z: <input type="number" step="0.1" v-model.number="defaultCamPos.z"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
         </div>
         <div class="mb-2">
           <label class="block text-zinc-400">LookAt (Cible)</label>
-          x: <input type="number" step="0.1" v-model.number="defaultLookAt.x" class="w-full bg-black/50 p-1 mb-1 rounded" />
-          y: <input type="number" step="0.1" v-model.number="defaultLookAt.y" class="w-full bg-black/50 p-1 mb-1 rounded" />
-          z: <input type="number" step="0.1" v-model.number="defaultLookAt.z" class="w-full bg-black/50 p-1 mb-1 rounded" />
+          x: <input type="number" step="0.1" v-model.number="defaultLookAt.x"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
+          y: <input type="number" step="0.1" v-model.number="defaultLookAt.y"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
+          z: <input type="number" step="0.1" v-model.number="defaultLookAt.z"
+            class="w-full bg-black/50 p-1 mb-1 rounded" />
         </div>
       </div>
 
       <!-- ORBIT CONSTRAINTS -->
       <div class="mb-3 border-b border-zinc-600 pb-3">
         <label class="block font-bold text-yellow-300 mb-2">🔒 Limites Orbit Controls</label>
-        
+
         <!-- ZOOM (DISTANCE) -->
         <div class="mb-3 p-2 bg-black/40 rounded">
           <label class="block font-bold text-blue-300 text-[11px] mb-1">🔍 Zoom (Distance)</label>
-          <p class="text-zinc-500 text-[9px] mb-1 italic">Combien l'utilisateur peut zoomer/dézoomer. Plus petit = plus proche du bureau, plus grand = plus de recul.</p>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Combien l'utilisateur peut zoomer/dézoomer. Plus petit = plus
+            proche du bureau, plus grand = plus de recul.</p>
           <div class="grid grid-cols-2 gap-1">
             <div>
               <label class="block text-zinc-400 text-[10px]">Min (zoom max)</label>
-              <input type="range" min="0.5" max="5" step="0.1" v-model.number="orbitLimits.minDistance" class="w-full" />
-              <input type="number" step="0.1" v-model.number="orbitLimits.minDistance" class="w-full bg-black/50 p-1 rounded text-center" />
+              <input type="range" min="0.5" max="5" step="0.1" v-model.number="orbitLimits.minDistance"
+                class="w-full" />
+              <input type="number" step="0.1" v-model.number="orbitLimits.minDistance"
+                class="w-full bg-black/50 p-1 rounded text-center" />
             </div>
             <div>
               <label class="block text-zinc-400 text-[10px]">Max (dézoom max)</label>
               <input type="range" min="2" max="15" step="0.5" v-model.number="orbitLimits.maxDistance" class="w-full" />
-              <input type="number" step="0.5" v-model.number="orbitLimits.maxDistance" class="w-full bg-black/50 p-1 rounded text-center" />
+              <input type="number" step="0.5" v-model.number="orbitLimits.maxDistance"
+                class="w-full bg-black/50 p-1 rounded text-center" />
             </div>
           </div>
         </div>
@@ -134,23 +160,27 @@
         <!-- POLAR (VERTICAL) -->
         <div class="mb-3 p-2 bg-black/40 rounded">
           <label class="block font-bold text-orange-300 text-[11px] mb-1">📐 Angle Polaire (Haut ↕ Bas)</label>
-          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la hauteur de la vue. 0° = plongée au-dessus. 90° = vue horizontale. 180° = vue d'en bas.</p>
-          <div class="font-mono text-[9px] text-zinc-600 mb-2 leading-tight whitespace-pre">  0° = 🔽 Vue plafond (plongée)
- 45° = ↘ Vue 3/4 plongeante
- 60° = ↗ Vue isométrique ← actuel min
- 79° = → Vue quasi-horizontale ← actuel max
- 90° = → Pile horizontale
-180° = 🔼 Vue sol (contre-plongée)</div>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la hauteur de la vue. 0° = plongée au-dessus. 90° =
+            vue horizontale. 180° = vue d'en bas.</p>
+          <div class="font-mono text-[9px] text-zinc-600 mb-2 leading-tight whitespace-pre"> 0° = 🔽 Vue plafond
+            (plongée)
+            45° = ↘ Vue 3/4 plongeante
+            60° = ↗ Vue isométrique ← actuel min
+            79° = → Vue quasi-horizontale ← actuel max
+            90° = → Pile horizontale
+            180° = 🔼 Vue sol (contre-plongée)</div>
           <div class="flex items-center gap-2 mb-1">
             <span class="text-orange-400 text-[10px] w-8">Min</span>
             <input type="range" min="0" max="90" step="1" v-model.number="orbitLimits.minPolarDeg" class="flex-1" />
-            <input type="number" step="1" v-model.number="orbitLimits.minPolarDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <input type="number" step="1" v-model.number="orbitLimits.minPolarDeg"
+              class="w-14 bg-black/50 p-1 rounded text-center" />
             <span class="text-zinc-500 text-[9px]">°</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-orange-400 text-[10px] w-8">Max</span>
             <input type="range" min="0" max="90" step="1" v-model.number="orbitLimits.maxPolarDeg" class="flex-1" />
-            <input type="number" step="1" v-model.number="orbitLimits.maxPolarDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <input type="number" step="1" v-model.number="orbitLimits.maxPolarDeg"
+              class="w-14 bg-black/50 p-1 rounded text-center" />
             <span class="text-zinc-500 text-[9px]">°</span>
           </div>
           <div class="text-green-400 text-[10px] mt-1 font-mono">👁️ Actuel : {{ liveAngles.polar }}°</div>
@@ -159,21 +189,24 @@
         <!-- AZIMUTH (HORIZONTAL) -->
         <div class="mb-2 p-2 bg-black/40 rounded">
           <label class="block font-bold text-pink-300 text-[11px] mb-1">🧭 Angle Azimut (Gauche ↔ Droite)</label>
-          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la rotation horizontale autour de la pièce. Permet de limiter pour ne pas voir derrière les murs.</p>
+          <p class="text-zinc-500 text-[9px] mb-1 italic">Contrôle la rotation horizontale autour de la pièce. Permet de
+            limiter pour ne pas voir derrière les murs.</p>
           <div class="font-mono text-[9px] text-zinc-600 mb-2 leading-tight whitespace-pre">-90° = ← Mur de gauche
-  0° = ↑ Face (devant le bureau)
- +90° = → Mur de droite
-+180° = ↓ Derrière (mur du fond)</div>
+            0° = ↑ Face (devant le bureau)
+            +90° = → Mur de droite
+            +180° = ↓ Derrière (mur du fond)</div>
           <div class="flex items-center gap-2 mb-1">
             <span class="text-pink-400 text-[10px] w-8">Min</span>
             <input type="range" min="-180" max="0" step="1" v-model.number="orbitLimits.minAzimuthDeg" class="flex-1" />
-            <input type="number" step="1" v-model.number="orbitLimits.minAzimuthDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <input type="number" step="1" v-model.number="orbitLimits.minAzimuthDeg"
+              class="w-14 bg-black/50 p-1 rounded text-center" />
             <span class="text-zinc-500 text-[9px]">°</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-pink-400 text-[10px] w-8">Max</span>
             <input type="range" min="0" max="180" step="1" v-model.number="orbitLimits.maxAzimuthDeg" class="flex-1" />
-            <input type="number" step="1" v-model.number="orbitLimits.maxAzimuthDeg" class="w-14 bg-black/50 p-1 rounded text-center" />
+            <input type="number" step="1" v-model.number="orbitLimits.maxAzimuthDeg"
+              class="w-14 bg-black/50 p-1 rounded text-center" />
             <span class="text-zinc-500 text-[9px]">°</span>
           </div>
           <div class="text-green-400 text-[10px] mt-1 font-mono">👁️ Actuel : {{ liveAngles.azimuth }}°</div>
@@ -182,169 +215,194 @@
 
       <!-- ACTIONS -->
       <div class="space-y-2">
-        <button @click="captureCurrentView" class="w-full bg-cyan-600 hover:bg-cyan-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+        <button @click="captureCurrentView"
+          class="w-full bg-cyan-600 hover:bg-cyan-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
           📸 Capturer la vue actuelle → Home
         </button>
-        <button @click="testHomePosition" class="w-full bg-green-600 hover:bg-green-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+        <button @click="testHomePosition"
+          class="w-full bg-green-600 hover:bg-green-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
           ▶️ Tester (Aller à Home)
         </button>
-        <button @click="copyCameraCode" class="w-full bg-purple-600 hover:bg-purple-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
+        <button @click="copyCameraCode"
+          class="w-full bg-purple-600 hover:bg-purple-500 transition-colors p-2 rounded font-bold text-white shadow-lg">
           📋 Copier le code
         </button>
       </div>
 
       <!-- CODE OUTPUT -->
-      <div v-if="cameraCodeOutput" class="mt-3 p-2 bg-black/80 rounded border border-purple-500 font-mono text-[10px] text-purple-300 whitespace-pre-wrap">
+      <div v-if="cameraCodeOutput"
+        class="mt-3 p-2 bg-black/80 rounded border border-purple-500 font-mono text-[10px] text-purple-300 whitespace-pre-wrap">
         {{ cameraCodeOutput }}
       </div>
     </div>
 
     <!-- 🛠️ INTERFACE DE CALIBRATION (à activer via le flag calibrationMode) -->
-    <div v-if="calibrationMode && activeElement" class="absolute top-10 right-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[300px] pointer-events-auto max-h-[80vh] overflow-y-auto">
+    <div v-if="calibrationMode && activeElement"
+      class="absolute top-10 right-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[300px] pointer-events-auto max-h-[80vh] overflow-y-auto">
       <h3 class="font-bold mb-2 text-orange-400">Calibration : {{ activeElement }}</h3>
-      
-      <button @click="copyCurrentCamera" class="w-full bg-blue-600 hover:bg-blue-500 transition-colors p-2 rounded mb-3 font-bold text-white shadow-lg">
+
+      <button @click="copyCurrentCamera"
+        class="w-full bg-blue-600 hover:bg-blue-500 transition-colors p-2 rounded mb-3 font-bold text-white shadow-lg">
         📸 Utiliser la vue actuelle (Souris)
       </button>
 
       <div class="mb-4">
         <label class="block font-bold mt-2">Caméra Pos</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].camX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].camY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].camZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        x: <input type="number" step="0.01" v-model.number="settings[activeElement].camX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        y: <input type="number" step="0.01" v-model.number="settings[activeElement].camY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        z: <input type="number" step="0.01" v-model.number="settings[activeElement].camZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
       </div>
 
       <div class="mb-4">
         <label class="block font-bold">LookAt Target</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].lookX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].lookY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].lookZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        x: <input type="number" step="0.01" v-model.number="settings[activeElement].lookX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        y: <input type="number" step="0.01" v-model.number="settings[activeElement].lookY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        z: <input type="number" step="0.01" v-model.number="settings[activeElement].lookZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
       </div>
 
       <div class="mt-4 pt-2 border-t border-zinc-600">
         <label class="block font-bold text-blue-300">HTML Pos (TresGroup)</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
       </div>
       <div class="mb-4">
         <label class="block font-bold text-blue-300">HTML Rot</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
       </div>
       <div class="mb-4">
         <label class="block font-bold text-blue-300">Scale</label>
-        scale: <input type="number" step="0.001" v-model.number="settings[activeElement].scale" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        scale: <input type="number" step="0.001" v-model.number="settings[activeElement].scale"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
       </div>
       <div>
         <label class="block font-bold text-purple-400">Dimensions HTML (px)</label>
-        width: <input type="number" step="1" v-model.number="settings[activeElement].width" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        height: <input type="number" step="1" v-model.number="settings[activeElement].height" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        width: <input type="number" step="1" v-model.number="settings[activeElement].width"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        height: <input type="number" step="1" v-model.number="settings[activeElement].height"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
       </div>
       <!-- SECTON TÉLÉPHONE 3D (Seulement si le téléphone est zoomé) -->
       <div v-if="activeElement === 'phone'" class="mt-4 border-t border-zinc-600 pt-2">
         <h3 class="font-bold text-green-400 mb-2">📱 Animation Téléphone 3D</h3>
-        Décalage (X): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Lévitation (Y): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Décalage (Z): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation X (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation Y (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation Z (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Décalage (X): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Lévitation (Y): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Décalage (Z): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Rotation X (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Rotation Y (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
+        Rotation Z (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
       </div>
 
       <!-- SECTON LIVRE 3D -->
       <div v-if="activeElement === 'books'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
         <h3 class="font-bold text-blue-400 mb-2">📚 Animation Livre 3D</h3>
         <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
-        Pos Cible X: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Pos Cible Y: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Pos Cible Z: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale X: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale Y: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale Z: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Pos Cible X: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Pos Cible Y: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Pos Cible Z: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale X: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale Y: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Rot Globale Z: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
 
         <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
-        Ouvrir Axe X: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Ouvrir Axe Y: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Ouvrir Axe Z: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Ouvrir Axe X: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Ouvrir Axe Y: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
+        Ouvrir Axe Z: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
       </div>
 
       <!-- SECTON DOSSIER 3D -->
       <div v-if="activeElement === 'folder'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
         <h3 class="font-bold text-yellow-400 mb-2">📁 Animation Dossier 3D</h3>
         <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
-        Pos Cible X: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Pos Cible Y: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Pos Cible Z: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale X: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale Y: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale Z: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Pos Cible X: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Pos Cible Y: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Pos Cible Z: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale X: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale Y: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Rot Globale Z: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
 
         <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
-        Ouvrir Axe X: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotX" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Ouvrir Axe Y: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotY" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ" class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Ouvrir Axe X: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotX"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Ouvrir Axe Y: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotY"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
+        Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ"
+          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
       </div>
     </div>
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size @pointer-missed="onPointerMissed">
-      <TresPerspectiveCamera 
-        ref="cameraRef" 
-        :position="[1.79, 2.26, 2.58]" 
-        :look-at="[1.31, 1.62, 0.06]" 
-      />
-      
-      <OrbitControls 
-        ref="controlsRef" 
-        :enabled="!animating && !activeElement"
-        :enable-pan="calibrationMode"
-        :min-distance="orbitLimits.minDistance" 
-        :max-distance="(calibrationMode || activeElement) ? 50 : orbitLimits.maxDistance" 
+      <TresPerspectiveCamera ref="cameraRef" :position="[1.79, 2.26, 2.58]" :look-at="[1.31, 1.62, 0.06]" />
+
+      <OrbitControls ref="controlsRef" :enabled="!animating && !activeElement" :enable-pan="calibrationMode"
+        :min-distance="orbitLimits.minDistance"
+        :max-distance="(calibrationMode || activeElement) ? 50 : orbitLimits.maxDistance"
         :min-polar-angle="(calibrationMode || activeElement) ? 0 : (orbitLimits.minPolarDeg * Math.PI / 180)"
         :max-polar-angle="(calibrationMode || activeElement) ? Math.PI : (orbitLimits.maxPolarDeg * Math.PI / 180)"
         :min-azimuth-angle="(calibrationMode || activeElement) ? -Infinity : (orbitLimits.minAzimuthDeg * Math.PI / 180)"
         :max-azimuth-angle="(calibrationMode || activeElement) ? Infinity : (orbitLimits.maxAzimuthDeg * Math.PI / 180)"
-        @change="updateLiveCamReadout"
-      />
+        @change="updateLiveCamReadout" />
 
       <!-- 🟢 AIDES VISUELLES : Marqueurs sphériques pour les lumières (Seulement en mode Calibration) -->
       <TresMesh v-if="calibrationMode" :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]">
         <TresSphereGeometry :args="[0.3]" />
         <TresMeshBasicMaterial color="yellow" />
       </TresMesh>
-      
+
       <TresMesh v-if="calibrationMode" :position="[lightPos.desk.x, lightPos.desk.y, lightPos.desk.z]">
         <TresSphereGeometry :args="[0.1]" />
         <TresMeshBasicMaterial color="cyan" />
       </TresMesh>
       <!-- LUMIÈRE AMBIANTE -->
       <TresAmbientLight :intensity="lightState.ambient" />
-      
+
       <!-- LUMIÈRE FENÊTRE (Jour) -->
       <!-- On passe d'une DirectionalLight à une SpotLight pour éviter que la lumière ne passe par-dessus les murs sans plafond ! -->
-      <TresSpotLight 
-        ref="sunLightRef"
-        :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]" 
-        :intensity="lightState.window" 
-        :angle="Math.PI / 6" :penumbra="0.3"
-        :decay="0"
-        :distance="100"
-        color="#fff0dd"
-        cast-shadow
-        :shadow-mapSize-width="4096"
-        :shadow-mapSize-height="4096"
-        :shadow-bias="-0.0005"
-        :shadow-normalBias="0.05" >
+      <TresSpotLight ref="sunLightRef" :position="[lightPos.sun.x, lightPos.sun.y, lightPos.sun.z]"
+        :intensity="lightState.window" :angle="Math.PI / 6" :penumbra="0.3" :decay="0" :distance="100" color="#fff0dd"
+        cast-shadow :shadow-mapSize-width="4096" :shadow-mapSize-height="4096" :shadow-bias="-0.0005"
+        :shadow-normalBias="0.05">
         <TresObject3D attach="target" :position="[lightPos.sunTarget.x, lightPos.sunTarget.y, lightPos.sunTarget.z]" />
       </TresSpotLight>
 
       <!-- ✨ FAUX RAYONS VOLUMÉTRIQUES (GOD RAYS) DE LA FENÊTRE -->
       <!-- On l'enveloppe dans un Groupe pour pouvoir définir l'origine de rotation (pivot) tout en haut, façon lampe torche ! -->
-      <TresGroup
-        v-if="!isDarkMode" 
-        :position="[lightPos.godRay.x, lightPos.godRay.y, lightPos.godRay.z]" 
-        :rotation="[lightPos.godRay.rotX * (Math.PI / 180), lightPos.godRay.rotY * (Math.PI / 180), lightPos.godRay.rotZ * (Math.PI / 180)]"
-      >
+      <TresGroup v-if="!isDarkMode" :position="[lightPos.godRay.x, lightPos.godRay.y, lightPos.godRay.z]"
+        :rotation="[lightPos.godRay.rotX * (Math.PI / 180), lightPos.godRay.rotY * (Math.PI / 180), lightPos.godRay.rotZ * (Math.PI / 180)]">
         <!-- AIDES VISUELLES : Axes X (Rouge), Y (Vert), Z (Bleu) pour guider la visée au point de départ -->
         <TresAxesHelper v-if="calibrationMode" :args="[5]" />
 
@@ -353,20 +411,14 @@
         <TresMesh :position="[0, -7.5, 0]" :rotation="[0, Math.PI / 4, 0]">
           <!-- Cylindre à 4 faces = Pyramide évasée pour la fenêtre -->
           <TresCylinderGeometry :args="[0.4, 3.0, 15, 4, 1, true]" />
-          <TresShaderMaterial 
-            :transparent="true"
-            :depthWrite="false"
-            :blending="2"
-            :side="2"
-            :uniforms="godRayUniforms"
+          <TresShaderMaterial :transparent="true" :depthWrite="false" :blending="2" :side="2" :uniforms="godRayUniforms"
             :vertexShader="`
               varying vec2 vUv;
               void main() {
                 vUv = uv;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
               }
-            `"
-            :fragmentShader="`
+            `" :fragmentShader="`
               varying vec2 vUv;
               uniform float uOpacity;
               void main() {
@@ -379,455 +431,533 @@
                 
                 gl_FragColor = vec4(1.0, 0.9, 0.65, alpha * uOpacity);
               }
-            `"
-          />
+            `" />
         </TresMesh>
       </TresGroup>
-      
+
       <!-- LUMIÈRE LAMPE DE BUREAU (Nuit) -->
-      <TresPointLight 
-        :position="[lightPos.desk.x, lightPos.desk.y, lightPos.desk.z]" 
-        :intensity="lightState.desk" 
-        :distance="10"
-        color="#ffcc88" 
-        cast-shadow
-        :shadow-bias="-0.001"
-      />
+      <TresPointLight :position="[lightPos.desk.x, lightPos.desk.y, lightPos.desk.z]" :intensity="lightState.desk"
+        :distance="10" color="#ffcc88" cast-shadow :shadow-bias="-0.001" />
 
       <!-- PÉNOMBRE BLEUTÉE (Nuit, ambiance claire de lune) -->
-      <TresDirectionalLight 
-        :position="[-3, 5, -3]" 
-        :intensity="lightState.nightReflect" 
-        color="#3b82f6" 
-      />
+      <TresDirectionalLight :position="[-3, 5, -3]" :intensity="lightState.nightReflect" color="#3b82f6" />
 
-      
-      
+
+
       <Suspense>
-        <GLTFModel 
-          path="/models/room_v13.glb" 
-          draco
-          draco-decoder-path="/draco/"
-          cast-shadow 
-          receive-shadow
-          @load="onModelLoaded"
-          @click="onModelClick"
-          @pointermove="onPointerMove"
-          @pointerleave="onPointerOut"
-        />
+        <GLTFModel path="/models/room_v13.glb" draco draco-decoder-path="/draco/" cast-shadow receive-shadow
+          @load="onModelLoaded" @click="onModelClick" @pointermove="onPointerMove" @pointerleave="onPointerOut" />
       </Suspense>
 
       <!-- ECRAN LAPTOP -->
-      <TresGroup 
-        v-if="activeElement === 'laptop'" 
-        :position="[settings.laptop.htmlPosX, settings.laptop.htmlPosY, settings.laptop.htmlPosZ]" 
-      >
-        <Html transform wrapper-class="ecran-virtuel" 
-              :rotation-x="settings.laptop.htmlRotX" 
-              :rotation-y="settings.laptop.htmlRotY" 
-              :rotation-z="settings.laptop.htmlRotZ" 
-              :scale="settings.laptop.scale">
-          
-          <!-- MODE INTRO -->
-          <div v-if="showIntro" 
-               :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden', backgroundColor: ot.bg, color: ot.text }"
-               class="rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
-            <div class="p-16 max-w-2xl text-center">
-              <!-- Ligne décorative -->
-              <div class="flex items-center justify-center gap-4 mb-12">
-                <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
-                <span class="tracking-[0.3em] uppercase font-light" :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
-                <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
-              </div>
+      <TresGroup v-if="activeElement === 'laptop'"
+        :position="[settings.laptop.htmlPosX, settings.laptop.htmlPosY, settings.laptop.htmlPosZ]">
+        <Html transform wrapper-class="ecran-virtuel" :rotation-x="settings.laptop.htmlRotX"
+          :rotation-y="settings.laptop.htmlRotY" :rotation-z="settings.laptop.htmlRotZ" :scale="settings.laptop.scale">
 
-              <!-- Nom -->
-              <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">
-                ANJAH NY ONY
-              </h1>
-              
-              <!-- Titre -->
-              <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12" style="font-size: 32px;">
-                Développeur Web Fullstack
-              </p>
-              
-              <!-- Description -->
-              <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">
-                Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes. De la conception de bases de données à la création d'interfaces intuitives, je transforme des idées complexes en outils fonctionnels.
-              </p>
+        <!-- MODE INTRO -->
+        <div v-if="showIntro"
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden', backgroundColor: ot.bg, color: ot.text }"
+          class="rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
+          <div class="p-16 max-w-2xl text-center">
+            <!-- Ligne décorative -->
+            <div class="flex items-center justify-center gap-4 mb-12">
+              <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
+              <span class="tracking-[0.3em] uppercase font-light"
+                :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
+              <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
+            </div>
 
-              <!-- Badges -->
-              <div class="flex flex-wrap justify-center gap-3 mb-12">
-                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Développeur Full-Stack Junior</span>
-                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Spécialiste Vue.js & Node.js</span>
-                <span class="px-5 py-3 rounded-full" :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Recherche 1er Emploi à Québec</span>
-                <span class="px-5 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400" style="font-size: 16px;">Permis de Travail Ouvert 🇨🇦</span>
-              </div>
+            <!-- Nom -->
+            <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">
+              ANJAH Rakotovao
+            </h1>
 
-              <!-- Localisation -->
-              <div class="flex items-center justify-center gap-2" :style="{ color: ot.textFaint, fontSize: '16px' }">
-                <span>📍</span>
-                <span>Saint-Anselme, Québec, Canada</span>
-              </div>
+            <!-- Titre -->
+            <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12"
+              style="font-size: 32px;">
+              Développeur Web Fullstack
+            </p>
+
+            <!-- Description -->
+            <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">
+              Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes. De
+              la conception de bases de données à la création d'interfaces intuitives, je transforme des idées complexes
+              en outils fonctionnels.
+            </p>
+
+            <!-- Badges -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+              <span class="px-5 py-3 rounded-full"
+                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Développeur
+                Full-Stack Junior</span>
+              <span class="px-5 py-3 rounded-full"
+                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Spécialiste
+                Vue.js & Node.js</span>
+              <span class="px-5 py-3 rounded-full"
+                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Recherche
+                1er Emploi à Québec</span>
+              <span class="px-5 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 flex items-center gap-2"
+                style="font-size: 16px;">
+                Permis de Travail Ouvert <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['globe']"></span>
+              </span>
+            </div>
+
+            <!-- Localisation -->
+            <div class="flex items-center justify-center gap-2" :style="{ color: ot.textFaint, fontSize: '16px' }">
+              <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['map-pin']"></span>
+              <span>Saint-Anselme, Québec, Canada</span>
             </div>
           </div>
+        </div>
 
-          <!-- MODE SITE WEB -->
-          <iframe v-else src="https://anjahnyony.com" 
-                  :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
-                  class="border-none bg-white rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)]"></iframe>
+        <!-- MODE SITE WEB -->
+        <iframe v-else src="https://anjahnyony.com"
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
+          class="border-none bg-white rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)]"></iframe>
+
         </Html>
       </TresGroup>
 
       <!-- ECRAN TELEPHONE -->
-      <TresGroup 
-        v-if="activeElement === 'phone'" 
-        :position="[settings.phone.htmlPosX, settings.phone.htmlPosY, settings.phone.htmlPosZ]" 
-      >
-        <Html key="html-phone" transform wrapper-class="ecran-phone" 
-              :rotation-x="settings.phone.htmlRotX" 
-              :rotation-y="settings.phone.htmlRotY" 
-              :rotation-z="settings.phone.htmlRotZ" 
-              :scale="settings.phone.scale">
-          <Transition 
-            enter-active-class="transition-opacity duration-700" 
-            enter-from-class="opacity-0" 
-            leave-active-class="transition-opacity duration-300" 
-            leave-to-class="opacity-0"
-          >
-            <div v-show="showPhoneContent" :style="{ width: settings.phone.width + 'px', height: settings.phone.height + 'px', backgroundColor: ot.bg, color: ot.text }"
-                 class="relative rounded-[40px] border-[12px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-y-auto pointer-events-auto"
-                 :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-300'"
-                 style="scrollbar-width: thin;">
-              
-              <!-- Fake notch -->
-              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 rounded-b-2xl z-10" :class="isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'"></div>
+      <TresGroup v-if="activeElement === 'phone'"
+        :position="[settings.phone.htmlPosX, settings.phone.htmlPosY, settings.phone.htmlPosZ]">
+        <Html key="html-phone" transform wrapper-class="ecran-phone" :rotation-x="settings.phone.htmlRotX"
+          :rotation-y="settings.phone.htmlRotY" :rotation-z="settings.phone.htmlRotZ" :scale="settings.phone.scale">
+        <Transition enter-active-class="transition-opacity duration-700" enter-from-class="opacity-0"
+          leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0">
+          <div v-show="showPhoneContent"
+            :style="{ width: settings.phone.width + 'px', height: settings.phone.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+            class="relative rounded-[40px] border-[12px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-y-auto pointer-events-auto"
+            :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-300'" style="scrollbar-width: thin;">
 
-              <div class="p-10 pt-16 space-y-10">
-                <div class="text-center space-y-3">
-                  <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 text-3xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                    ✉️
-                  </div>
-                  <h2 class="text-4xl font-black">Contact</h2>
-                  <p :style="{ color: ot.textFaint, fontSize: '18px' }">Envoyez-moi un message</p>
+            <!-- Fake notch -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 rounded-b-2xl z-10"
+              :class="isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'"></div>
+
+            <div class="p-10 pt-16 space-y-10">
+              <div class="text-center space-y-3">
+                <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 text-3xl"
+                  :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                  <span style="width: 32px; height: 32px; display: inline-flex;" v-html="projectIcons['mail']"></span>
                 </div>
-
-                <form class="space-y-6" @submit.prevent>
-                  <div class="space-y-2">
-                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Nom</label>
-                    <input type="text" placeholder="Votre nom" 
-                           class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
-                           :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
-                  </div>
-                  
-                  <div class="space-y-2">
-                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Email</label>
-                    <input type="email" placeholder="votre@email.com" 
-                           class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
-                           :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
-                  </div>
-
-                  <div class="space-y-2">
-                    <label class="block font-bold ml-2 uppercase tracking-wider" :style="{ color: ot.textFaint, fontSize: '14px' }">Message</label>
-                    <textarea placeholder="Comment puis-je vous aider ?" rows="4"
-                              class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium resize-none"
-                              :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }"></textarea>
-                  </div>
-
-                  <button type="submit" 
-                          class="w-full py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 transition-all transform hover:scale-[1.02] shadow-lg shadow-cyan-500/20"
-                          style="font-size: 22px;">
-                    Envoyer
-                  </button>
-                </form>
-
-                <div class="pt-6 mt-6 text-center space-y-4" :style="{ borderTop: '1px solid ' + ot.border }">
-                  <p class="font-bold flex items-center justify-center gap-3" :style="{ color: ot.textMuted, fontSize: '18px' }">
-                    <span>📍</span> Québec, Canada
-                  </p>
-                  <p class="font-mono text-cyan-500 font-bold" style="font-size: 16px;">
-                    contact@anjahnyony.com
-                  </p>
-                </div>
+                <h2 class="text-4xl font-black">Contact</h2>
+                <p :style="{ color: ot.textFaint, fontSize: '18px' }">Envoyez-moi un message</p>
               </div>
 
+              <!-- SUCCESS STATE -->
+              <div v-if="contactStatus === 'success'" class="text-center space-y-6 py-8">
+                <div class="mx-auto w-20 h-20 rounded-full flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20">
+                  <span style="width: 40px; height: 40px; display: inline-flex; color: #34d399;" v-html="projectIcons['shield']"></span>
+                </div>
+                <h3 class="text-3xl font-black text-emerald-400">Message envoyé !</h3>
+                <p :style="{ color: ot.textMuted, fontSize: '18px' }">Merci de m'avoir contacté. Je vous répondrai dans les plus brefs délais.</p>
+              </div>
+
+              <!-- ERROR STATE -->
+              <div v-else-if="contactStatus === 'error'" class="text-center space-y-6 py-8">
+                <div class="mx-auto w-20 h-20 rounded-full flex items-center justify-center bg-red-500/10 border border-red-500/20">
+                  <span style="width: 40px; height: 40px; display: inline-flex; color: #f87171;" v-html="projectIcons['zap']"></span>
+                </div>
+                <h3 class="text-3xl font-black text-red-400">Erreur d'envoi</h3>
+                <p :style="{ color: ot.textMuted, fontSize: '18px' }">Veuillez réessayer ou m'écrire directement à anjahnyonyliantsoa@gmail.com</p>
+                <button @click="contactStatus = 'idle'"
+                  class="px-8 py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all"
+                  style="font-size: 18px;">Réessayer</button>
+              </div>
+
+              <!-- FORM -->
+              <form v-else class="space-y-6" @submit.prevent="submitContact">
+                <div class="space-y-2">
+                  <label class="block font-bold ml-2 uppercase tracking-wider"
+                    :style="{ color: ot.textFaint, fontSize: '14px' }">Nom</label>
+                  <input v-model="contactForm.name" type="text" placeholder="Votre nom" required
+                    class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
+                </div>
+
+                <div class="space-y-2">
+                  <label class="block font-bold ml-2 uppercase tracking-wider"
+                    :style="{ color: ot.textFaint, fontSize: '14px' }">Email</label>
+                  <input v-model="contactForm.email" type="email" placeholder="votre@email.com" required
+                    class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }" />
+                </div>
+
+                <div class="space-y-2">
+                  <label class="block font-bold ml-2 uppercase tracking-wider"
+                    :style="{ color: ot.textFaint, fontSize: '14px' }">Message</label>
+                  <textarea v-model="contactForm.message" placeholder="Comment puis-je vous aider ?" rows="4" required
+                    class="w-full px-6 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all font-medium resize-none"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border, color: ot.text, fontSize: '20px' }"></textarea>
+                </div>
+
+                <button type="submit" :disabled="contactStatus === 'sending'"
+                  class="w-full py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 transition-all transform hover:scale-[1.02] shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  style="font-size: 22px;">
+                  <span v-if="contactStatus === 'sending'" class="flex items-center justify-center gap-3">
+                    <svg class="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"/></svg>
+                    Envoi en cours...
+                  </span>
+                  <span v-else>Envoyer</span>
+                </button>
+              </form>
+
+              <div class="pt-6 mt-6 text-center space-y-4" :style="{ borderTop: '1px solid ' + ot.border }">
+                <p class="font-bold flex items-center justify-center gap-3"
+                  :style="{ color: ot.textMuted, fontSize: '18px' }">
+                  <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['map-pin']"></span> Québec, Canada
+                </p>
+                <p class="font-mono text-cyan-500 font-bold" style="font-size: 16px;">
+                  contact@anjahnyony.com
+                </p>
+              </div>
             </div>
-          </Transition>
+
+          </div>
+        </Transition>
+
         </Html>
       </TresGroup>
 
       <!-- CONTENU DES LIVRES -->
-      <TresGroup 
-        v-if="activeElement === 'books'" 
-        :position="[settings.books.htmlPosX, settings.books.htmlPosY, settings.books.htmlPosZ]" 
-      >
-        <Html key="html-books" transform wrapper-class="livre-content" 
-              :rotation-x="settings.books.htmlRotX" 
-              :rotation-y="settings.books.htmlRotY" 
-              :rotation-z="settings.books.htmlRotZ" 
-              :scale="settings.books.scale">
-          <Transition 
-            enter-active-class="transition-opacity duration-1000" 
-            enter-from-class="opacity-0" 
-            leave-active-class="transition-opacity duration-300" 
-            leave-to-class="opacity-0"
-          >
-            <div v-show="showBookContent" :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px', backgroundColor: ot.bg, color: ot.text }"
-                 class="relative pointer-events-auto overflow-y-auto"
-                 style="scrollbar-width: thin;">
-              
-              <!-- LIVRE : STACK & SKILLS -->
-              <template v-if="selectedBook === 'stack'">
-                <div class="p-12 space-y-12">
-                  <div class="text-center space-y-4">
-                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <span style="font-size: 28px;">⚡</span>
-                      <span class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '18px' }">Stack & Skills</span>
-                    </div>
-                    <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Compétences</h2>
-                    <p :style="{ color: ot.textFaint, fontSize: '22px' }">Technologies et outils que je maîtrise</p>
-                  </div>
+      <TresGroup v-if="activeElement === 'books'"
+        :position="[settings.books.htmlPosX, settings.books.htmlPosY, settings.books.htmlPosZ]">
+        <Html key="html-books" transform wrapper-class="livre-content" :rotation-x="settings.books.htmlRotX"
+          :rotation-y="settings.books.htmlRotY" :rotation-z="settings.books.htmlRotZ" :scale="settings.books.scale">
+        <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0"
+          leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0">
+          <div v-show="showBookContent"
+            :style="{ width: settings.books.width + 'px', height: settings.books.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+            class="relative pointer-events-auto overflow-y-auto" style="scrollbar-width: thin;">
 
-                  <!-- FRONTEND -->
-                  <div class="space-y-5">
-                    <h3 class="font-bold uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-3" style="font-size: 20px;">
-                      <span class="w-10 h-px bg-emerald-400/40"></span> Frontend
-                    </h3>
-                    <div class="grid gap-4">
-                      <div v-for="skill in [{name: 'Vue.js / Nuxt', level: 90}, {name: 'TresJS / Three.js', level: 75}, {name: 'GSAP Animations', level: 85}, {name: 'TailwindCSS', level: 90}, {name: 'HTML5 / CSS3', level: 95}]" :key="skill.name"
-                           class="p-5 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <div class="flex justify-between items-center mb-3">
-                          <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name }}</span>
-                          <span class="text-emerald-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
-                        </div>
-                        <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
-                          <div class="h-full rounded-full bg-gradient-to-r from-emerald-500/60 to-emerald-400/40" :style="{ width: skill.level + '%' }"></div>
-                        </div>
+            <!-- LIVRE : STACK & SKILLS -->
+            <template v-if="selectedBook === 'stack'">
+              <div class="p-12 space-y-12">
+                <div class="text-center space-y-4">
+                  <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <span style="font-size: 28px; width: 28px; height: 28px;" v-html="projectIcons['zap']"></span>
+                    <span class="font-bold uppercase tracking-[0.2em]"
+                      :style="{ color: ot.textFaint, fontSize: '18px' }">Stack & Skills</span>
+                  </div>
+                  <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Compétences</h2>
+                  <p :style="{ color: ot.textFaint, fontSize: '22px' }">Technologies et outils que je maîtrise</p>
+                </div>
+
+                <!-- FRONTEND -->
+                <div class="space-y-5">
+                  <h3 class="font-bold uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-3"
+                    style="font-size: 20px;">
+                    <span class="w-10 h-px bg-emerald-400/40"></span> Frontend
+                  </h3>
+                  <div class="grid gap-4">
+                    <div
+                      v-for="skill in [{ name: 'Vue.js / Nuxt', level: 90 }, { name: 'TresJS / Three.js', level: 75 }, { name: 'GSAP Animations', level: 85 }, { name: 'TailwindCSS', level: 90 }, { name: 'HTML5 / CSS3', level: 95 }]"
+                      :key="skill.name" class="p-5 rounded-xl"
+                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="flex justify-between items-center mb-3">
+                        <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name
+                          }}</span>
+                        <span class="text-emerald-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <!-- BACKEND -->
-                  <div class="space-y-5">
-                    <h3 class="font-bold uppercase tracking-[0.2em] text-blue-400 flex items-center gap-3" style="font-size: 20px;">
-                      <span class="w-10 h-px bg-blue-400/40"></span> Backend & BDD
-                    </h3>
-                    <div class="grid gap-4">
-                      <div v-for="skill in [{name: 'Node.js / Express', level: 90}, {name: 'MySQL / UML', level: 85}, {name: 'REST APIs', level: 90}, {name: 'MongoDB', level: 70}, {name: 'Socket.io', level: 75}]" :key="skill.name"
-                           class="p-5 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <div class="flex justify-between items-center mb-3">
-                          <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name }}</span>
-                          <span class="text-blue-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
-                        </div>
-                        <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
-                          <div class="h-full rounded-full bg-gradient-to-r from-blue-500/60 to-blue-400/40" :style="{ width: skill.level + '%' }"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- OUTILS -->
-                  <div class="space-y-5">
-                    <h3 class="font-bold uppercase tracking-[0.2em] text-purple-400 flex items-center gap-3" style="font-size: 20px;">
-                      <span class="w-10 h-px bg-purple-400/40"></span> Outils
-                    </h3>
-                    <div class="flex flex-wrap gap-3">
-                      <span v-for="tool in ['Git', 'GitHub', 'VS Code', 'Déploiement', 'SEO', 'Agile']" :key="tool"
-                            class="px-5 py-3 rounded-xl font-medium border border-purple-400/15 text-purple-300"
-                            :style="{ fontSize: '18px', background: 'rgba(168,85,247,0.06)' }">
-                        {{ tool }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- SOFT SKILLS + LANGUES -->
-                  <div class="space-y-5">
-                    <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3" :style="{ color: ot.textFaint, fontSize: '20px' }">
-                      <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Soft Skills
-                    </h3>
-                    <div class="flex flex-wrap gap-3">
-                      <span v-for="soft in ['Autonomie', 'Curiosité', 'Esprit d\'équipe', 'Patience', 'Adaptabilité']" :key="soft"
-                            class="px-5 py-3 rounded-xl font-medium" :style="{ fontSize: '18px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">
-                        {{ soft }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="space-y-5 mt-8">
-                    <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3" :style="{ color: ot.textFaint, fontSize: '20px' }">
-                      <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Langues
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div class="p-5 rounded-xl text-center" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Français</p>
-                        <p :style="{ color: ot.textFaint, fontSize: '16px' }">Courant</p>
-                      </div>
-                      <div class="p-5 rounded-xl text-center" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Anglais</p>
-                        <p :style="{ color: ot.textFaint, fontSize: '16px' }">Intermédiaire (B1-B2)</p>
+                      <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
+                        <div class="h-full rounded-full bg-gradient-to-r from-emerald-500/60 to-emerald-400/40"
+                          :style="{ width: skill.level + '%' }"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </template>
 
-              <!-- LIVRE : PARCOURS TIMELINE -->
-              <TheBooksTimeline v-else-if="selectedBook === 'timeline'" />
-
-              <!-- LIVRE : À PROPOS -->
-              <template v-else>
-                <div class="p-12 space-y-12">
-                  <div class="text-center space-y-4">
-                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <span style="font-size: 28px;">📖</span>
-                      <span class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '18px' }">À propos</span>
-                    </div>
-                    <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Mon Parcours</h2>
-                  </div>
-
-                  <!-- TIMELINE -->
-                  <div class="relative space-y-10 pl-10" :style="{ borderLeft: '3px solid ' + ot.border }">
-                    <div class="relative">
-                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-cyan-500" :style="{ border: '4px solid ' + ot.bg }"></div>
-                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <div class="flex items-center gap-4 mb-4">
-                          <span style="font-size: 36px;">💻</span>
-                          <div>
-                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Développeur Full-Stack</h3>
-                            <p class="text-cyan-400" style="font-size: 18px;">H&S Consulting</p>
-                          </div>
-                        </div>
-                        <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">09/2025 — 10/2025 · Remote, Canada</p>
-                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Création complète d'un site corporatif et d'un CMS propriétaire (Node.js/Vue.js). Architecture de la base de données MySQL, développement des API REST, et gestion complète du déploiement avec optimisation SEO.</p>
+                <!-- BACKEND -->
+                <div class="space-y-5">
+                  <h3 class="font-bold uppercase tracking-[0.2em] text-blue-400 flex items-center gap-3"
+                    style="font-size: 20px;">
+                    <span class="w-10 h-px bg-blue-400/40"></span> Backend & BDD
+                  </h3>
+                  <div class="grid gap-4">
+                    <div
+                      v-for="skill in [{ name: 'Node.js / Express', level: 90 }, { name: 'MySQL / UML', level: 85 }, { name: 'REST APIs', level: 90 }, { name: 'MongoDB', level: 70 }, { name: 'Socket.io', level: 75 }]"
+                      :key="skill.name" class="p-5 rounded-xl"
+                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="flex justify-between items-center mb-3">
+                        <span class="font-semibold" :style="{ color: ot.text, fontSize: '24px' }">{{ skill.name
+                          }}</span>
+                        <span class="text-blue-400 font-mono" style="font-size: 18px;">{{ skill.level }}%</span>
                       </div>
-                    </div>
-
-                    <div class="relative">
-                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-amber-500" :style="{ border: '4px solid ' + ot.bg }"></div>
-                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <div class="flex items-center gap-4 mb-4">
-                          <span style="font-size: 36px;">🎓</span>
-                          <div>
-                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Licence Pro. Génie Logiciel</h3>
-                            <p class="text-amber-400" style="font-size: 18px;">ENI Madagascar</p>
-                          </div>
-                        </div>
-                        <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">05/2025</p>
-                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Équivalence au Québec : Baccalauréat en informatique. Apprentissage approfondi de l'informatique, modélisation de bases de données, et structuration de projets logiciels complexes.</p>
-                      </div>
-                    </div>
-
-                    <div class="relative">
-                      <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-emerald-500" :style="{ border: '4px solid ' + ot.bg }"></div>
-                      <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                        <div class="flex items-center gap-4 mb-4">
-                          <span style="font-size: 36px;">🚀</span>
-                          <div>
-                            <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Profil Actuel</h3>
-                            <p class="text-emerald-400" style="font-size: 18px;">Disponible immédiatement</p>
-                          </div>
-                        </div>
-                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Résident à Saint-Anselme (Québec) avec un Permis de Travail Ouvert valide jusqu'en Octobre 2026. Doté d'une forte capacité d'apprentissage, je suis prêt à relever de nouveaux défis !</p>
-                        <div class="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full border border-emerald-400/20 text-emerald-400" style="font-size: 18px; background: rgba(16,185,129,0.06);">
-                          🇨🇦 Permis de Travail Ouvert
-                        </div>
+                      <div class="w-full rounded-full overflow-hidden" :style="{ height: '8px', background: ot.bar }">
+                        <div class="h-full rounded-full bg-gradient-to-r from-blue-500/60 to-blue-400/40"
+                          :style="{ width: skill.level + '%' }"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </template>
 
-            </div>
-          </Transition>
+                <!-- OUTILS -->
+                <div class="space-y-5">
+                  <h3 class="font-bold uppercase tracking-[0.2em] text-purple-400 flex items-center gap-3"
+                    style="font-size: 20px;">
+                    <span class="w-10 h-px bg-purple-400/40"></span> Outils
+                  </h3>
+                  <div class="flex flex-wrap gap-3">
+                    <span v-for="tool in ['Git', 'GitHub', 'VS Code', 'Déploiement', 'SEO', 'Agile']" :key="tool"
+                      class="px-5 py-3 rounded-xl font-medium border border-purple-400/15 text-purple-300"
+                      :style="{ fontSize: '18px', background: 'rgba(168,85,247,0.06)' }">
+                      {{ tool }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- SOFT SKILLS + LANGUES -->
+                <div class="space-y-5">
+                  <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3"
+                    :style="{ color: ot.textFaint, fontSize: '20px' }">
+                    <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Soft Skills
+                  </h3>
+                  <div class="flex flex-wrap gap-3">
+                    <span v-for="soft in ['Autonomie', 'Curiosité', 'Esprit d\'équipe', 'Patience', 'Adaptabilité']"
+                      :key="soft" class="px-5 py-3 rounded-xl font-medium"
+                      :style="{ fontSize: '18px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">
+                      {{ soft }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="space-y-5 mt-8">
+                  <h3 class="font-bold uppercase tracking-[0.2em] flex items-center gap-3"
+                    :style="{ color: ot.textFaint, fontSize: '20px' }">
+                    <span class="w-10 h-px" :style="{ background: ot.textFaint }"></span> Langues
+                  </h3>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="p-5 rounded-xl text-center"
+                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Français</p>
+                      <p :style="{ color: ot.textFaint, fontSize: '16px' }">Courant</p>
+                    </div>
+                    <div class="p-5 rounded-xl text-center"
+                      :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <p class="font-bold mb-1" :style="{ color: ot.text, fontSize: '28px' }">Anglais</p>
+                      <p :style="{ color: ot.textFaint, fontSize: '16px' }">Intermédiaire (B1-B2)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- LIVRE : PARCOURS TIMELINE -->
+            <TheBooksTimeline v-else-if="selectedBook === 'timeline'" />
+
+            <!-- LIVRE : À PROPOS -->
+            <template v-else>
+              <div class="p-12 space-y-12">
+                <div class="text-center space-y-4">
+                  <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <span style="font-size: 28px; width: 28px; height: 28px;" v-html="projectIcons['filetext']"></span>
+                    <span class="font-bold uppercase tracking-[0.2em]"
+                      :style="{ color: ot.textFaint, fontSize: '18px' }">À propos</span>
+                  </div>
+                  <h2 class="font-black" :style="{ color: ot.text, fontSize: '56px' }">Mon Parcours</h2>
+                </div>
+
+                <!-- TIMELINE -->
+                <div class="relative space-y-10 pl-10" :style="{ borderLeft: '3px solid ' + ot.border }">
+                  <div class="relative">
+                    <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-cyan-500"
+                      :style="{ border: '4px solid ' + ot.bg }"></div>
+                    <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="flex items-center gap-4 mb-4">
+                        <span style="font-size: 36px; width: 36px; height: 36px;" v-html="projectIcons['monitor']"></span>
+                        <div>
+                          <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Développeur Full-Stack
+                          </h3>
+                          <p class="text-cyan-400" style="font-size: 18px;">H&S Consulting</p>
+                        </div>
+                      </div>
+                      <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">09/2025 — 10/2025 ·
+                        Remote, Canada</p>
+                      <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Création complète
+                        d'un site corporatif et d'un CMS propriétaire (Node.js/Vue.js). Architecture de la base de
+                        données MySQL, développement des API REST, et gestion complète du déploiement avec optimisation
+                        SEO.</p>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-amber-500"
+                      :style="{ border: '4px solid ' + ot.bg }"></div>
+                    <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="flex items-center gap-4 mb-4">
+                        <span style="font-size: 36px; width: 36px; height: 36px;" v-html="projectIcons['graduation']"></span>
+                        <div>
+                          <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Licence Pro. Génie
+                            Logiciel</h3>
+                          <p class="text-amber-400" style="font-size: 18px;">ENI Madagascar</p>
+                        </div>
+                      </div>
+                      <p class="font-mono mb-4" :style="{ color: ot.textFaint, fontSize: '16px' }">05/2025</p>
+                      <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Équivalence au
+                        Québec : Baccalauréat en informatique. Apprentissage approfondi de l'informatique, modélisation
+                        de bases de données, et structuration de projets logiciels complexes.</p>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <div class="absolute -left-[46px] top-1 w-5 h-5 rounded-full bg-emerald-500"
+                      :style="{ border: '4px solid ' + ot.bg }"></div>
+                    <div class="p-8 rounded-xl" :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                      <div class="flex items-center gap-4 mb-4">
+                        <span style="font-size: 36px; width: 36px; height: 36px;" v-html="projectIcons['rocket']"></span>
+                        <div>
+                          <h3 class="font-bold" :style="{ color: ot.text, fontSize: '28px' }">Profil Actuel</h3>
+                          <p class="text-emerald-400" style="font-size: 18px;">Disponible immédiatement</p>
+                        </div>
+                      </div>
+                      <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '20px' }">Résident à
+                        Saint-Anselme (Québec) avec un Permis de Travail Ouvert valide jusqu'en Octobre 2026. Doté d'une
+                        forte capacité d'apprentissage, je suis prêt à relever de nouveaux défis !</p>
+                      <div
+                        class="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full border border-emerald-400/20 text-emerald-400"
+                        style="font-size: 18px; background: rgba(16,185,129,0.06);">
+                        <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['globe']"></span> Permis de Travail Ouvert
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+          </div>
+        </Transition>
+
         </Html>
       </TresGroup>
 
       <!-- PANNEAU LIVRES -->
-      <TresGroup 
-        v-if="activeElement === 'books'" 
-        :position="[settings.books.htmlPosX, settings.books.htmlPosY, settings.books.htmlPosZ]" 
-      >
-        <Html transform wrapper-class="ecran-books"
-              :rotation-x="settings.books.htmlRotX" 
-              :rotation-y="settings.books.htmlRotY" 
-              :rotation-z="settings.books.htmlRotZ" 
-              :scale="settings.books.scale">
+      <TresGroup v-if="activeElement === 'books'"
+        :position="[settings.books.htmlPosX, settings.books.htmlPosY, settings.books.htmlPosZ]">
+        <Html transform wrapper-class="ecran-books" :rotation-x="settings.books.htmlRotX"
+          :rotation-y="settings.books.htmlRotY" :rotation-z="settings.books.htmlRotZ" :scale="settings.books.scale">
+
         </Html>
       </TresGroup>
       <!-- CONTENU DES DOSSIERS (Projets) -->
-      <TresGroup 
-        v-if="activeElement === 'folder'" 
-        :position="[settings.folder.htmlPosX, settings.folder.htmlPosY, settings.folder.htmlPosZ]" 
-      >
-        <Html key="html-folder" transform wrapper-class="folder-content" 
-              :rotation-x="settings.folder.htmlRotX" 
-              :rotation-y="settings.folder.htmlRotY" 
-              :rotation-z="settings.folder.htmlRotZ" 
-              :scale="settings.folder.scale">
-          <Transition 
-            enter-active-class="transition-opacity duration-1000" 
-            enter-from-class="opacity-0" 
-            leave-active-class="transition-opacity duration-300" 
-            leave-to-class="opacity-0"
-          >
-            <div v-show="showFolderContent" :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px', backgroundColor: ot.bg, color: ot.text }"
-                 class="relative pointer-events-auto overflow-y-auto"
-                 style="scrollbar-width: thin;">
-              
-              <!-- HERO IMAGE -->
-              <div class="relative w-full" style="height: 45%;">
-                <img :src="currentProject.image" class="w-full h-full object-cover" :alt="currentProject.title" />
-                <div class="absolute inset-0" :style="{ background: `linear-gradient(to top, ${ot.bg} 0%, transparent 60%)` }"></div>
-                <!-- BADGE flottant -->
-                <div class="absolute top-8 right-8 w-20 h-20 rounded-3xl flex items-center justify-center text-4xl"
-                     :style="{ backgroundColor: currentProject.color + '20', border: '2px solid ' + currentProject.color + '40', backdropFilter: 'blur(8px)' }">
-                  {{ currentProject.badge }}
+      <TresGroup v-if="activeElement === 'folder'"
+        :position="[settings.folder.htmlPosX, settings.folder.htmlPosY, settings.folder.htmlPosZ]">
+        <Html key="html-folder" transform wrapper-class="folder-content" :rotation-x="settings.folder.htmlRotX"
+          :rotation-y="settings.folder.htmlRotY" :rotation-z="settings.folder.htmlRotZ" :scale="settings.folder.scale">
+        <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0"
+          leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0">
+          <div v-show="showFolderContent"
+            :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+            class="relative pointer-events-auto overflow-y-auto" style="scrollbar-width: thin;">
+
+            <!-- HERO IMAGE -->
+            <div class="relative w-full" style="height: 45%;">
+              <img :src="currentProject.image" class="w-full h-full object-cover" :alt="currentProject.title" />
+              <div class="absolute inset-0"
+                :style="{ background: `linear-gradient(to top, ${ot.bg} 0%, transparent 60%)` }">
+              </div>
+              <!-- BADGE flottant -->
+              <div class="absolute top-8 right-8 w-20 h-20 rounded-3xl flex items-center justify-center text-4xl"
+                :style="{ backgroundColor: currentProject.color + '20', border: '2px solid ' + currentProject.color + '40', backdropFilter: 'blur(8px)' }">
+                {{ currentProject.badge }}
+              </div>
+            </div>
+
+            <!-- CONTENU -->
+            <div class="relative px-16 -mt-20 pb-16 space-y-12" style="z-index: 2;">
+              <!-- TITRE -->
+              <div>
+                <h2 class="font-black tracking-tight leading-tight mb-4"
+                  :style="{ color: currentProject.color, fontSize: '64px' }">
+                  {{ currentProject.title }}
+                </h2>
+                <p class="italic" :style="{ color: ot.textFaint, fontSize: '24px' }">{{ currentProject.tagline }}</p>
+              </div>
+
+              <!-- DESCRIPTION -->
+              <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '22px' }">{{
+                currentProject.description }}
+              </p>
+
+              <!-- LIENS VERS LE PROJET -->
+              <div v-if="currentProject.link || currentProject.github" class="flex flex-wrap gap-4">
+                <a v-if="currentProject.link" :href="currentProject.link" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white transition-all transform hover:scale-[1.02] shadow-lg"
+                  :style="{ fontSize: '20px', background: `linear-gradient(135deg, ${currentProject.color}, ${currentProject.color}cc)`, boxShadow: `0 8px 30px ${currentProject.color}30` }">
+                  <span v-html="projectIcons['link']"></span> Voir le projet en ligne
+                  <span style="font-size: 16px;">↗</span>
+                </a>
+                <a v-if="currentProject.github" :href="currentProject.github" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all transform hover:scale-[1.02]"
+                  :style="{ fontSize: '20px', color: ot.text, background: ot.card, border: '1px solid ' + ot.border }">
+                  <span v-html="projectIcons['cog']"></span> Code Source GitHub
+                  <span style="font-size: 16px;">↗</span>
+                </a>
+              </div>
+
+              <!-- FEATURES -->
+              <div class="space-y-6">
+                <h3 class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '20px' }">
+                  Fonctionnalités clés</h3>
+                <div class="grid gap-4">
+                  <div v-for="feat in currentProject.features" :key="feat.title"
+                    class="flex items-start gap-6 p-8 rounded-2xl"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <span class="flex-shrink-0 mt-1 opacity-70" :style="{ color: currentProject.color }" v-html="projectIcons[feat.icon] || feat.icon"></span>
+                    <div>
+                      <h4 class="font-bold mb-2" :style="{ color: ot.text, fontSize: '24px' }">{{ feat.title }}</h4>
+                      <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '18px' }">{{ feat.desc }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- CONTENU -->
-              <div class="relative px-16 -mt-20 pb-16 space-y-12" style="z-index: 2;">
-                <!-- TITRE -->
-                <div>
-                  <h2 class="font-black tracking-tight leading-tight mb-4" :style="{ color: currentProject.color, fontSize: '64px' }">
-                    {{ currentProject.title }}
-                  </h2>
-                  <p class="italic" :style="{ color: ot.textFaint, fontSize: '24px' }">{{ currentProject.tagline }}</p>
-                </div>
-
-                <!-- DESCRIPTION -->
-                <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '22px' }">{{ currentProject.description }}</p>
-
-                <!-- FEATURES -->
-                <div class="space-y-6">
-                  <h3 class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '20px' }">Fonctionnalités clés</h3>
-                  <div class="grid gap-4">
-                    <div v-for="feat in currentProject.features" :key="feat.title" 
-                         class="flex items-start gap-6 p-8 rounded-2xl"
-                         :style="{ background: ot.card, border: '1px solid ' + ot.border }">
-                      <span class="flex-shrink-0 mt-1" style="font-size: 36px;">{{ feat.icon }}</span>
+              <!-- DÉFIS & SOLUTIONS -->
+              <div v-if="currentProject.challenges && currentProject.challenges.length" class="space-y-6">
+                <h3 class="font-bold uppercase tracking-[0.2em]" :style="{ color: ot.textFaint, fontSize: '20px' }">
+                  Défis & Solutions</h3>
+                <div class="grid gap-4">
+                  <div v-for="(challenge, idx) in currentProject.challenges" :key="idx"
+                    class="p-8 rounded-2xl"
+                    :style="{ background: ot.card, border: '1px solid ' + ot.border }">
+                    <div class="flex items-start gap-4 mb-4">
+                      <span class="flex-shrink-0 text-red-400" v-html="projectIcons['zap']"></span>
                       <div>
-                        <h4 class="font-bold mb-2" :style="{ color: ot.text, fontSize: '24px' }">{{ feat.title }}</h4>
-                        <p class="leading-relaxed" :style="{ color: ot.textMuted, fontSize: '18px' }">{{ feat.desc }}</p>
+                        <h4 class="font-bold mb-1" :style="{ color: ot.text, fontSize: '20px' }">Défi</h4>
+                        <p :style="{ color: ot.textMuted, fontSize: '18px' }">{{ challenge.problem }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-4 mt-4 pt-4" :style="{ borderTop: '1px solid ' + ot.border }">
+                      <span class="flex-shrink-0 text-emerald-400" v-html="projectIcons['shield']"></span>
+                      <div>
+                        <h4 class="font-bold mb-1" :style="{ color: ot.text, fontSize: '20px' }">Solution</h4>
+                        <p :style="{ color: ot.textMuted, fontSize: '18px' }">{{ challenge.solution }}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <!-- STACK -->
-                <div>
-                  <h3 class="font-bold uppercase tracking-[0.2em] mb-6" :style="{ color: ot.textFaint, fontSize: '20px' }">Technologies</h3>
-                  <div class="flex flex-wrap gap-4">
-                    <span v-for="tech in currentProject.stack" :key="tech"
-                          class="px-6 py-3 rounded-full font-semibold border"
-                          :style="{ fontSize: '18px', color: currentProject.color, borderColor: currentProject.color + '30', backgroundColor: currentProject.color + '10' }">
-                      {{ tech }}
-                    </span>
-                  </div>
-                </div>
               </div>
 
+              <!-- STACK -->
+              <div>
+                <h3 class="font-bold uppercase tracking-[0.2em] mb-6"
+                  :style="{ color: ot.textFaint, fontSize: '20px' }">
+                  Stack Technique</h3>
+                <div class="flex flex-wrap gap-4">
+                  <span v-for="tech in currentProject.stack" :key="tech"
+                    class="px-6 py-3 rounded-full font-semibold border"
+                    :style="{ fontSize: '18px', color: currentProject.color, borderColor: currentProject.color + '30', backgroundColor: currentProject.color + '10' }">
+                    {{ tech }}
+                  </span>
+                </div>
+              </div>
             </div>
-          </Transition>
+
+          </div>
+        </Transition>
+
         </Html>
       </TresGroup>
 
@@ -850,78 +980,154 @@ const props = defineProps({
 
 const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled'])
 
+// --- ICÔNES SVG (Lucide-style) ---
+const ico = (d, size = 24) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+const projectIcons = {
+  'refresh': ico('<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>'),
+  'shield': ico('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>'),
+  'dice': ico('<rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>'),
+  'sparkles': ico('<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>'),
+  'building': ico('<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/>'),
+  'database': ico('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>'),
+  'monitor': ico('<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>'),
+  'zap': ico('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>'),
+  'mail': ico('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+  'settings': ico('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
+  'wrench': ico('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
+  'rocket': ico('<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>'),
+  'globe': ico('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'),
+  'gem': ico('<path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>'),
+  'filetext': ico('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'),
+  'cog': ico('<path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'),
+  'link': ico('<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>'),
+  'search': ico('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
+  'chart': ico('<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>'),
+  'star': ico('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  'shuffle': ico('<path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H18"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18l-4 4-4-4"/><path d="M16.8 13.6c.5.8 1.4 1.4 2.3 1.4H22"/>'),
+  'share': ico('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/>'),
+  'palette': ico('<circle cx="13.5" cy="6.5" r="2"/><circle cx="17.5" cy="10.5" r="2" fill="currentColor"/><circle cx="8.5" cy="7.5" r="2"/><circle cx="6.5" cy="12.5" r="2"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/>'),
+  'calendar': ico('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>'),
+  'camera': ico('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
+  'graduation': ico('<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>'),
+  'map-pin': ico('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+}
+
 // --- DONNÉES DES PROJETS ---
 const projects = {
   monopoly: {
     title: 'Monopoly Madagascar',
     badge: '🎲',
     color: '#e74c3c',
-    image: '/images/projects/monopoly.png',
-    tagline: 'Réinvention numérique et immersive du célèbre jeu de société',
-    description: 'Transportée au cœur de Madagascar. Investissez, négociez et bâtissez votre empire en Ariary dans cette expérience multijoueur haut de gamme.',
+    image: '/projetc_img/monopoly_board.webp',
+    link: 'https://monopoly.anjahnyony.com',
+    github: 'https://github.com/AnjahNyOny/monopoly',
+    tagline: 'Ariary Luxe Edition — Un jeu de Monopoly en ligne multijoueur sur mesure, thématisé sur Madagascar.',
+    description: 'Conçu avec une approche esthétique "Luxe" (Dark mode, Glassmorphism) et animé dynamiquement sans moteur de jeu externe. Investissez, négociez et bâtissez votre empire en Ariary dans cette expérience multijoueur haut de gamme avec un plateau réactif, des dés 3D en CSS pur et une mécanique de jeu complète.',
     features: [
-      { icon: '🔄', title: 'Multijoueur Temps Réel', desc: 'Synchronisation fluide des joueurs via une architecture API robuste.' },
-      { icon: '✨', title: 'Design Premium', desc: 'Interface responsive utilisant le Glassmorphism et des animations GSAP.' },
-      { icon: '💰', title: 'Système Économique', desc: 'Gestion des transactions en Ariary, enchères, hypothèques et constructions.' },
-      { icon: '🦎', title: 'Personnalisation', desc: 'Plus de 80 pions animaux endémiques de Madagascar.' },
+      { icon: 'refresh', title: 'Multijoueur en Temps Réel', desc: 'Système de salons privés (Room ID) permettant à plusieurs joueurs de se synchroniser et de jouer sur le même plateau de manière fluide.' },
+      { icon: 'shield', title: 'Authentification Sécurisée', desc: 'Création de compte et connexion sécurisées par JWT (JSON Web Tokens) et mots de passe hashés avec bcrypt.' },
+      { icon: 'dice', title: 'Animations Immersives', desc: 'Lancers de dés 3D codés entièrement en CSS pur et déplacement des pions géré par GSAP pour un rendu visuel fluide et réaliste.' },
+      { icon: 'sparkles', title: 'Design System "Luxe"', desc: 'Interface sophistiquée inspirée de Plato, intégrant du Glassmorphism (verre dépoli), un thème sombre (Slate-950) et des accents premium Rouge et Or.' },
+      { icon: 'building', title: 'Mécanique de Jeu Complète', desc: 'Achat de propriétés malgaches, gares, utilitaires, construction jusqu\'à l\'hôtel, cartes Chance et Caisse de communauté.' },
+      { icon: 'database', title: 'Persistance de Session', desc: 'Le joueur peut rafraîchir la page ou se déconnecter puis revenir sans perdre l\'état continu de la partie.' },
     ],
-    stack: ['Vue.js', 'Node.js', 'GSAP', 'Socket.io'],
+    challenges: [
+      { problem: 'Gérer des sessions multi-utilisateurs de façon performante tout en simplifiant le déploiement sur VPS (éviter la complexité de Socket.io).', solution: 'Conservation de l\'état de jeu (GameState) en mémoire sur le serveur Nitro, puis synchronisation des clients via un Polling ultra léger et optimisé (Pinia + syncGameState).' },
+      { problem: 'Reproduire le tracé exact des pions sur un plateau 11×11 et adapter le rendu à toutes les tailles d\'écrans.', solution: 'Architecture avancée en CSS Grid avec classes métier (.t-0 à .t-39) et hook watch Pinia + GSAP pour animer les translations entre les cases.' },
+      { problem: 'Avoir des lancers de dés 3D réalistes sans charger un moteur 3D lourd comme Three.js.', solution: 'Conception mathématique de la logique de transformation rotateX/Y/Z du système CSS 3D, pilotée par les hooks réactifs de Vue.js.' },
+    ],
+    stack: ['Nuxt 4 / Vue 3', 'Pinia', 'GSAP', 'CSS3 3D', 'Tailwind CSS', 'Nitro / Node.js', 'SQLite (better-sqlite3)', 'JWT / bcrypt', 'PM2', 'VPS'],
   },
   cms: {
-    title: 'CMS Propriétaire',
+    title: 'CMS Sur-Mesure & Admin',
     badge: '📝',
     color: '#3498db',
-    image: '/images/projects/cms.png',
-    tagline: 'Panneau de contrôle robuste pour une autonomie totale',
-    description: 'Un système de gestion de contenu développé avec Node.js, offrant un contrôle complet sur le contenu du site.',
+    image: '/projetc_img/CMS.webp',
+    link: 'https://demo.babacode.ca/login?auto=true',
+    github: 'https://github.com/AnjahNyOny/portfolio',
+    tagline: 'Station de contrôle centralisée propulsée par des micro-workers et une UI moderne.',
+    description: 'Développement from scratch d\'un système de gestion de contenu (CMS) couplé à un panneau d\'administration robuste fonctionnant comme une véritable SPA. Plus qu\'un gestionnaire texte/image, c\'est une plateforme intégrant un Webmail "In-App" en temps réel et un système de monitoring avancé.',
     features: [
-      { icon: '📄', title: 'Gestion de Contenu', desc: 'Édition en direct des sections du site avec mode aperçu.' },
-      { icon: '📁', title: 'Bibliothèque de Médias', desc: 'Système de téléchargement drag-and-drop et gestion du stockage serveur.' },
-      { icon: '📬', title: 'Messagerie Intégrée', desc: 'Centralisation des demandes clients via une boîte de réception connectée.' },
+      { icon: 'monitor', title: 'Interface SPA Moderne (Vue 3)', desc: 'Dashboard réactif avec Vue Router, Pinia, et un design modulaire grâce à Tailwind CSS v3 et Flowbite. Intègre un éditeur Markdown natif.' },
+      { icon: 'zap', title: 'Backend RESTful Sécurisé', desc: 'API Node.js/Express avec base de données MySQL asynchrone et validation stricte des données via Zod.' },
+      { icon: 'mail', title: 'Webmail Intégré "In-App"', desc: 'Capacité de lire et répondre aux clients directement depuis l\'interface, avec des mises à jour en temps réel via SSE et Socket.IO.' },
+      { icon: 'settings', title: 'Architecture Multi-Processus', desc: 'Déploiement PM2 gérant le serveur API, un worker d\'ingestion IMAP 24/7 asynchrone, et un worker d\'envoi d\'emails (Nodemailer).' },
+      { icon: 'shield', title: 'Sécurité & Observabilité', desc: 'Auth JWT/bcrypt, politique CORS millimétrée, protection DDoS (Helmet, Rate-limit), et télémétrie Prometheus (prête pour Grafana).' },
+      { icon: 'wrench', title: 'Maintenance Autosuffisante', desc: 'Scripts CLI de nettoyage asynchrone des assets via cron et gestionnaire de sites dynamiques multi-langues.' },
     ],
-    stack: ['Node.js', 'Express', 'MongoDB', 'EJS'],
+    challenges: [
+      { problem: 'Traiter les emails IMAP entrants et sortants sans imposer de latence à l\'API principale ni interrompre l\'expérience utilisateur.', solution: 'Isolation de la logique dans des processus "micro-workers" indépendants avec PM2 (worker-imap, worker-outbox), synchronisant silencieusement les données.' },
+      { problem: 'Sécuriser un panneau d\'administration ultra-sensible et garantir la visibilité fine sur l\'état des serveurs.', solution: 'Implémentation de JWT sécurisés, protection agressive des requêtes réseau, et intégration d\'une télémétrie de rang d\'entreprise (Prometheus/Grafana via prom-client).' },
+    ],
+    stack: ['Vue.js 3', 'Pinia', 'Tailwind CSS / Flowbite', 'Node.js / Express', 'MySQL2', 'Micro-Workers (PM2)', 'Zod / JWT', 'SSE / Socket.IO', 'Prometheus'],
   },
   portfolio: {
-    title: 'Portfolio & Site Vitrine',
-    badge: '🌐',
-    color: '#2ecc71',
-    image: '/images/projects/portfolio.png',
-    tagline: 'Site moderne optimisé pour l\'UX et le SEO',
-    description: 'Un site bilingue bâti avec Vue.js, pensé pour une expérience utilisateur irréprochable.',
+    title: 'Site Vitrine SAP',
+    badge: '💼',
+    color: '#10b981',
+    image: '/projetc_img/site_vitrine_SAP.webp',
+    link: 'https://hsconseil.ca',
+    tagline: 'Site vitrine moderne, performant et multilingue pour consultant indépendant.',
+    description: 'Plateforme conçue spécifiquement pour maximiser la présence en ligne d\'un consultant SAP. L\'objectif est de mettre en valeur l\'expertise technique (services, réalisations, portfolio) et de générer des leads via une prise de contact hyper-fluide. Ce site frontend est intégralement découplé d\'un puissant espace d\'administration sécurisé.',
     features: [
-      { icon: '🧭', title: 'Navigation Dynamique', desc: 'Barre de navigation et section Hero percutante.' },
-      { icon: '🌍', title: 'Bilinguisme', desc: 'Français/Anglais avec détection automatique de la langue.' },
-      { icon: '📱', title: 'Mobile First', desc: 'Design adaptatif pour tous les appareils.' },
+      { icon: 'rocket', title: 'Landing Page & Catalogue', desc: 'Page d\'accueil percutante avec catalogue d\'expertise (intégration SAP, audits, AMOA) filtrable par tags.' },
+      { icon: 'globe', title: 'Support Multilingue Natif', desc: 'Intégration profonde de Vue I18n v10 pour opérer à l\'international, et intégration du bandeau de consentement RGPD.' },
+      { icon: 'zap', title: 'Prise de Contact Temps-Réel', desc: 'Formulaire avec alertes push envoyées instantanément via WebSockets (Socket.io) à l\'administrateur.' },
+      { icon: 'gem', title: 'Design System Premium', desc: 'Interface UI TailwindCSS/Flowbite sur-mesure qui casse les codes "austères" de l\'ERP en offrant modernité et assurance.' },
+      { icon: 'filetext', title: 'Parsage de Contenu', desc: 'Intégration d\'une librairie de conversion Markdown pour afficher élégamment les études de cas créées depuis l\'administration.' },
+      { icon: 'cog', title: 'Architecture Modulaire SPA', desc: 'Single Page Application hyper-réactive propulsée par Vue Router, Pinia et Vuex pour les états de session.' },
     ],
-    stack: ['Vue.js', 'Nuxt', 'i18n', 'TailwindCSS'],
+    challenges: [
+      { problem: 'Cibler le design : casser les codes rigides des services IT sans perdre la crédibilité corporate nécessaire en SAP.', solution: 'Conception institutionnelle "Premium" avec Tailwind CSS, iconographies fines (Lucide, Heroicons) et notifications élégantes (vue-toastification).' },
+      { problem: 'Garder l\'interface visiteur ultra-légère malgré le back-office embarqué.', solution: 'Séparation structurelle radicale (dossiers Visitor vs Admin), supportée par une architecture en TypeScript assurant le découplage des modèles métier.' },
+      { problem: 'Générer des leads avec réactivité absolue.', solution: 'Abolition des simples "emails" au profit d\'une connexion WebSocket front-back notifiant l\'administrateur du site à la seconde où le formulaire est envoyé.' },
+    ],
+    stack: ['Vue.js 3', 'TypeScript', 'Tailwind CSS v3', 'Pinia & Vuex', 'WebSockets (Socket.io)', 'Vue Router v4', 'Vue I18n', 'Vue CLI / Webpack'],
   },
   movie: {
-    title: 'Perfect-Movie',
+    title: 'Perfect Movie',
     badge: '🎬',
     color: '#9b59b6',
-    image: '/images/projects/movie.png',
-    tagline: 'Ne perdez plus jamais un film de vue',
-    description: 'Avez-vous déjà vu un extrait sur TikTok et oublié le nom du film ? Perfect-Movie est la solution. Créez votre liste, regardez la bande-annonce, et notez vos films.',
+    image: '/projetc_img/movie.webp',
+    link: 'https://perfectmovie.anjahnyony.com/',
+    github: 'https://github.com/AnjahNyOny/perfect-movie',
+    tagline: 'L\'application ultime pour organiser vos soirées ciné en couple.',
+    description: 'Perfect Movie est une application web collaborative conçue spécifiquement pour les couples (particulièrement ceux à distance) afin de centraliser, rechercher et synchroniser leur liste de films à regarder. Fini les "on regarde quoi ce soir ?", l\'application permet de constituer une bibliothèque commune, de noter les films vus et même de laisser le destin choisir pour vous.',
     features: [
-      { icon: '🔍', title: 'Recherche', desc: 'Trouvez n\'importe quel film et ajoutez-le à votre liste.' },
-      { icon: '🎥', title: 'Bandes-annonces', desc: 'Visionnez la bande-annonce directement dans l\'app.' },
-      { icon: '⭐', title: 'Notes & Avis', desc: 'Marquez comme terminé, notez et commentez.' },
+      { icon: 'link', title: 'Synchronisation Temps Réel', desc: 'Grâce à un système de "Code Couple", deux utilisateurs peuvent lier leurs comptes pour partager instantanément la même liste.' },
+      { icon: 'search', title: 'Recherche Intégrée (TMDB)', desc: 'Accès à une base de données de milliers de films avec affiches, synopsis et bandes-annonces directement dans l\'interface.' },
+      { icon: 'chart', title: 'Tableau de Bord Statistiques', desc: 'Visualisation du temps total de visionnage, des genres préférés du couple et du plus gros contributeur de la liste.' },
+      { icon: 'star', title: 'Gestion de Statut & Notes', desc: 'Possibilité de marquer un film comme "Terminé", de lui attribuer une note sur 10 et d\'ajouter un commentaire personnel.' },
+      { icon: 'shuffle', title: 'Mode "Surprise-moi"', desc: 'Un algorithme de sélection aléatoire pour aider à choisir le prochain film parmi la liste d\'envies.' },
+      { icon: 'share', title: 'Partage Public', desc: 'Génération d\'un lien unique en mode "Lecture Seule" pour montrer votre collection à vos amis ou votre famille.' },
+      { icon: 'palette', title: 'Interface Premium', desc: 'Design moderne avec mode Sombre/Clair, animations fluides (Lucide Icons) et chargement optimisé (Skeletons).' },
     ],
-    stack: ['Vue.js', 'TMDb API', 'Firebase'],
+    challenges: [
+      { problem: 'Maîtrise du JavaScript Asynchrone : gestion complexe des appels API, des promesses et des mises à jour du DOM sans framework.', solution: 'Architecture modulaire en ES6+ Modules avec gestion centralisée des états et du cycle de vie des composants en JavaScript Vanille.' },
+      { problem: 'Architecture NoSQL : conception d\'un schéma de données entre Utilisateurs, Couples et Films.', solution: 'Modélisation relationnelle adaptée à Firestore avec synchronisation temps réel et gestion des conflits d\'écriture.' },
+    ],
+    stack: ['HTML5', 'CSS3 (Variables, Flexbox, Grid)', 'JavaScript ES6+ Modules', 'Firebase Firestore', 'Firebase Auth', 'TMDB API', 'Dicebear API', 'YouTube Embed'],
   },
   soccer: {
-    title: 'Club de Soccer',
+    title: 'Soccer Interculturel Bellechasse',
     badge: '⚽',
     color: '#f39c12',
-    image: '/images/projects/soccer.png',
-    tagline: 'Vitrine pour un club de soccer',
-    description: 'Un site web pour faire découvrir le club, ses joueurs, ses résultats et sa philosophie.',
+    image: '/projetc_img/soccer.webp',
+    link: 'https://soccerinterculturelbellechasse.com/',
+    tagline: 'Favoriser l\'intégration sociale et la diversité culturelle à travers le sport.',
+    description: 'Développement d\'une vitrine web moderne pour un club de soccer promouvant l\'inclusion à Saint-Anselme (Québec). L\'objectif était de fournir une plateforme élégante et fonctionnelle pour attirer de nouveaux membres, informer sur les horaires des différentes saisons (été/hiver) et renforcer l\'image de marque du club.',
     features: [
-      { icon: '👥', title: 'Présentation', desc: 'L\'équipe, le staff et la philosophie du club.' },
-      { icon: '📅', title: 'Calendrier', desc: 'Matchs à venir et résultats passés.' },
-      { icon: '📸', title: 'Galerie', desc: 'Photos et moments forts du club.' },
+      { icon: 'palette', title: 'Design Premium & Responsif', desc: 'Interface moderne utilisant une typographie élégante (Playfair Display & Montserrat) et un layout "split-screen" pour le héros.' },
+      { icon: 'calendar', title: 'Planning Dynamique', desc: 'Système d\'onglets interactifs en JavaScript pour basculer facilement entre les horaires de la saison d\'été et d\'hiver.' },
+      { icon: 'camera', title: 'Galerie Photo Immersive', desc: 'Galerie en grille Masonry avec un système de Lightbox fait maison pour une visualisation fluide des images.' },
+      { icon: 'mail', title: 'Formulaire de Contact Intelligent', desc: 'Intégration d\'un formulaire avec envoi via AJAX (FormSubmit) pour une expérience utilisateur sans rechargement.' },
+      { icon: 'rocket', title: 'Optimisation SEO & Performance', desc: 'Données structurées (JSON-LD), format WebP, lazy-loading pour un référencement optimal et un temps de chargement éclair.' },
     ],
-    stack: ['HTML', 'CSS', 'JavaScript'],
+    challenges: [
+      { problem: 'Rendre le site performant malgré un grand nombre de photos dans la galerie.', solution: 'Conversion systématique des images en format WebP et mise en place du chargement différé (lazy-loading).' },
+      { problem: 'Offrir une navigation claire sur mobile pour un contenu riche.', solution: 'Conception d\'un menu "burger" personnalisé avec un overlay flouté pour une esthétique moderne.' },
+    ],
+    stack: ['HTML5', 'CSS3 Vanilla', 'JavaScript ES6+', 'Schema.org', 'Google Maps API', 'FormSubmit', 'Font Awesome'],
   },
 }
 
@@ -929,15 +1135,15 @@ const projects = {
 const books = {
   stack: {
     title: 'Stack & Skills',
-    icon: '⚡',
+    icon: 'zap',
   },
   about: {
     title: 'À propos de moi',
-    icon: '📖',
+    icon: 'filetext',
   },
   timeline: {
     title: 'Mon Parcours',
-    icon: '⏳',
+    icon: 'calendar',
   }
 }
 
@@ -960,10 +1166,39 @@ const showPhoneContent = ref(false)
 const showBookContent = ref(false)
 const showFolderContent = ref(false)
 
+// --- FORMULAIRE DE CONTACT ---
+const contactForm = ref({ name: '', email: '', message: '' })
+const contactStatus = ref('idle') // 'idle' | 'sending' | 'success' | 'error'
+
+async function submitContact() {
+  contactStatus.value = 'sending'
+  try {
+    const res = await fetch('https://formsubmit.co/ajax/anjahnyonyliantsoa@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: contactForm.value.name,
+        email: contactForm.value.email,
+        message: contactForm.value.message,
+        _subject: `Portfolio 3D — Message de ${contactForm.value.name}`,
+      })
+    })
+    if (res.ok) {
+      contactStatus.value = 'success'
+      contactForm.value = { name: '', email: '', message: '' }
+      setTimeout(() => { contactStatus.value = 'idle' }, 8000)
+    } else {
+      contactStatus.value = 'error'
+    }
+  } catch {
+    contactStatus.value = 'error'
+  }
+}
+
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
 const ENABLE_CALIBRATION_UI = false
-const calibrationMode = ref(false) 
+const calibrationMode = ref(false)
 const showLightCalibration = ref(false)
 const showCameraCalibration = ref(false)
 const showMeshNames = ref(false)
@@ -1023,7 +1258,7 @@ const captureCurrentView = () => {
   defaultCamPos.value.x = Number(cameraRef.value.position.x.toFixed(2))
   defaultCamPos.value.y = Number(cameraRef.value.position.y.toFixed(2))
   defaultCamPos.value.z = Number(cameraRef.value.position.z.toFixed(2))
-  
+
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
   if (controls?.target) {
@@ -1222,11 +1457,11 @@ const lightState = ref({
 
 const lightPos = ref({
   // Remplacez les valeurs de x, y, z et frustum ici :
-  sun: { x: -2.44, y: 3.7, z: 2.1, frustum: 10 }, 
-  
+  sun: { x: -2.44, y: 3.7, z: 2.1, frustum: 10 },
+
   // Remplacez les valeurs x, y, z de la cible ici :
   sunTarget: { x: 13.5, y: -2, z: 0 },
-  
+
   godRay: { x: -2.3, y: 3.5, z: 1.7, rotX: 90, rotY: -30, rotZ: 90, opacity: 0.15 },
   desk: { x: 1.5, y: 2.5, z: 0.5 },
 })
@@ -1259,9 +1494,9 @@ watch(controlsRef, (newRef) => {
 const toggleLight = () => {
   if (animating.value) return
   isDarkMode.value = !isDarkMode.value
-  
+
   emit('theme-toggled', isDarkMode.value)
-  
+
   // Trouve la scène principale de ThreeJS pour ajuster l'Environment map
   let sceneRoot = cameraRef.value
   while (sceneRoot && !sceneRoot.isScene && sceneRoot.parent) {
@@ -1274,7 +1509,7 @@ const toggleLight = () => {
       ambient: 0.1,    // Sombre comme tu avais aimé
       window: 0,
       desk: 6,         // Puissance ciblée de la lampe
-      nightReflect: 0.1, 
+      nightReflect: 0.1,
       envIntensity: 0.05, // ON ÉTEINT L'ENVIRONNEMENT GLOBALE ICI !!!
       duration: 1.5,
       ease: 'power2.inOut',
@@ -1304,8 +1539,8 @@ const toggleLight = () => {
 }
 
 const settings = ref({
-  laptop: { 
-    camX: 1.54, camY: 1.91, camZ: 1, 
+  laptop: {
+    camX: 1.54, camY: 1.91, camZ: 1,
     lookX: 1.53, lookY: 1.5, lookZ: 0.07,
     htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
     htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
@@ -1322,8 +1557,8 @@ const settings = ref({
     width: 380,
     height: 800
   },
-  books: { 
-    camX: 1.34, camY: 1.84, camZ: 1.29, 
+  books: {
+    camX: 1.34, camY: 1.84, camZ: 1.29,
     lookX: 0.73, lookY: 1.5, lookZ: 0.31,
     htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
     htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
@@ -1332,7 +1567,7 @@ const settings = ref({
     height: 1129
   },
   folder: {
-    camX: 1.84, camY: 2.03, camZ: 1.64, 
+    camX: 1.84, camY: 2.03, camZ: 1.64,
     lookX: 1, lookY: 1.68, lookZ: 0.45,
     htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
     htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
@@ -1398,7 +1633,7 @@ const copyCurrentCamera = () => {
   s.camX = Number(cameraRef.value.position.x.toFixed(3))
   s.camY = Number(cameraRef.value.position.y.toFixed(3))
   s.camZ = Number(cameraRef.value.position.z.toFixed(3))
-  
+
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
   if (controls && controls.target) {
@@ -1424,7 +1659,7 @@ const getHitMeshName = (event) => {
 const isInteractive = (meshName) => {
   if (!meshName) return false
   const name = meshName.toLowerCase()
-  
+
   const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
   const isBook = BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')
@@ -1438,7 +1673,7 @@ const isInteractive = (meshName) => {
 // Gérer l'ouverture/fermeture du tiroir (sans zoomer)
 const toggleDrawer = (drawerMesh) => {
   if (animating.value) return
-  
+
   // Initialisation de l'état
   if (drawerMesh.userData.isOpen === undefined) {
     drawerMesh.userData.originalPos = drawerMesh.position.clone()
@@ -1446,17 +1681,17 @@ const toggleDrawer = (drawerMesh) => {
   }
 
   const isOpen = drawerMesh.userData.isOpen
-  
+
   // Si le bureau est orienté de face, le tiroir s'ouvre généralement sur l'axe X ou Z.
   // Modifie 'z' ci-dessous en 'x' ou 'y' selon comment ton bureau est orienté dans ThreeJS !
   const offset = isOpen ? 0 : 0.4
-  
+
   gsap.to(drawerMesh.position, {
     z: drawerMesh.userData.originalPos.z + offset, // << CHANGE LE 'z' ICI par 'x' ou '-x' si ça sort du mauvais côté !
     duration: 0.8,
     ease: 'power2.inOut'
   })
-  
+
   drawerMesh.userData.isOpen = !isOpen
   emit('drawer-state', drawerMesh.userData.isOpen)
 }
@@ -1468,30 +1703,30 @@ const onModelLoaded = (gltf) => {
     modelToTraverse.traverse((node) => {
       if (node.isMesh) {
         const name = node.name ? node.name.toLowerCase() : ''
-        
+
         // 1. LA VITRE : On la rend TOTALEMENT INVISIBLE pour le test
         if (
-          name.includes('glass') || 
-          name.includes('vitre') || 
+          name.includes('glass') ||
+          name.includes('vitre') ||
           (name.includes('window') && !name.includes('frame'))
         ) {
           node.visible = false // Cache complètement l'objet
           node.castShadow = false
-        } 
+        }
         // 2. LES DÉCHETS BLENDER : On cache les restes booléens
         else if (name.includes('cube') || name.includes('boolean')) {
           node.visible = false
           node.castShadow = false
-        } 
+        }
         // 3. TOUT LE RESTE (Murs, meubles) : Projettent et reçoivent l'ombre
         else {
           node.visible = true
           node.castShadow = true
           node.receiveShadow = true
-          
+
           // IMPORTANT : On s'assure que l'ombre est calculée normalement (FrontSide)
           if (node.material) {
-            node.material.shadowSide = 0 
+            node.material.shadowSide = 0
           }
         }
       }
@@ -1511,7 +1746,7 @@ const onModelClick = (event) => {
   const meshName = getHitMeshName(event)
   if (!meshName) return
   const name = meshName.toLowerCase()
-  
+
   const isLaptop = LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))
   const isPhone = name.startsWith(PHONE_PREFIX.toLowerCase())
   const isBook = (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book')) && !name.includes('shelf')
@@ -1543,14 +1778,14 @@ const onModelClick = (event) => {
         activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
       }
     }
-    
+
     let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
     if (!cover && name.includes('cover')) {
-       cover = event.object
-       // Si on a cliqué sur le cover, on cherche la base comme parent
-       if (cover.parent && cover.parent.name.toLowerCase().includes('folder')) {
-           activeFolderBase = cover.parent
-       }
+      cover = event.object
+      // Si on a cliqué sur le cover, on cherche la base comme parent
+      if (cover.parent && cover.parent.name.toLowerCase().includes('folder')) {
+        activeFolderBase = cover.parent
+      }
     }
 
     if (cover) {
@@ -1559,7 +1794,7 @@ const onModelClick = (event) => {
         activeFolderCover.userData.originalRot = activeFolderCover.rotation.clone()
       }
     }
-    
+
     // Extraire l'id du projet du nom du mesh (ex: 'folder_portfolio' -> 'portfolio' / 'folder_portfolio_cover' -> 'portfolio')
     const match = name.match(/folder_([a-zA-Z0-9]+)/i)
     if (match && match[1]) {
@@ -1569,7 +1804,7 @@ const onModelClick = (event) => {
     zoomTo('folder')
   } else if (isBook) {
     let base = event.object
-    
+
     // Remonter jusqu'à la base du livre (groupe parent)
     while (base.parent && base.parent.type === 'Group' && base.parent.name !== 'Scene') {
       base = base.parent
@@ -1582,13 +1817,13 @@ const onModelClick = (event) => {
         activeBookBase.userData.originalRot = activeBookBase.rotation.clone()
       }
     }
-    
+
     // Trouver le cover parmi les enfants. Si l'objet contient "cover" dans son nom
     let cover = base ? (base.children ? base.children.find(c => c.name.toLowerCase().includes('cover')) : null) : null
-    
+
     // Fallback direct si on a cliqué sur la couv' mais sans hiérarchie enfant
     if (!cover && name.includes('cover')) {
-       cover = event.object
+      cover = event.object
     }
 
     if (cover) {
@@ -1597,7 +1832,7 @@ const onModelClick = (event) => {
         activeBookCover.userData.originalRot = activeBookCover.rotation.clone()
       }
     }
-    
+
     // Extraire l'id du livre (ex: 'book_stack' -> 'stack')
     const match = name.match(/book_([^_]+)/i)
     if (match && match[1]) {
@@ -1614,7 +1849,7 @@ const onModelClick = (event) => {
 const onPointerMove = (event) => {
   const meshName = getHitMeshName(event)
   hoveredMeshName.value = meshName || ''
-  
+
   if (isInteractive(meshName)) {
     if (!isHovered.value) {
       isHovered.value = true
@@ -1688,14 +1923,14 @@ const activateItemByName = (type, id) => {
 
     const baseName = `folder_${id}`
     const coverName = `folder_${id}_cover`
-    
+
     let base = null
     let cover = null
-    
+
     rootScene.traverse((child) => {
       // On cherche exactement "folder_nom" ou on tolère s'il a ".001"
       if (!base && child.name && child.name.toLowerCase().startsWith(baseName.toLowerCase()) && !child.name.toLowerCase().includes('cover') && !child.name.toLowerCase().includes('paper')) {
-          base = child
+        base = child
       }
       if (!cover && child.name && child.name.toLowerCase().startsWith(coverName.toLowerCase())) cover = child
     })
@@ -1712,19 +1947,19 @@ const activateItemByName = (type, id) => {
         activeFolderBase.userData.originalRot = activeFolderBase.rotation.clone()
       }
     }
-    
+
     if (cover) {
       activeFolderCover = cover
       if (!activeFolderCover.userData.originalRot) {
         activeFolderCover.userData.originalRot = activeFolderCover.rotation.clone()
       }
     }
-    
+
     zoomTo('folder')
   } else if (type === 'books') {
     const baseName = `book_${id}`
     let baseObj = null
-    
+
     rootScene.traverse((child) => {
       if (child.name === baseName) baseObj = child
     })
@@ -1784,7 +2019,7 @@ const zoomTo = (target) => {
         ease: 'power2.inOut'
       })
       gsap.to(pg.rotation, {
-        x: pg.userData.originalRot.x + (phoneAnimConfig.value.rotX * Math.PI / 180), 
+        x: pg.userData.originalRot.x + (phoneAnimConfig.value.rotX * Math.PI / 180),
         y: pg.userData.originalRot.y + (phoneAnimConfig.value.rotY * Math.PI / 180),
         z: pg.userData.originalRot.z + (phoneAnimConfig.value.rotZ * Math.PI / 180),
         duration: 1.5,
@@ -1817,15 +2052,15 @@ const zoomTo = (target) => {
 
     if (activeBookCover && activeBookCover.userData.originalRot) {
       gsap.to(activeBookCover.rotation, {
-          x: activeBookCover.userData.originalRot.x + (bookAnimConfig.value.coverRotX * Math.PI / 180),
-          y: activeBookCover.userData.originalRot.y + (bookAnimConfig.value.coverRotY * Math.PI / 180),
-          z: activeBookCover.userData.originalRot.z + (bookAnimConfig.value.coverRotZ * Math.PI / 180),
-          duration: 1.2,
-          delay: 0.5,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            showBookContent.value = true
-          }
+        x: activeBookCover.userData.originalRot.x + (bookAnimConfig.value.coverRotX * Math.PI / 180),
+        y: activeBookCover.userData.originalRot.y + (bookAnimConfig.value.coverRotY * Math.PI / 180),
+        z: activeBookCover.userData.originalRot.z + (bookAnimConfig.value.coverRotZ * Math.PI / 180),
+        duration: 1.2,
+        delay: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          showBookContent.value = true
+        }
       })
     } else {
       setTimeout(() => showBookContent.value = true, 1700)
@@ -1853,15 +2088,15 @@ const zoomTo = (target) => {
 
     if (activeFolderCover && activeFolderCover.userData.originalRot) {
       gsap.to(activeFolderCover.rotation, {
-          x: activeFolderCover.userData.originalRot.x + (folderAnimConfig.value.coverRotX * Math.PI / 180),
-          y: activeFolderCover.userData.originalRot.y + (folderAnimConfig.value.coverRotY * Math.PI / 180),
-          z: activeFolderCover.userData.originalRot.z + (folderAnimConfig.value.coverRotZ * Math.PI / 180),
-          duration: 1.2,
-          delay: 0.2, // Ouvre le dossier presque tout de suite
-          ease: 'power2.inOut',
-          onComplete: () => {
-            showFolderContent.value = true
-          }
+        x: activeFolderCover.userData.originalRot.x + (folderAnimConfig.value.coverRotX * Math.PI / 180),
+        y: activeFolderCover.userData.originalRot.y + (folderAnimConfig.value.coverRotY * Math.PI / 180),
+        z: activeFolderCover.userData.originalRot.z + (folderAnimConfig.value.coverRotZ * Math.PI / 180),
+        duration: 1.2,
+        delay: 0.2, // Ouvre le dossier presque tout de suite
+        ease: 'power2.inOut',
+        onComplete: () => {
+          showFolderContent.value = true
+        }
       })
     } else {
       setTimeout(() => showFolderContent.value = true, 1200)
@@ -1983,10 +2218,10 @@ const resetZoom = () => {
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
 
   const resetTarget = { x: defaultLookAt.value.x, y: defaultLookAt.value.y, z: defaultLookAt.value.z }
-  const lookAtProxy = { 
-    x: controls?.target?.x ?? 0, 
-    y: controls?.target?.y ?? 0, 
-    z: controls?.target?.z ?? 0 
+  const lookAtProxy = {
+    x: controls?.target?.x ?? 0,
+    y: controls?.target?.y ?? 0,
+    z: controls?.target?.z ?? 0
   }
 
   gsap.to(cameraRef.value.position, {

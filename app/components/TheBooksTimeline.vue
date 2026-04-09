@@ -2,7 +2,7 @@
   <div class="timeline-container bg-transparent p-0 flex flex-col cursor-auto pointer-events-auto overflow-y-auto w-full h-full">
     <div class="text-center space-y-4 mb-12 mt-12">
       <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" style="background: rgba(139,105,20,0.1); border: 1px solid rgba(139,105,20,0.2);">
-        <span style="font-size: 28px;">📖</span>
+        <span style="font-size: 28px; display: inline-flex;" v-html="icons.filetext"></span>
         <span class="font-bold uppercase tracking-[0.2em]" style="color: #8b6914; font-size: 18px;">Parcours Interactif</span>
       </div>
       <h2 class="font-black" style="font-size: 56px; color: inherit;">Mon Parcours</h2>
@@ -12,7 +12,7 @@
       <!-- Expériences -->
       <div class="space-y-10">
         <h3 class="font-bold flex items-center gap-4" style="color: #8b6914; font-size: 28px;">
-          <span style="font-size: 36px;">🚀</span> Expériences
+          <span style="font-size: 36px; display: inline-flex;" v-html="icons.rocket"></span> Expériences
         </h3>
         <div class="space-y-8 pl-4" style="border-left: 3px solid rgba(139,105,20,0.4);">
           <div v-for="(exp, index) in experiences" :key="index" class="relative pl-8">
@@ -27,7 +27,7 @@
       <!-- Skills -->
       <div class="space-y-10">
         <h3 class="font-bold flex items-center gap-4" style="color: #8b6914; font-size: 28px;">
-          <span style="font-size: 36px;">⚡</span> Stack Technique Résumée
+          <span style="font-size: 36px; display: inline-flex;" v-html="icons.zap"></span> Stack Technique Résumée
         </h3>
         <div class="flex flex-wrap gap-4">
           <span 
@@ -45,6 +45,13 @@
 </template>
 
 <script setup>
+const ico = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+const icons = {
+  filetext: ico('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'),
+  rocket: ico('<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>'),
+  zap: ico('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>'),
+}
+
 const skills = [
   'Vue.js', 'Nuxt', 'Node.js', 'Express', 'MySQL', 'REST APIs', 
   'TailwindCSS', 'JavaScript', 'HTML5/CSS3', 'Git', 'UML'
