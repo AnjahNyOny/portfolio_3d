@@ -296,6 +296,40 @@
         height: <input type="number" step="1" v-model.number="settings[activeElement].height"
           class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
       </div>
+      <!-- SECTION USB / OBJETS 3D -->
+      <div v-if="activeElement === 'usb' || activeElement === 'github' || activeElement === 'linkedin'" class="mt-4 border-t border-zinc-600 pt-2">
+        <label class="block font-bold text-yellow-400 mb-2">Objet 3D : {{ activeElement }}</label>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-zinc-400 font-mono">X Pos: {{ settings[activeElement].posX }}</label>
+            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posX" class="w-full" />
+            <input type="number" step="0.001" v-model.number="settings[activeElement].posX" class="w-full bg-black/40 p-1" />
+          </div>
+          <div>
+            <label class="block text-zinc-400 font-mono">Y Pos: {{ settings[activeElement].posY }}</label>
+            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posY" class="w-full" />
+            <input type="number" step="0.001" v-model.number="settings[activeElement].posY" class="w-full bg-black/40 p-1" />
+          </div>
+          <div>
+            <label class="block text-zinc-400 font-mono">Z Pos: {{ settings[activeElement].posZ }}</label>
+            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posZ" class="w-full" />
+            <input type="number" step="0.001" v-model.number="settings[activeElement].posZ" class="w-full bg-black/40 p-1" />
+          </div>
+          <div class="pt-2 border-t border-zinc-700">
+             <label class="block text-zinc-400 font-mono">X Rot (deg): {{ settings[activeElement].rotX }}</label>
+             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotX" class="w-full" />
+          </div>
+          <div>
+             <label class="block text-zinc-400 font-mono">Y Rot (deg): {{ settings[activeElement].rotY }}</label>
+             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotY" class="w-full" />
+          </div>
+          <div>
+             <label class="block text-zinc-400 font-mono">Z Rot (deg): {{ settings[activeElement].rotZ }}</label>
+             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotZ" class="w-full" />
+          </div>
+        </div>
+      </div>
+
       <!-- SECTON TÉLÉPHONE 3D (Seulement si le téléphone est zoomé) -->
       <div v-if="activeElement === 'phone'" class="mt-4 border-t border-zinc-600 pt-2">
         <h3 class="font-bold text-green-400 mb-2">📱 Animation Téléphone 3D</h3>
@@ -442,82 +476,68 @@
       <!-- PÉNOMBRE BLEUTÉE (Nuit, ambiance claire de lune) -->
       <TresDirectionalLight :position="[-3, 5, -3]" :intensity="lightState.nightReflect" color="#3b82f6" />
 
-
-
-      <Suspense>
-        <GLTFModel path="/models/room_v13.glb" draco draco-decoder-path="/draco/" cast-shadow receive-shadow
-          @load="onModelLoaded" @click="onModelClick" @pointermove="onPointerMove" @pointerleave="onPointerOut" />
-      </Suspense>
-
       <!-- ECRAN LAPTOP -->
-      <TresGroup v-if="activeElement === 'laptop'"
+      <TresGroup v-if="activeElement === 'laptop' || activeElement === 'usb' || showIntro"
         :position="[settings.laptop.htmlPosX, settings.laptop.htmlPosY, settings.laptop.htmlPosZ]">
         <Html transform wrapper-class="ecran-virtuel" :rotation-x="settings.laptop.htmlRotX"
           :rotation-y="settings.laptop.htmlRotY" :rotation-z="settings.laptop.htmlRotZ" :scale="settings.laptop.scale">
 
-        <!-- MODE INTRO -->
+        <!-- 1. MODE INTRODUCTION (Toujours prioritaire au début) -->
         <div v-if="showIntro"
-          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden', backgroundColor: ot.bg, color: ot.text }"
-          class="rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden flex items-center justify-center">
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+          class="rounded-md pointer-events-auto overflow-hidden flex items-center justify-center">
           <div class="p-16 max-w-2xl text-center">
-            <!-- Ligne décorative -->
             <div class="flex items-center justify-center gap-4 mb-12">
               <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
-              <span class="tracking-[0.3em] uppercase font-light"
-                :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
+              <span class="tracking-[0.3em] uppercase font-light" :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
               <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
             </div>
-
-            <!-- Nom -->
-            <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">
-              ANJAH Rakotovao
-            </h1>
-
-            <!-- Titre -->
-            <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12"
-              style="font-size: 32px;">
-              Développeur Web Fullstack
-            </p>
-
-            <!-- Description -->
-            <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">
-              Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes. De
-              la conception de bases de données à la création d'interfaces intuitives, je transforme des idées complexes
-              en outils fonctionnels.
-            </p>
-
-            <!-- Badges -->
-            <div class="flex flex-wrap justify-center gap-3 mb-12">
-              <span class="px-5 py-3 rounded-full"
-                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Développeur
-                Full-Stack Junior</span>
-              <span class="px-5 py-3 rounded-full"
-                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Spécialiste
-                Vue.js & Node.js</span>
-              <span class="px-5 py-3 rounded-full"
-                :style="{ fontSize: '16px', color: ot.textMuted, background: ot.card, border: '1px solid ' + ot.border }">Recherche
-                1er Emploi à Québec</span>
-              <span class="px-5 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 flex items-center gap-2"
-                style="font-size: 16px;">
-                Permis de Travail Ouvert <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['globe']"></span>
-              </span>
-            </div>
-
-            <!-- Localisation -->
-            <div class="flex items-center justify-center gap-2" :style="{ color: ot.textFaint, fontSize: '16px' }">
-              <span style="width: 22px; height: 22px; display: inline-flex;" v-html="projectIcons['map-pin']"></span>
-              <span>Saint-Anselme, Québec, Canada</span>
+            <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">ANJAH Rakotovao</h1>
+            <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12" style="font-size: 32px;">Développeur Web Fullstack</p>
+            <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes.</p>
+            <div class="flex items-center justify-center gap-6">
+              <a href="/CV-ANJAH.pdf" download="CV_Anjah_Rakotovao.pdf" class="flex items-center gap-2 px-6 py-3 rounded-full font-bold bg-cyan-500 hover:bg-cyan-400 text-zinc-950 transition-all hover:scale-105" style="font-size: 16px;">
+                <span style="width: 20px; height: 20px;" v-html="projectIcons['download']"></span> Télécharger CV
+              </a>
+              <button @click="showIntro = false; activeElement = 'laptop'" class="flex items-center gap-2 px-8 py-3 rounded-full font-bold bg-white text-black transition-all hover:scale-105" style="font-size: 16px;">
+                 Commencer
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- MODE SITE WEB -->
+        <!-- 2. MODE TÉLÉCHARGEMENT USB (Overlay sur le laptop cliqué ou non) -->
+        <div v-else-if="showDownloadScreen" 
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backgroundColor: '#09090b', color: '#fff' }"
+          class="rounded-md overflow-hidden flex flex-col items-center justify-center font-mono">
+          <div class="w-[700px] border border-zinc-700 bg-zinc-900 rounded-3xl p-16 space-y-12">
+            <div class="flex justify-between items-center text-cyan-400">
+              <span class="text-2xl font-bold uppercase tracking-widest">Data Transfer: CV_ANJAH.PDF</span>
+              <span class="animate-pulse bg-emerald-500/20 px-3 py-1 rounded text-emerald-500 text-sm">SECURE LINK</span>
+            </div>
+            <div class="h-6 w-full bg-zinc-800 rounded-full overflow-hidden">
+              <div class="h-full bg-cyan-500" :style="{ width: downloadPercent + '%' }"></div>
+            </div>
+            <div class="flex justify-between text-zinc-400 text-xl font-bold">
+              <span>{{ downloadPercent }}% COMPLETED</span>
+              <span>4.2 MB / 4.2 MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. MODE PAR DÉFAUT : SITE WEB / IFRAME -->
         <iframe v-else src="https://anjahnyony.com"
-          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backfaceVisibility: 'hidden' }"
-          class="border-none bg-white rounded-md pointer-events-auto shadow-[0_0_10px_rgba(255,255,255,0.1)]"></iframe>
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }"
+          class="border-none bg-white rounded-md pointer-events-auto"></iframe>
 
         </Html>
       </TresGroup>
+
+      <Suspense>
+        <GLTFModel path="/models/room_v14.glb" draco draco-decoder-path="/draco/" cast-shadow receive-shadow
+          @load="onModelLoaded" @click="onModelClick" @pointermove="onPointerMove" @pointerleave="onPointerOut" />
+      </Suspense>
+
 
       <!-- ECRAN TELEPHONE -->
       <TresGroup v-if="activeElement === 'phone'"
@@ -1031,9 +1051,74 @@ const props = defineProps({
 
 const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled'])
 
+const settings = ref({
+  laptop: {
+    camX: 1.54, camY: 1.91, camZ: 1,
+    lookX: 1.53, lookY: 1.5, lookZ: 0.07,
+    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
+    htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
+    scale: 0.0175,
+    width: 1400,
+    height: 900
+  },
+  phone: {
+    camX: 1.75, camY: 1.929, camZ: 1.401,
+    lookX: 1.25, lookY: 1.73, lookZ: 0.55,
+    htmlPosX: 0.9, htmlPosY: 1.57, htmlPosZ: 0.46,
+    htmlRotX: -0.17, htmlRotY: 0.54, htmlRotZ: 0.07,
+    scale: 0.023,
+    width: 380,
+    height: 800
+  },
+  books: {
+    camX: 1.34, camY: 1.84, camZ: 1.29,
+    lookX: 0.73, lookY: 1.5, lookZ: 0.31,
+    htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
+    htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
+    scale: 0.014,
+    width: 770,
+    height: 1129
+  },
+  folder: {
+    camX: 1.84, camY: 2.03, camZ: 1.64,
+    lookX: 1, lookY: 1.68, lookZ: 0.45,
+    htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
+    htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
+    scale: 0.014,
+    width: 800,
+    height: 1200
+  },
+  usb: {
+    camX: 1.54, camY: 1.91, camZ: 1,
+    lookX: 1.53, lookY: 1.5, lookZ: 0.07,
+    posX: -0.096, posY: 0, posZ: 0,
+    rotX: 0, rotY: 0, rotZ: 0,
+    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
+    htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
+    scale: 0.0175,
+    width: 1400,
+    height: 900
+  },
+  github: {
+    camX: 1.8, camY: 2, camZ: 1.5,
+    lookX: 1.2, lookY: 1.5, lookZ: 0.5,
+    posX: 1.2, posY: 1.5, posZ: 0.5,
+    rotX: 0, rotY: 0, rotZ: 0
+  },
+  linkedin: {
+    camX: 2, camY: 2, camZ: 2,
+    lookX: 1.5, lookY: 1.5, lookZ: 1,
+    posX: 1.5, posY: 1.5, posZ: 1,
+    rotX: 0, rotY: 0, rotZ: 0
+  }
+})
+
 // --- ICÔNES SVG (Lucide-style) ---
 const ico = (d, size = 24) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
 const projectIcons = {
+  'github': ico('<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>'),
+  'linkedin': ico('<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>'),
+  'download': ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>'),
   'refresh': ico('<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>'),
   'shield': ico('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>'),
   'dice': ico('<rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>'),
@@ -1216,6 +1301,8 @@ const animating = ref(false)
 const showPhoneContent = ref(false)
 const showBookContent = ref(false)
 const showFolderContent = ref(false)
+const showDownloadScreen = ref(false)
+const downloadPercent = ref(0)
 
 // --- FORMULAIRE DE CONTACT ---
 const contactForm = ref({ name: '', email: '', message: '' })
@@ -1404,6 +1491,18 @@ const getPhoneGroup = () => {
   return phoneGroup
 }
 
+// --- WATCHERS POUR CALIBRATION LIVE ---
+watch(() => settings.value.usb, (newVal) => {
+  if (activeUSB && activeElement.value === 'usb') {
+    activeUSB.position.set(newVal.posX, newVal.posY, newVal.posZ)
+    activeUSB.rotation.set(
+      newVal.rotX * Math.PI / 180,
+      newVal.rotY * Math.PI / 180,
+      newVal.rotZ * Math.PI / 180
+    )
+  }
+}, { deep: true })
+
 const updatePhoneAnim = () => {
   const pg = getPhoneGroup()
   if (pg && pg.userData.originalPos && activeElement.value === 'phone') {
@@ -1589,45 +1688,6 @@ const toggleLight = () => {
   }
 }
 
-const settings = ref({
-  laptop: {
-    camX: 1.54, camY: 1.91, camZ: 1,
-    lookX: 1.53, lookY: 1.5, lookZ: 0.07,
-    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
-    htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
-    scale: 0.0175,
-    width: 1400,
-    height: 900
-  },
-  phone: {
-    camX: 1.75, camY: 1.929, camZ: 1.401,
-    lookX: 1.25, lookY: 1.73, lookZ: 0.55,
-    htmlPosX: 0.9, htmlPosY: 1.57, htmlPosZ: 0.46,
-    htmlRotX: -0.17, htmlRotY: 0.54, htmlRotZ: 0.07,
-    scale: 0.023,
-    width: 380,
-    height: 800
-  },
-  books: {
-    camX: 1.34, camY: 1.84, camZ: 1.29,
-    lookX: 0.73, lookY: 1.5, lookZ: 0.31,
-    htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
-    htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
-    scale: 0.014,
-    width: 770,
-    height: 1129
-  },
-  folder: {
-    camX: 1.84, camY: 2.03, camZ: 1.64,
-    lookX: 1, lookY: 1.68, lookZ: 0.45,
-    htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
-    htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
-    scale: 0.014,
-    width: 800,
-    height: 1200
-  }
-})
-
 const sunLightRef = ref(null)
 
 const updateSunTarget = () => {
@@ -1776,13 +1836,57 @@ const onModelLoaded = (gltf) => {
 // 🔍 Clic sur un objet
 // 🔍 Fonction unifiée pour identifier un groupe interactif complet depuis n'importe quel mesh enfant
 const getInteractiveData = (mesh) => {
-  if (!mesh) return null
+  if (!mesh || !mesh.name) return null
+  const meshName = mesh.name.toLowerCase()
+
+  // --- NOUVEAUX OBJETS (PRIORITÉ DIRECTE) ---
+  if (meshName.includes('github_card')) {
+    return { id: 'github', label: 'GitHub', isSocial: true, url: 'https://github.com/AnjahNyOny', group: mesh }
+  }
+  if (meshName.includes('linkedin_card')) {
+    return { id: 'linkedin', label: 'LinkedIn', isSocial: true, url: 'https://linkedin.com/in/anjahnyony', group: mesh }
+  }
+  if (meshName.includes('facebook_card')) {
+    return { id: 'facebook', label: 'Facebook', isSocial: true, url: 'https://facebook.com/anjahnyony', group: mesh }
+  }
+  if (meshName.includes('cv_usb') || meshName === 'usb') {
+    // On cherche le groupe parent pour l'USB car il est souvent composé de plusieurs meshs
+    let group = mesh
+    while (group.parent && group.parent.name !== 'Scene' && !group.name.includes('usb')) {
+      group = group.parent
+    }
+    return { id: 'usb', label: 'Mon CV (USB)', type: 'usb', group: group }
+  }
+  if (meshName.includes('rubik')) {
+    let group = mesh
+    // On remonte jusqu'au parent le plus haut qui contient 'rubik' pour tout emmener (cage + pièces)
+    while (group.parent && group.parent.name !== 'Scene' && (group.parent.name.toLowerCase().includes('rubik') || group.parent.type === 'Group')) {
+      group = group.parent
+      if (group.name.toLowerCase().includes('rubik_parent') || group.name.toLowerCase() === 'rubik') break
+    }
+    return { id: 'rubik', label: 'Rubik', type: 'rubik', group: group }
+  }
+
+  // --- LOGIQUE EXISTANTE (REMONTEE DES PARENTS) ---
   let node = mesh
   let hitType = null
 
   // 1. Déterminer la catégorie en remontant l'arbre (bubble up)
   while (node && node.type !== 'Scene' && node.name !== 'Scene') {
     const name = node.name.toLowerCase()
+
+    // --- SOCIAL CARDS ---
+    if (name.includes('github_card')) {
+      return { id: 'github', label: 'GitHub', isSocial: true, url: 'https://github.com/AnjahNyOny' }
+    }
+    if (name.includes('linkedin_card')) {
+      return { id: 'linkedin', label: 'LinkedIn', isSocial: true, url: 'https://linkedin.com/in/anjahnyony' }
+    }
+    if (name.includes('facebook_card')) {
+      return { id: 'facebook', label: 'Facebook', isSocial: true, url: 'https://facebook.com/anjahnyony' }
+    }
+    // On ignore explicitement le support
+    if (name.includes('social_card')) return null
 
     if (name.includes('shelf') || name.includes('book_shelf')) {
       // On l'ignore, mais on n'arrête PAS la boucle pour laisser le livre prendre le dessus
@@ -1793,6 +1897,9 @@ const getInteractiveData = (mesh) => {
       else if (name.includes('folder')) hitType = 'folder'
       else if (LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')) hitType = 'switch'
       else if ((BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) hitType = 'book'
+      else if (name.includes('usb')) hitType = 'usb'
+      else if (name.includes('rubik')) hitType = 'github'
+      else if (name.includes('_card')) hitType = 'linkedin'
     }
     node = node.parent
   }
@@ -1843,6 +1950,17 @@ const onModelClick = (event) => {
 
   const data = getInteractiveData(event.object || event.intersection?.object)
   if (!data) return
+
+  // --- GESTION DES CLICS ---
+  if (data.isSocial && data.url) {
+    window.open(data.url, '_blank')
+    return
+  }
+
+  if (data.id === 'usb') {
+    animateUSBPlug(data.group)
+    return
+  }
 
   const { type, group } = data
 
@@ -1896,6 +2014,12 @@ const onModelClick = (event) => {
     zoomTo('books')
   } else if (type === 'switch') {
     toggleLight()
+  } else if (type === 'usb') {
+    animateUSBPlug(group)
+  } else if (type === 'github') {
+    window.open('https://github.com/AnjahNyOny', '_blank')
+  } else if (type === 'linkedin') {
+    window.open('https://linkedin.com/in/anjahnyony', '_blank')
   }
 }
 
@@ -1903,14 +2027,14 @@ let currentHoveredGroup = null
 let currentHoveredType = null
 
 const highlightGroup = (groupOrArray, isHovering) => {
-  if (!groupOrArray) return // On retire le && animating.value pour pouvoir "éteindre" l'effet pendant l'animation
+  if (!groupOrArray) return 
 
   const isArray = Array.isArray(groupOrArray)
   const canScale = isArray ? false : !groupOrArray.name.toLowerCase().includes('drawer')
   const elements = isArray ? groupOrArray : [groupOrArray]
 
   if (isHovering && !animating.value) { // On n'illumine que s'il n'y a pas d'animation en cours
-    if (canScale && !isArray) {
+    if (canScale && !isArray && currentHoveredType !== 'usb') {
       const group = groupOrArray
       if (!group.userData.originalScale) {
         group.userData.originalScale = group.scale.clone()
@@ -1992,6 +2116,10 @@ const onPointerMove = (event) => {
     }
     if (currentHoveredGroup) {
       highlightGroup(currentHoveredGroup, false)
+      // Redescente de l'objet précédent s'il avait lévité
+      if (currentHoveredGroup.userData.originalPos) {
+         gsap.to(currentHoveredGroup.position, { y: currentHoveredGroup.userData.originalPos.y, duration: 0.3 })
+      }
       currentHoveredGroup = null
       currentHoveredType = null
     }
@@ -2009,7 +2137,14 @@ const onPointerMove = (event) => {
 
     const { type, group } = data
     if (currentHoveredType !== type || (type !== 'laptop' && type !== 'switch' && currentHoveredGroup !== group)) {
-      if (currentHoveredGroup) highlightGroup(currentHoveredGroup, false)
+      if (currentHoveredGroup) {
+        highlightGroup(currentHoveredGroup, false)
+        // Redescente de l'objet précédent s'il avait lévité
+        if (currentHoveredGroup.userData.originalPos) {
+           gsap.to(currentHoveredGroup.position, { y: currentHoveredGroup.userData.originalPos.y, duration: 0.3 })
+        }
+      }
+
       currentHoveredGroup = group
       currentHoveredType = type
       highlightGroup(currentHoveredGroup, true)
@@ -2423,6 +2558,84 @@ const resetZoom = () => {
     onComplete: () => {
       animating.value = false
     }
+  })
+}
+
+// --- ANIMATION USB PLUG ---
+let activeUSB = null
+const animateUSBPlug = (group) => {
+  if (animating.value) return
+  
+  // On ne bloque PAS animating ici pour éviter les soft-locks
+  // Mais on empêche les clics multiples
+  activeUSB = group
+  
+  if (!activeUSB.userData.originalPos) {
+    activeUSB.userData.originalPos = activeUSB.position.clone()
+    activeUSB.userData.originalRot = activeUSB.rotation.clone()
+  }
+
+  // 1. Déclenchement visuel immédiat
+  showDownloadScreen.value = true
+  downloadPercent.value = 0
+  
+  // 2. Zoom vers l'écran (On utilise les réglages laptop pour être sûr de bien voir)
+  zoomTo('usb')
+  
+  const config = settings.value.usb
+  
+  // 3. Timeline d'animation
+  const tl = gsap.timeline({
+    onComplete: () => {
+      // Démarrage du faux téléchargement
+      gsap.to(downloadPercent, {
+        value: 100,
+        duration: 4,
+        roundProps: "value",
+        onUpdate: () => {
+          // On s'assure que l'écran est bien visible
+          if (!showDownloadScreen.value) showDownloadScreen.value = true
+        },
+        onComplete: () => {
+          // Téléchargement réel
+          const link = document.createElement('a')
+          link.href = '/CV-ANJAH.pdf'
+          link.download = 'CV_Anjah_Rakotovao.pdf'
+          link.click()
+          
+          // Pause et feedback final
+          setTimeout(() => {
+            showDownloadScreen.value = false
+            resetZoom()
+            
+            // Retour de la clé à sa place
+            gsap.to(activeUSB.position, {
+              x: activeUSB.userData.originalPos.x,
+              y: activeUSB.userData.originalPos.y,
+              z: activeUSB.userData.originalPos.z,
+              duration: 1.5,
+              ease: 'power2.inOut'
+            })
+            gsap.to(activeUSB.rotation, {
+              x: activeUSB.userData.originalRot.x,
+              y: activeUSB.userData.originalRot.y,
+              z: activeUSB.userData.originalRot.z,
+              duration: 1.5,
+              ease: 'power2.inOut'
+            })
+          }, 2500)
+        }
+      })
+    }
+  })
+
+  // Animation physique de la clé
+  tl.to(activeUSB.position, {
+    x: config.posX,
+    y: config.posY + 0.05,
+    z: config.posZ,
+    duration: 1,
+    ease: 'power2.inOut'
   })
 }
 const previewItem = (item) => {
