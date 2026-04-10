@@ -399,6 +399,19 @@
           class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
       </div>
     </div>
+
+    <!-- TOOLTIP INTERACTIF (style jeu vidéo) -->
+    <Transition name="tooltip-fade">
+      <div
+        v-if="hoverTooltip.visible && !activeElement"
+        class="hover-tooltip"
+        :style="{ left: hoverTooltip.x + 'px', top: hoverTooltip.y + 'px' }"
+      >
+        <span class="tooltip-indicator">▸</span>
+        <span class="tooltip-text">{{ hoverTooltip.text }}</span>
+      </div>
+    </Transition>
+
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size @pointer-missed="onPointerMissed">
       <TresPerspectiveCamera ref="cameraRef" :position="[1.79, 2.26, 2.58]" :look-at="[1.31, 1.62, 0.06]" />
 
@@ -1298,6 +1311,28 @@ const activeElement = ref(null) // 'laptop', 'phone', 'books', 'switch', or null
 const isHovered = ref(false)
 const animating = ref(false)
 
+// --- TOOLTIP INTERACTIF (style jeu vidéo) ---
+const hoverTooltip = ref({ visible: false, text: '', x: 0, y: 0 })
+const TOOLTIP_LABELS = {
+  laptop: 'Mon Espace de Travail',
+  phone: 'Me Contacter',
+  drawer: 'Mes Projets',
+  switch: 'Changer l\'éclairage',
+  usb: 'Télécharger le CV',
+  rubik: 'Easter Egg',
+  github: 'GitHub',
+  linkedin: 'LinkedIn',
+  facebook: 'Facebook',
+  book_timeline: 'Mon Parcours',
+  book_stack: 'Stack & Skills',
+  book_about: 'À Propos',
+  folder_monopoly: 'Monopoly Madagascar',
+  folder_cms: 'CMS Propriétaire',
+  folder_portfolio: 'Portfolio Bilingue',
+  folder_movie: 'Perfect-Movie',
+  folder_soccer: 'Soccer Interculturel'
+}
+
 const showPhoneContent = ref(false)
 const showBookContent = ref(false)
 const showFolderContent = ref(false)
@@ -1849,11 +1884,15 @@ const getInteractiveData = (mesh) => {
   if (meshName.includes('facebook_card')) {
     return { id: 'facebook', label: 'Facebook', isSocial: true, url: 'https://facebook.com/anjahnyony', group: mesh }
   }
-  if (meshName.includes('cv_usb') || meshName === 'usb') {
-    // On cherche le groupe parent pour l'USB car il est souvent composé de plusieurs meshs
+  if (meshName.includes('cv_usb') || meshName.includes('usb')) {
+    // On remonte au parent le plus haut qui contient 'usb' pour tout emmener (tête + corps)
     let group = mesh
-    while (group.parent && group.parent.name !== 'Scene' && !group.name.includes('usb')) {
-      group = group.parent
+    while (group.parent && group.parent.name !== 'Scene') {
+      if (group.parent.name.toLowerCase().includes('usb') || group.parent.type === 'Group') {
+        group = group.parent
+      } else {
+        break
+      }
     }
     return { id: 'usb', label: 'Mon CV (USB)', type: 'usb', group: group }
   }
@@ -2034,7 +2073,7 @@ const highlightGroup = (groupOrArray, isHovering) => {
   const elements = isArray ? groupOrArray : [groupOrArray]
 
   if (isHovering && !animating.value) { // On n'illumine que s'il n'y a pas d'animation en cours
-    if (canScale && !isArray && currentHoveredType !== 'usb') {
+    if (canScale && !isArray && currentHoveredType !== 'usb' && currentHoveredType !== 'rubik') {
       const group = groupOrArray
       if (!group.userData.originalScale) {
         group.userData.originalScale = group.scale.clone()
@@ -2129,13 +2168,30 @@ const onPointerMove = (event) => {
   const data = getInteractiveData(event.object || event.intersection?.object)
   hoveredMeshName.value = data ? data.type : ''
 
+  // Mise à jour position souris pour le tooltip
+  const pointerEvent = event.event || event
+  if (pointerEvent.clientX !== undefined) {
+    hoverTooltip.value.x = pointerEvent.clientX
+    hoverTooltip.value.y = pointerEvent.clientY
+  }
+
   if (data) {
     if (!isHovered.value) {
       isHovered.value = true
       document.body.style.cursor = 'pointer'
     }
 
-    const { type, group } = data
+    const { type, group, id, isSocial } = data
+    // Tooltip label — spécifique pour livres et dossiers
+    let tooltipKey = isSocial ? id : type
+    if (type === 'book' || type === 'folder') {
+      const groupName = (group?.name || '').toLowerCase()
+      const match = groupName.match(new RegExp(`${type}_([a-z]+)`))
+      if (match) tooltipKey = `${type}_${match[1]}`
+    }
+    hoverTooltip.value.text = TOOLTIP_LABELS[tooltipKey] || ''
+    hoverTooltip.value.visible = !!hoverTooltip.value.text
+
     if (currentHoveredType !== type || (type !== 'laptop' && type !== 'switch' && currentHoveredGroup !== group)) {
       if (currentHoveredGroup) {
         highlightGroup(currentHoveredGroup, false)
@@ -2151,6 +2207,7 @@ const onPointerMove = (event) => {
     }
   } else {
     // Plus rien n'est survolé (ou un élément est en mode "ouvert")
+    hoverTooltip.value.visible = false
     if (isHovered.value) {
       isHovered.value = false
       document.body.style.cursor = 'auto'
@@ -2168,6 +2225,7 @@ const onPointerMove = (event) => {
 const onPointerOut = () => {
   hoveredMeshName.value = ''
   isHovered.value = false
+  hoverTooltip.value.visible = false
   document.body.style.cursor = 'auto'
   
   if (currentHoveredGroup) {
@@ -2632,7 +2690,7 @@ const animateUSBPlug = (group) => {
   // Animation physique de la clé
   tl.to(activeUSB.position, {
     x: config.posX,
-    y: config.posY + 0.05,
+    y: config.posY,
     z: config.posZ,
     duration: 1,
     ease: 'power2.inOut'
@@ -2667,6 +2725,7 @@ const previewItem = (item) => {
   else if (action === 'phone') lookupType = 'phone'
   else if (action === 'books') lookupType = 'book'
   else if (action === 'toggle-light') lookupType = 'switch'
+  else if (action === 'social') lookupType = 'social'
 
   if (!lookupType) return clearHover()
 
@@ -2684,6 +2743,7 @@ const previewItem = (item) => {
     else if (lookupType === 'book' && !book && (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) {
       if (!name.includes('shelf') && !name.includes('book_shelf')) foundMesh = child
     }
+    else if (lookupType === 'social' && item.socialId && name.includes(item.socialId)) foundMesh = child
   })
 
   // getInteractiveData requires ANY mesh of that type to fetch the full array/group logic!
@@ -2722,6 +2782,54 @@ defineExpose({
 
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+
+/* TOOLTIP INTERACTIF */
+.hover-tooltip {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  transform: translate(16px, -50%);
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.tooltip-indicator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7rem;
+}
+
+.tooltip-text {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+}
+
+.tooltip-fade-enter-active {
+  transition: all 0.15s ease-out;
+}
+
+.tooltip-fade-leave-active {
+  transition: all 0.1s ease-in;
+}
+
+.tooltip-fade-enter-from {
+  opacity: 0;
+  transform: translate(10px, -50%);
+}
+
+.tooltip-fade-leave-to {
   opacity: 0;
 }
 </style>

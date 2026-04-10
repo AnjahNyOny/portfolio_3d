@@ -89,6 +89,11 @@ const handleMenuNavigate = (payload) => {
     case 'toggle-light':
       sceneRef.value.toggleLight()
       break
+    case 'social':
+      if (payload.url) {
+        window.open(payload.url, '_blank')
+      }
+      break
   }
 }
 
