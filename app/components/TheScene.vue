@@ -1370,7 +1370,7 @@ async function submitContact() {
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
-const ENABLE_CALIBRATION_UI = true
+const ENABLE_CALIBRATION_UI = false
 const calibrationMode = ref(false)
 const showLightCalibration = ref(false)
 const showCameraCalibration = ref(false)
@@ -1637,7 +1637,7 @@ const lightState = ref({
   window: 2,       // Remplacez 2.5 par votre "Soleil (Intensité)"
   desk: 0,
   nightReflect: 0,
-  envIntensity: 0    // Remplacez 1 par votre "Environnement GLOBAL"
+  envIntensity: 0.1    // Remplacez 1 par votre "Environnement GLOBAL"
 })
 
 const lightPos = ref({
@@ -1711,7 +1711,7 @@ const toggleLight = () => {
       window: 2.5,    // Merveilleuses ombres directionnelles
       desk: 0,
       nightReflect: 0,
-      envIntensity: 0, // Retour à l'environnement initial (0 et non 1)
+      envIntensity: 0.1, // Retour à l'environnement initial (0 et non 1)
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => {
