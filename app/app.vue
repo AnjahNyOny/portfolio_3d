@@ -20,7 +20,8 @@
       :visible="!sceneActive" 
       :drawer-open="isDrawerOpen"
       :is-dark-mode="isDarkMode"
-      @navigate="handleMenuNavigate" 
+      @navigate="handleMenuNavigate"
+      @preview="handleMenuPreview"
     />
 
     <!-- BOUTON RETOUR (en dehors de la scène pour rester visible) -->
@@ -52,6 +53,12 @@ const sceneActive = computed(() => {
   return sceneRef.value?.activeElement ?? null
 })
 
+const handleMenuPreview = (item) => {
+  if (sceneRef.value && sceneRef.value.previewItem) {
+    sceneRef.value.previewItem(item)
+  }
+}
+
 const handleMenuNavigate = (payload) => {
   if (!sceneRef.value) return
 
@@ -81,6 +88,11 @@ const handleMenuNavigate = (payload) => {
       break
     case 'toggle-light':
       sceneRef.value.toggleLight()
+      break
+    case 'social':
+      if (payload.url) {
+        window.open(payload.url, '_blank')
+      }
       break
   }
 }
