@@ -547,7 +547,7 @@
       </TresGroup>
 
       <Suspense>
-        <GLTFModel path="/models/room_v14.glb" draco draco-decoder-path="/draco/" cast-shadow receive-shadow
+        <GLTFModel path="/models/room_v16_draco.glb" draco draco-decoder-path="/draco/" cast-shadow receive-shadow
           @load="onModelLoaded" @click="onModelClick" @pointermove="onPointerMove" @pointerleave="onPointerOut" />
       </Suspense>
 
@@ -1875,14 +1875,21 @@ const getInteractiveData = (mesh) => {
   const meshName = mesh.name.toLowerCase()
 
   // --- NOUVEAUX OBJETS (PRIORITÉ DIRECTE) ---
-  if (meshName.includes('github_card')) {
-    return { id: 'github', label: 'GitHub', isSocial: true, url: 'https://github.com/AnjahNyOny', group: mesh }
-  }
-  if (meshName.includes('linkedin_card')) {
-    return { id: 'linkedin', label: 'LinkedIn', isSocial: true, url: 'https://linkedin.com/in/anjahnyony', group: mesh }
-  }
-  if (meshName.includes('facebook_card')) {
-    return { id: 'facebook', label: 'Facebook', isSocial: true, url: 'https://facebook.com/anjahnyony', group: mesh }
+  if (meshName.includes('_card') && (meshName.includes('github') || meshName.includes('linkedin') || meshName.includes('facebook'))) {
+    // Remonter au parent qui contient '_card' pour avoir le groupe complet
+    let group = mesh
+    while (group.parent && group.parent.name !== 'Scene') {
+      if (group.parent.name.toLowerCase().includes('_card')) {
+        group = group.parent
+      } else {
+        break
+      }
+    }
+    const cardName = group.name.toLowerCase()
+    let id = 'github', label = 'GitHub', url = 'https://github.com/AnjahNyOny'
+    if (cardName.includes('linkedin')) { id = 'linkedin'; label = 'LinkedIn'; url = 'https://linkedin.com/in/rakotovao-liantsoa' }
+    else if (cardName.includes('facebook')) { id = 'facebook'; label = 'Facebook'; url = 'https://facebook.com/anjahnyony.rakotovao' }
+    return { id, label, type: 'social', isSocial: true, url, group }
   }
   if (meshName.includes('cv_usb') || meshName.includes('usb')) {
     // On remonte au parent le plus haut qui contient 'usb' pour tout emmener (tête + corps)
@@ -1914,18 +1921,13 @@ const getInteractiveData = (mesh) => {
   while (node && node.type !== 'Scene' && node.name !== 'Scene') {
     const name = node.name.toLowerCase()
 
-    // --- SOCIAL CARDS ---
-    if (name.includes('github_card')) {
-      return { id: 'github', label: 'GitHub', isSocial: true, url: 'https://github.com/AnjahNyOny' }
+    // --- SOCIAL CARDS (gérées en priorité plus haut) ---
+    if (name.includes('_card')) {
+      if (name.includes('github') || name.includes('linkedin') || name.includes('facebook')) {
+        return getInteractiveData(node)
+      }
+      return null
     }
-    if (name.includes('linkedin_card')) {
-      return { id: 'linkedin', label: 'LinkedIn', isSocial: true, url: 'https://linkedin.com/in/anjahnyony' }
-    }
-    if (name.includes('facebook_card')) {
-      return { id: 'facebook', label: 'Facebook', isSocial: true, url: 'https://facebook.com/anjahnyony' }
-    }
-    // On ignore explicitement le support
-    if (name.includes('social_card')) return null
 
     if (name.includes('shelf') || name.includes('book_shelf')) {
       // On l'ignore, mais on n'arrête PAS la boucle pour laisser le livre prendre le dessus
@@ -1937,8 +1939,7 @@ const getInteractiveData = (mesh) => {
       else if (LIGHT_SWITCH.some(p => name.includes(p.toLowerCase())) || name.includes('light_switch')) hitType = 'switch'
       else if ((BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) hitType = 'book'
       else if (name.includes('usb')) hitType = 'usb'
-      else if (name.includes('rubik')) hitType = 'github'
-      else if (name.includes('_card')) hitType = 'linkedin'
+      else if (name.includes('rubik')) hitType = 'rubik'
     }
     node = node.parent
   }
@@ -2064,6 +2065,7 @@ const onModelClick = (event) => {
 
 let currentHoveredGroup = null
 let currentHoveredType = null
+let menuPreviewActive = false
 
 const highlightGroup = (groupOrArray, isHovering) => {
   if (!groupOrArray) return 
@@ -2072,7 +2074,21 @@ const highlightGroup = (groupOrArray, isHovering) => {
   const canScale = isArray ? false : !groupOrArray.name.toLowerCase().includes('drawer')
   const elements = isArray ? groupOrArray : [groupOrArray]
 
+  // Lévitation pour les cartes sociales
+  const isSocialCard = !isArray && groupOrArray.name && groupOrArray.name.toLowerCase().includes('_card')
+
   if (isHovering && !animating.value) { // On n'illumine que s'il n'y a pas d'animation en cours
+    if (isSocialCard) {
+      if (!groupOrArray.userData.originalPos) {
+        groupOrArray.userData.originalPos = groupOrArray.position.clone()
+      }
+      gsap.to(groupOrArray.position, {
+        y: groupOrArray.userData.originalPos.y + 0.01,
+        duration: 0.3,
+        ease: 'power2.out'
+      })
+    }
+
     if (canScale && !isArray && currentHoveredType !== 'usb' && currentHoveredType !== 'rubik') {
       const group = groupOrArray
       if (!group.userData.originalScale) {
@@ -2115,6 +2131,14 @@ const highlightGroup = (groupOrArray, isHovering) => {
     })
   } else if (!isHovering) {
     // Restaurer
+    if (isSocialCard && groupOrArray.userData.originalPos) {
+      gsap.to(groupOrArray.position, {
+        y: groupOrArray.userData.originalPos.y,
+        duration: 0.3,
+        ease: 'power2.out'
+      })
+    }
+
     if (canScale && !isArray && groupOrArray.userData.originalScale) {
       const group = groupOrArray
       gsap.to(group.scale, { 
@@ -2148,6 +2172,9 @@ const highlightGroup = (groupOrArray, isHovering) => {
 
 // Mouvement sur le modèle — détecte le mesh survolé en continu
 const onPointerMove = (event) => {
+  // Ne pas interférer avec le hover déclenché depuis le menu
+  if (menuPreviewActive) return
+
   if (animating.value || activeElement.value !== null) {
     if (isHovered.value) {
       isHovered.value = false
@@ -2155,10 +2182,6 @@ const onPointerMove = (event) => {
     }
     if (currentHoveredGroup) {
       highlightGroup(currentHoveredGroup, false)
-      // Redescente de l'objet précédent s'il avait lévité
-      if (currentHoveredGroup.userData.originalPos) {
-         gsap.to(currentHoveredGroup.position, { y: currentHoveredGroup.userData.originalPos.y, duration: 0.3 })
-      }
       currentHoveredGroup = null
       currentHoveredType = null
     }
@@ -2195,10 +2218,6 @@ const onPointerMove = (event) => {
     if (currentHoveredType !== type || (type !== 'laptop' && type !== 'switch' && currentHoveredGroup !== group)) {
       if (currentHoveredGroup) {
         highlightGroup(currentHoveredGroup, false)
-        // Redescente de l'objet précédent s'il avait lévité
-        if (currentHoveredGroup.userData.originalPos) {
-           gsap.to(currentHoveredGroup.position, { y: currentHoveredGroup.userData.originalPos.y, duration: 0.3 })
-        }
       }
 
       currentHoveredGroup = group
@@ -2223,6 +2242,9 @@ const onPointerMove = (event) => {
 
 // Sortie complète du modèle
 const onPointerOut = () => {
+  // Ne pas interférer avec le hover déclenché depuis le menu
+  if (menuPreviewActive) return
+
   hoveredMeshName.value = ''
   isHovered.value = false
   hoverTooltip.value.visible = false
@@ -2706,12 +2728,15 @@ const previewItem = (item) => {
       currentHoveredType = null
     }
     hoveredMeshName.value = ''
+    menuPreviewActive = false
   }
 
   if (!item || item.action === 'intro') {
     clearHover()
     return
   }
+
+  menuPreviewActive = true
 
   const { action, id, book } = item
   let rootScene = cameraRef.value
