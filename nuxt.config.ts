@@ -2,6 +2,10 @@ export default defineNuxtConfig({
   ssr: false,
   compatibilityDate: '2026-04-01',
 
+  nitro: {
+    preset: 'static'
+  },
+
   // 🔍 SEO & Accessibilité
   app: {
     head: {
@@ -13,14 +17,14 @@ export default defineNuxtConfig({
         { property: 'og:title', content: 'Anjah Rakotovao — Web Developer' },
         { property: 'og:description', content: 'Découvrez mon portfolio interactif en 3D. Développeur fullstack Vue.js & Node.js au Québec.' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://portfolio.anjahnyony.com' },
-        { property: 'og:image', content: 'https://portfolio.anjahnyony.com/og-card.png' },
+        { property: 'og:url', content: 'https://anjahnyony.com' },
+        { property: 'og:image', content: 'https://anjahnyony.com/og-card.png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Anjah Rakotovao — Web Developer' },
         { name: 'twitter:description', content: 'Portfolio interactif 3D — Développeur fullstack Vue.js & Node.js' },
-        { name: 'twitter:image', content: 'https://portfolio.anjahnyony.com/og-card.png' },
+        { name: 'twitter:image', content: 'https://anjahnyony.com/og-card.png' },
         { name: 'theme-color', content: '#09090b' },
       ],
       link: [
