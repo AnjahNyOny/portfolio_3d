@@ -3,9 +3,9 @@
 
     <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
     <button v-if="ENABLE_CALIBRATION_UI" @click="calibrationMode = !calibrationMode"
-      class="absolute bottom-4 right-4 z-[100] p-2 rounded-lg text-xs font-bold border-2 transition-all pointer-events-auto shadow-lg"
-      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/70 hover:bg-zinc-700 border-zinc-600 text-zinc-400'">
-      {{ calibrationMode ? '🔓 Calibration ON' : '🔒 Calibration OFF' }}
+      class="absolute bottom-20 right-4 z-[200] p-3 rounded-lg text-sm font-bold border-2 transition-all pointer-events-auto shadow-lg"
+      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/90 hover:bg-zinc-700 border-zinc-600 text-zinc-300'">
+      {{ calibrationMode ? '🔓 ON' : '🔒 Calibration' }}
     </button>
 
     <!-- 💡 BOUTON POUR AFFICHER LA CALIBRATION LUMIÈRE -->
@@ -19,6 +19,215 @@
       class="absolute top-10 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-cyan-600">
       📷 Régler Caméra
     </button>
+
+    <!-- 📱 BOUTON CALIBRATION LABELS MOBILE -->
+    <button v-if="calibrationMode && !showLabelCalibration" @click="showLabelCalibration = true"
+      class="absolute top-10 left-[170px] z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-pink-600">
+      📱 Labels
+    </button>
+
+    <!-- 📱 BOUTON CALIBRATION CAMÉRA MOBILE -->
+    <button v-if="calibrationMode && !showMobileCamCalibration" @click="showMobileCamCalibration = true"
+      class="absolute top-20 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-orange-600">
+      📱 Cam Mobile
+    </button>
+
+    <!-- 📱 BOUTON CALIBRATION DRAWER -->
+    <button v-if="calibrationMode && !showDrawerCamCalibration" @click="showDrawerCamCalibration = true"
+      class="absolute top-20 left-96 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-amber-600">
+      📦 Cam Drawer
+    </button>
+
+    <!-- 📚 BOUTON CALIBRATION BOOKSHELF -->
+    <button v-if="calibrationMode && !showBookshelfCamCalibration" @click="showBookshelfCamCalibration = true"
+      class="absolute top-32 left-52 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-purple-600">
+      📚 Cam Bookshelf
+    </button>
+
+    <!-- 🃏 BOUTON CALIBRATION SOCIALS -->
+    <button v-if="calibrationMode && !showSocialsCamCalibration" @click="showSocialsCamCalibration = true"
+      class="absolute top-32 left-96 z-[100] bg-zinc-800/90 hover:bg-zinc-700 text-white p-2 rounded text-xs font-bold border border-teal-600">
+      🃏 Cam Socials
+    </button>
+
+    <!-- 🃏 PANNEAU CALIBRATION SOCIALS -->
+    <div v-if="showSocialsCamCalibration"
+      class="absolute top-4 left-4 z-200 pointer-events-none">
+      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-teal-500/40 text-[11px] font-mono pointer-events-auto w-56 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-teal-400">🃏 Cam Socials</span>
+          <button @click="showSocialsCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+        </div>
+        <div class="text-teal-300 font-bold">Position</div>
+        <div v-for="axis in ['x','y','z']" :key="'scp'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.socials['cam' + axis.toUpperCase()]" class="flex-1 accent-teal-500 h-4" @input="applySocialsCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.socials['cam' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="text-teal-300 font-bold">LookAt</div>
+        <div v-for="axis in ['x','y','z']" :key="'scl'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.socials['look' + axis.toUpperCase()]" class="flex-1 accent-teal-500 h-4" @input="applySocialsCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.socials['look' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="flex gap-1">
+          <button @click="zoomTo('socials'); nextTick(() => levitateSocialCards(true))" class="flex-1 py-1.5 bg-teal-700/80 hover:bg-teal-600 rounded text-white font-bold text-xs">▶ Test</button>
+          <button @click="copySocialsCamPositions" class="flex-1 py-1.5 bg-teal-600/80 hover:bg-teal-500 rounded text-white font-bold text-xs">📋 Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📚 PANNEAU CALIBRATION BOOKSHELF -->
+    <div v-if="showBookshelfCamCalibration"
+      class="absolute top-4 right-4 z-200 pointer-events-none">
+      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-purple-500/40 text-[11px] font-mono pointer-events-auto w-56 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-purple-400">📚 Cam Bookshelf</span>
+          <button @click="showBookshelfCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+        </div>
+        <div class="text-purple-300 font-bold">Position</div>
+        <div v-for="axis in ['x','y','z']" :key="'bsp'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.bookshelf['cam' + axis.toUpperCase()]" class="flex-1 accent-purple-500 h-4" @input="applyBookshelfCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.bookshelf['cam' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="text-purple-300 font-bold">LookAt</div>
+        <div v-for="axis in ['x','y','z']" :key="'bsl'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.bookshelf['look' + axis.toUpperCase()]" class="flex-1 accent-purple-500 h-4" @input="applyBookshelfCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.bookshelf['look' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="flex gap-1">
+          <button @click="zoomTo('bookshelf')" class="flex-1 py-1.5 bg-purple-700/80 hover:bg-purple-600 rounded text-white font-bold text-xs">▶ Test</button>
+          <button @click="copyBookshelfCamPositions" class="flex-1 py-1.5 bg-purple-600/80 hover:bg-purple-500 rounded text-white font-bold text-xs">📋 Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📱 PANNEAU CALIBRATION CAMÉRA MOBILE -->
+    <div v-if="showMobileCamCalibration"
+      class="absolute top-20 right-4 z-[100] pointer-events-none">
+      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-orange-500/40 text-[11px] font-mono pointer-events-auto w-56 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-orange-400">📱 Cam Mobile</span>
+          <button @click="showMobileCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+        </div>
+        <div class="text-orange-300 font-bold">Position</div>
+        <div v-for="axis in ['x','y','z']" :key="'mcp'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="mobileCamPos[axis]" class="flex-1 accent-orange-500 h-4" @input="applyMobileCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ mobileCamPos[axis].toFixed(2) }}</span>
+        </div>
+        <div class="text-orange-300 font-bold">LookAt initial</div>
+        <div v-for="axis in ['x','y','z']" :key="'mcl'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="mobileLookAtInit[axis]" class="flex-1 accent-orange-500 h-4" @input="applyMobileCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ mobileLookAtInit[axis].toFixed(2) }}</span>
+        </div>
+        <button @click="copyMobileCamPositions"
+          class="w-full py-1.5 bg-orange-600/80 hover:bg-orange-500 rounded text-white font-bold text-xs">
+          📋 Copier
+        </button>
+      </div>
+    </div>
+
+    <!-- 📦 PANNEAU CALIBRATION CAMÉRA DRAWER -->
+    <div v-if="showDrawerCamCalibration"
+      class="absolute top-4 left-4 z-[200] pointer-events-none">
+      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-amber-500/40 text-[11px] font-mono pointer-events-auto w-56 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-amber-400">📦 Cam Drawer</span>
+          <button @click="showDrawerCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+        </div>
+        <div class="text-amber-300 font-bold">Position</div>
+        <div v-for="axis in ['x','y','z']" :key="'dcp'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.drawer['cam' + axis.toUpperCase()]" class="flex-1 accent-amber-500 h-4" @input="applyDrawerCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.drawer['cam' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="text-amber-300 font-bold">LookAt</div>
+        <div v-for="axis in ['x','y','z']" :key="'dcl'+axis" class="flex gap-1 items-center">
+          <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+          <input type="range" :min="-1" :max="4" step="0.01" v-model.number="settings.drawer['look' + axis.toUpperCase()]" class="flex-1 accent-amber-500 h-4" @input="applyDrawerCamCalibration" />
+          <span class="w-10 text-right text-zinc-300">{{ settings.drawer['look' + axis.toUpperCase()].toFixed(2) }}</span>
+        </div>
+        <div class="flex gap-1">
+          <button @click="zoomTo('drawer')" class="flex-1 py-1.5 bg-amber-700/80 hover:bg-amber-600 rounded text-white font-bold text-xs">▶ Test</button>
+          <button @click="copyDrawerCamPositions" class="flex-1 py-1.5 bg-amber-600/80 hover:bg-amber-500 rounded text-white font-bold text-xs">📋 Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📱 PANNEAU CALIBRATION LABELS MOBILE -->
+    <div v-if="showLabelCalibration"
+      class="absolute bottom-12 left-2 right-2 z-[100] pointer-events-none">
+      <div class="bg-black/50 backdrop-blur-md text-white p-2 rounded-lg border border-pink-500/40 text-[10px] font-mono pointer-events-auto max-h-[40vh] overflow-y-auto"
+        style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+        <div class="flex justify-between items-center mb-1 sticky top-0 bg-black/80 py-1 -mx-2 px-2 z-10">
+          <span class="font-bold text-pink-400">📱 Labels</span>
+          <div class="flex gap-2">
+            <button @click="copyLabelPositions" class="px-2 py-0.5 bg-pink-600/80 rounded text-white font-bold">📋 Copier</button>
+            <button @click="showLabelCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <div v-for="label in mobileLabels" :key="label.id" class="border border-zinc-700/50 rounded p-1.5 bg-black/30">
+            <div class="font-bold text-pink-300 mb-0.5">{{ label.name }}</div>
+            <div v-for="axis in ['x','y','z']" :key="axis" class="flex gap-1 items-center">
+              <span class="w-3 text-zinc-500 uppercase">{{ axis }}</span>
+              <input type="range" :min="axis === 'y' ? 0 : -1" :max="axis === 'y' ? 4 : 3" step="0.01" v-model.number="label[axis]" class="flex-1 accent-pink-500 h-4" style="touch-action: none;" />
+              <span class="w-10 text-right text-zinc-300">{{ label[axis].toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📦 MINI MENU PROJETS (Drawer ouvert, mobile) -->
+    <Transition name="fade">
+      <div v-if="mobileMode && activeElement === 'drawer'"
+        class="absolute bottom-6 left-3 right-3 z-150 pointer-events-auto">
+        <div class="bg-black/60 backdrop-blur-lg rounded-2xl border border-zinc-700/50 p-3 space-y-2">
+          <div class="text-center text-zinc-400 text-[11px] font-semibold uppercase tracking-widest mb-1">Choisir un projet</div>
+          <div class="space-y-1.5">
+            <button v-for="(proj, key) in projects" :key="key"
+              @click="selectProjectFromDrawer(key)"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]"
+              :style="{ background: proj.color + '15', border: '1px solid ' + proj.color + '40' }">
+              <span class="text-xl shrink-0">{{ proj.badge }}</span>
+              <div class="text-left flex-1 min-w-0">
+                <div class="text-white text-sm font-bold truncate">{{ proj.title }}</div>
+                <div class="text-zinc-400 text-[10px] truncate">{{ proj.tagline }}</div>
+              </div>
+              <span class="text-zinc-500 text-lg shrink-0">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- 📚 MINI MENU LIVRES (Bookshelf close-up, mobile) -->
+    <Transition name="fade">
+      <div v-if="mobileMode && activeElement === 'bookshelf'"
+        class="absolute bottom-6 left-3 right-3 z-150 pointer-events-auto">
+        <div class="bg-black/60 backdrop-blur-lg rounded-2xl border border-zinc-700/50 p-3 space-y-2">
+          <div class="text-center text-zinc-400 text-[11px] font-semibold uppercase tracking-widest mb-1">Choisir un livre</div>
+          <div class="space-y-1.5">
+            <button v-for="(book, key) in books" :key="key"
+              @click="selectBookFromShelf(key)"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]"
+              :style="{ background: book.color + '15', border: '1px solid ' + book.color + '40' }">
+              <span class="text-xl shrink-0">{{ book.badge }}</span>
+              <div class="text-left flex-1 min-w-0">
+                <div class="text-white text-sm font-bold truncate">{{ book.title }}</div>
+                <div class="text-zinc-400 text-[10px] truncate">{{ book.desc }}</div>
+              </div>
+              <span class="text-zinc-500 text-lg shrink-0">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- 🔍 BOUTON DEBUG MESHS -->
     <button v-if="calibrationMode" @click="showMeshNames = !showMeshNames"
@@ -403,7 +612,7 @@
     <!-- TOOLTIP INTERACTIF (style jeu vidéo) -->
     <Transition name="tooltip-fade">
       <div
-        v-if="hoverTooltip.visible && !activeElement"
+        v-if="hoverTooltip.visible && !activeElement && !mobileMode"
         class="hover-tooltip"
         :style="{ left: hoverTooltip.x + 'px', top: hoverTooltip.y + 'px' }"
       >
@@ -415,7 +624,7 @@
     <TresCanvas :clear-color="isDarkMode ? '#050505' : '#e0f2fe'" shadows window-size @pointer-missed="onPointerMissed">
       <TresPerspectiveCamera ref="cameraRef" :position="[1.79, 2.26, 2.58]" :look-at="[1.31, 1.62, 0.06]" />
 
-      <OrbitControls ref="controlsRef" :enabled="!animating && !activeElement" :enable-pan="calibrationMode"
+      <OrbitControls ref="controlsRef" :enabled="!animating && !activeElement && !mobileMode" :enable-pan="calibrationMode"
         :min-distance="orbitLimits.minDistance"
         :max-distance="(calibrationMode || activeElement) ? 50 : orbitLimits.maxDistance"
         :min-polar-angle="(calibrationMode || activeElement) ? 0 : (orbitLimits.minPolarDeg * Math.PI / 180)"
@@ -539,7 +748,7 @@
         </div>
 
         <!-- 3. MODE PAR DÉFAUT : SITE WEB / IFRAME -->
-        <iframe v-else src="https://anjahnyony.com"
+        <iframe v-else src="https://portfolio.anjahnyony.com"
           :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }"
           class="border-none bg-white rounded-md pointer-events-auto"></iframe>
 
@@ -551,6 +760,14 @@
           @load="onModelLoaded" @click="onModelClick" @pointermove="onPointerMove" @pointerleave="onPointerOut" />
       </Suspense>
 
+      <!-- 📱 LABELS FLOTTANTS MOBILE -->
+      <TresGroup v-if="(mobileMode || showLabelCalibration) && !activeElement">
+        <TresGroup v-for="label in mobileLabels" :key="label.id" :position="[label.x, label.y, label.z]">
+          <Html center :distance-factor="4" :style="{ pointerEvents: 'auto' }">
+            <div class="mobile-label mobile-label--clickable" @click="onLabelClick(label.id)">{{ label.name }}</div>
+          </Html>
+        </TresGroup>
+      </TresGroup>
 
       <!-- ECRAN TELEPHONE -->
       <TresGroup v-if="activeElement === 'phone'"
@@ -1050,7 +1267,8 @@
 </template>
 
 <script setup>
-import { ref, watch, shallowReactive, onMounted, nextTick, computed } from 'vue'
+import { ref, watch, shallowReactive, onMounted, onUnmounted, nextTick, computed } from 'vue'
+import * as THREE from 'three'
 import { OrbitControls, GLTFModel, Html } from '@tresjs/cientos'
 import gsap from 'gsap'
 
@@ -1059,10 +1277,11 @@ import TheBooksTimeline from './TheBooksTimeline.vue'
 const props = defineProps({
   selectedProject: { type: String, default: null },
   selectedBook: { type: String, default: null },
-  showIntro: { type: Boolean, default: false }
+  showIntro: { type: Boolean, default: false },
+  mobileMode: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled'])
+const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled', 'mobile-activate'])
 
 const settings = ref({
   laptop: {
@@ -1076,7 +1295,7 @@ const settings = ref({
   },
   phone: {
     camX: 1.75, camY: 1.929, camZ: 1.401,
-    lookX: 1.25, lookY: 1.73, lookZ: 0.55,
+    lookX: 1.19, lookY: 1.73, lookZ: 0.55,
     htmlPosX: 0.9, htmlPosY: 1.57, htmlPosZ: 0.46,
     htmlRotX: -0.17, htmlRotY: 0.54, htmlRotZ: 0.07,
     scale: 0.023,
@@ -1091,6 +1310,18 @@ const settings = ref({
     scale: 0.014,
     width: 770,
     height: 1129
+  },
+  bookshelf: {
+    camX: 0.83, camY: 2.83, camZ: 0.97,
+    lookX: 0.68, lookY: 2.41, lookZ: -0.03,
+  },
+  socials: {
+    camX: 0.9, camY: 1.75, camZ: 1.0,
+    lookX: 0.5, lookY: 1.55, lookZ: 0.2,
+  },
+  drawer: {
+    camX: 2.09, camY: 2.00, camZ: 1.55,
+    lookX: -0.46, lookY: -0.92, lookZ: 0.53,
   },
   folder: {
     camX: 1.84, camY: 2.03, camZ: 1.64,
@@ -1285,14 +1516,23 @@ const books = {
   stack: {
     title: 'Stack & Skills',
     icon: 'zap',
+    badge: '⚡',
+    color: '#eab308',
+    desc: 'Technologies et compétences',
   },
   about: {
     title: 'À propos de moi',
     icon: 'filetext',
+    badge: '📄',
+    color: '#06b6d4',
+    desc: 'Qui suis-je ?',
   },
   timeline: {
     title: 'Mon Parcours',
     icon: 'calendar',
+    badge: '📅',
+    color: '#a855f7',
+    desc: 'Expériences et formations',
   }
 }
 
@@ -1370,16 +1610,161 @@ async function submitContact() {
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
-const ENABLE_CALIBRATION_UI = false
+const ENABLE_CALIBRATION_UI = true
 const calibrationMode = ref(false)
 const showLightCalibration = ref(false)
 const showCameraCalibration = ref(false)
 const showMeshNames = ref(false)
 const hoveredMeshName = ref('')
 
+// 📱 Positions des labels mobiles (calibrables)
+const showLabelCalibration = ref(false)
+const mobileLabels = ref([
+  { id: 'intro',    name: 'INTRO',     x: 1.46, y: 1.97, z: 0.1 },
+  { id: 'phone',    name: 'CONTACT',   x: 0.81, y: 1.59, z: 0.46 },
+  { id: 'books',    name: 'PARCOURS',  x: 0.53, y: 2.77, z: -0.24 },
+  { id: 'folder',   name: 'PROJETS',   x: 0.69, y: 0.99, z: 0.9 },
+  { id: 'usb',      name: 'CV',        x: 1.88, y: 1.59, z: 0.39 },
+  { id: 'socials',  name: 'SOCIALS',   x: 0.5,  y: 1.79, z: 0.23 },
+  { id: 'rubik',    name: 'RUBIK',     x: 2.16, y: 1.64, z: 0.36 },
+  { id: 'darkmode', name: 'DARK MODE', x: 2.72, y: 2.99, z: -0.53 },
+])
+
+// 📱 Clic sur un label mobile
+const onLabelClick = (labelId) => {
+  if (animating.value) return
+  switch (labelId) {
+    case 'intro':
+      emit('mobile-activate', 'laptop')
+      zoomTo('laptop')
+      break
+    case 'phone':
+      zoomTo('phone')
+      break
+    case 'books':
+      zoomTo('bookshelf')
+      break
+    case 'folder':
+      // Ouvrir le drawer puis zoomer
+      {
+        let rootScene = cameraRef.value
+        while (rootScene?.parent) rootScene = rootScene.parent
+        if (rootScene) {
+          rootScene.traverse((child) => {
+            if (child.name && child.name.toLowerCase().includes('drawer_bottom') && !child.userData?.isOpen) {
+              toggleDrawer(child)
+            }
+          })
+        }
+        setTimeout(() => zoomTo('drawer'), 400)
+      }
+      break
+    case 'usb':
+      // Trouver et animer la clé USB
+      {
+        let rootScene = cameraRef.value
+        while (rootScene?.parent) rootScene = rootScene.parent
+        if (rootScene) {
+          rootScene.traverse((child) => {
+            if (child.name && (child.name.toLowerCase().includes('cv_usb') || child.name.toLowerCase().includes('usb'))) {
+              const data = getInteractiveData(child)
+              if (data && data.id === 'usb') animateUSBPlug(data.group)
+            }
+          })
+        }
+      }
+      break
+    case 'socials':
+      zoomTo('socials')
+      nextTick(() => levitateSocialCards(true))
+      break
+    case 'darkmode':
+      toggleLight()
+      break
+    case 'rubik':
+      // Pas d'action pour l'instant
+      break
+  }
+}
+
+const copyLabelPositions = () => {
+  const out = mobileLabels.value.map(l => `  { id: '${l.id}', name: '${l.name}', x: ${l.x}, y: ${l.y}, z: ${l.z} },`).join('\n')
+  navigator.clipboard.writeText(`[\n${out}\n]`)
+  alert('Positions copiées !')
+}
+
 // --- 📷 CALIBRATION CAMÉRA ---
 const defaultCamPos = ref({ x: 1.79, y: 2.26, z: 2.58 })
 const defaultLookAt = ref({ x: 1.31, y: 1.62, z: 0.06 })
+
+// 📱 Position caméra mobile (look-around)
+const mobileCamPos = ref({ x: 0.3, y: 1.99, z: 4 })
+const mobileLookAtInit = ref({ x: 0.86, y: 1.83, z: 1.78 })
+const showMobileCamCalibration = ref(false)
+
+const applyMobileCamCalibration = () => {
+  initMobileLookAngles(true)
+}
+
+const copyMobileCamPositions = () => {
+  const txt = `mobileCamPos: { x: ${mobileCamPos.value.x}, y: ${mobileCamPos.value.y}, z: ${mobileCamPos.value.z} }\nmobileLookAtInit: { x: ${mobileLookAtInit.value.x}, y: ${mobileLookAtInit.value.y}, z: ${mobileLookAtInit.value.z} }`
+  navigator.clipboard.writeText(txt)
+  alert('Positions cam mobile copiées !')
+}
+
+// 🃏 Calibration caméra socials
+const showSocialsCamCalibration = ref(false)
+
+const applySocialsCamCalibration = () => {
+  if (cameraRef.value && activeElement.value === 'socials') {
+    const s = settings.value.socials
+    cameraRef.value.position.set(s.camX, s.camY, s.camZ)
+    cameraRef.value.lookAt(s.lookX, s.lookY, s.lookZ)
+  }
+}
+
+const copySocialsCamPositions = () => {
+  const s = settings.value.socials
+  const txt = `socials: { camX: ${s.camX}, camY: ${s.camY}, camZ: ${s.camZ}, lookX: ${s.lookX}, lookY: ${s.lookY}, lookZ: ${s.lookZ} }`
+  navigator.clipboard.writeText(txt)
+  alert('Positions socials copiées !')
+}
+
+// 📚 Calibration caméra bookshelf
+const showBookshelfCamCalibration = ref(false)
+
+const applyBookshelfCamCalibration = () => {
+  if (cameraRef.value && activeElement.value === 'bookshelf') {
+    const s = settings.value.bookshelf
+    cameraRef.value.position.set(s.camX, s.camY, s.camZ)
+    cameraRef.value.lookAt(s.lookX, s.lookY, s.lookZ)
+  }
+}
+
+const copyBookshelfCamPositions = () => {
+  const s = settings.value.bookshelf
+  const txt = `bookshelf: { camX: ${s.camX}, camY: ${s.camY}, camZ: ${s.camZ}, lookX: ${s.lookX}, lookY: ${s.lookY}, lookZ: ${s.lookZ} }`
+  navigator.clipboard.writeText(txt)
+  alert('Positions bookshelf copiées !')
+}
+
+// 📦 Calibration caméra drawer
+const showDrawerCamCalibration = ref(false)
+
+const applyDrawerCamCalibration = () => {
+  if (cameraRef.value && activeElement.value === 'drawer') {
+    const d = settings.value.drawer
+    cameraRef.value.position.set(d.camX, d.camY, d.camZ)
+    cameraRef.value.lookAt(d.lookX, d.lookY, d.lookZ)
+  }
+}
+
+const copyDrawerCamPositions = () => {
+  const d = settings.value.drawer
+  const txt = `drawer: { camX: ${d.camX}, camY: ${d.camY}, camZ: ${d.camZ}, lookX: ${d.lookX}, lookY: ${d.lookY}, lookZ: ${d.lookZ} }`
+  navigator.clipboard.writeText(txt)
+  alert('Positions drawer copiées !')
+}
 
 const orbitLimits = ref({
   minDistance: 1,
@@ -1676,6 +2061,136 @@ watch(controlsRef, (newRef) => {
   }
 }, { immediate: true })
 
+// 📱 CONTRÔLE TACTILE MOBILE — Mode "look-around" (caméra fixe, regard tourne)
+const mobileLookAt = ref(new THREE.Vector3(defaultLookAt.value.x, defaultLookAt.value.y, defaultLookAt.value.z))
+const mobileTouchState = ref({ active: false, lastX: 0, lastY: 0, pinchDist: 0 })
+const MOBILE_SENSITIVITY = 0.004
+const MOBILE_ZOOM_SPEED = 0.008
+const MOBILE_LOOK_RADIUS = 2.5 // Distance entre caméra et point de regard
+// Angles sphériques pour le regard
+const mobileLookAngles = ref({ theta: 0, phi: Math.PI / 2 })
+
+// Initialiser les angles depuis la position mobile
+// forcePosition=true : premier chargement, on place la caméra manuellement
+// forcePosition=false : retour d'animation, on lit la direction réelle de la caméra
+const initMobileLookAngles = (forcePosition = false) => {
+  if (!cameraRef.value) return
+  if (forcePosition) {
+    // Premier init : placer la caméra et calculer la direction depuis les settings
+    cameraRef.value.position.set(mobileCamPos.value.x, mobileCamPos.value.y, mobileCamPos.value.z)
+    const cam = new THREE.Vector3(mobileCamPos.value.x, mobileCamPos.value.y, mobileCamPos.value.z)
+    const target = new THREE.Vector3(mobileLookAtInit.value.x, mobileLookAtInit.value.y, mobileLookAtInit.value.z)
+    const dir = target.clone().sub(cam).normalize()
+    mobileLookAngles.value.theta = Math.atan2(dir.x, dir.z)
+    mobileLookAngles.value.phi = Math.acos(Math.max(-1, Math.min(1, dir.y)))
+  } else {
+    // Retour d'animation : lire la direction réelle de la caméra (après GSAP)
+    const dir = new THREE.Vector3()
+    cameraRef.value.getWorldDirection(dir)
+    mobileLookAngles.value.theta = Math.atan2(dir.x, dir.z)
+    mobileLookAngles.value.phi = Math.acos(Math.max(-1, Math.min(1, dir.y)))
+  }
+  // Mettre à jour mobileLookAt depuis ces angles
+  const cam = cameraRef.value.position
+  const r = MOBILE_LOOK_RADIUS
+  const { theta, phi } = mobileLookAngles.value
+  mobileLookAt.value.set(
+    cam.x + r * Math.sin(phi) * Math.sin(theta),
+    cam.y + r * Math.cos(phi),
+    cam.z + r * Math.sin(phi) * Math.cos(theta)
+  )
+}
+
+const updateMobileLookAt = () => {
+  if (!cameraRef.value) return
+  const cam = cameraRef.value.position
+  const r = MOBILE_LOOK_RADIUS
+  const { theta, phi } = mobileLookAngles.value
+  mobileLookAt.value.set(
+    cam.x + r * Math.sin(phi) * Math.sin(theta),
+    cam.y + r * Math.cos(phi),
+    cam.z + r * Math.sin(phi) * Math.cos(theta)
+  )
+  cameraRef.value.lookAt(mobileLookAt.value)
+}
+
+const getPinchDist = (touches) => {
+  const dx = touches[0].clientX - touches[1].clientX
+  const dy = touches[0].clientY - touches[1].clientY
+  return Math.sqrt(dx * dx + dy * dy)
+}
+
+const onMobileTouchStart = (e) => {
+  if (!props.mobileMode || animating.value || activeElement.value) return
+  if (e.touches.length === 1) {
+    mobileTouchState.value = { active: true, lastX: e.touches[0].clientX, lastY: e.touches[0].clientY, pinchDist: 0 }
+  } else if (e.touches.length === 2) {
+    mobileTouchState.value.pinchDist = getPinchDist(e.touches)
+  }
+}
+
+const onMobileTouchMove = (e) => {
+  if (!props.mobileMode || animating.value || activeElement.value) return
+  e.preventDefault()
+
+  if (e.touches.length === 1 && mobileTouchState.value.active) {
+    const dx = e.touches[0].clientX - mobileTouchState.value.lastX
+    const dy = e.touches[0].clientY - mobileTouchState.value.lastY
+    mobileTouchState.value.lastX = e.touches[0].clientX
+    mobileTouchState.value.lastY = e.touches[0].clientY
+
+    // Swipe intuitif : swipe gauche = regarder à gauche, swipe haut = regarder en haut
+    mobileLookAngles.value.theta += dx * MOBILE_SENSITIVITY
+    mobileLookAngles.value.phi -= dy * MOBILE_SENSITIVITY
+    // Limiter phi pour ne pas retourner la caméra
+    mobileLookAngles.value.phi = Math.max(0.3, Math.min(Math.PI - 0.3, mobileLookAngles.value.phi))
+
+    updateMobileLookAt()
+  } else if (e.touches.length === 2 && mobileTouchState.value.pinchDist > 0) {
+    const newDist = getPinchDist(e.touches)
+    const delta = newDist - mobileTouchState.value.pinchDist
+    mobileTouchState.value.pinchDist = newDist
+
+    // Zoom = avancer/reculer la caméra dans la direction du regard
+    if (cameraRef.value) {
+      const dir = mobileLookAt.value.clone().sub(cameraRef.value.position).normalize()
+      cameraRef.value.position.addScaledVector(dir, delta * MOBILE_ZOOM_SPEED)
+      updateMobileLookAt()
+    }
+  }
+}
+
+const onMobileTouchEnd = () => {
+  mobileTouchState.value.active = false
+  mobileTouchState.value.pinchDist = 0
+}
+
+// Attacher les touch events au canvas quand il est prêt
+let mobileCanvasEl = null
+watch(() => [cameraRef.value, props.mobileMode], ([cam, mobile]) => {
+  if (cam && mobile) {
+    nextTick(() => {
+      initMobileLookAngles(true)
+      // Trouver le canvas DOM element
+      const sceneDiv = document.querySelector('.relative.h-screen')
+      mobileCanvasEl = sceneDiv?.querySelector('canvas')
+      if (mobileCanvasEl) {
+        mobileCanvasEl.addEventListener('touchstart', onMobileTouchStart, { passive: false })
+        mobileCanvasEl.addEventListener('touchmove', onMobileTouchMove, { passive: false })
+        mobileCanvasEl.addEventListener('touchend', onMobileTouchEnd)
+      }
+    })
+  }
+}, { immediate: true })
+
+onUnmounted(() => {
+  if (mobileCanvasEl) {
+    mobileCanvasEl.removeEventListener('touchstart', onMobileTouchStart)
+    mobileCanvasEl.removeEventListener('touchmove', onMobileTouchMove)
+    mobileCanvasEl.removeEventListener('touchend', onMobileTouchEnd)
+  }
+})
+
 const toggleLight = () => {
   if (animating.value) return
   isDarkMode.value = !isDarkMode.value
@@ -1930,7 +2445,8 @@ const getInteractiveData = (mesh) => {
     }
 
     if (name.includes('shelf') || name.includes('book_shelf')) {
-      // On l'ignore, mais on n'arrête PAS la boucle pour laisser le livre prendre le dessus
+      // Sur mobile, le shelf est cliquable pour le close-up livres
+      if (!hitType) hitType = 'bookshelf'
     } else if (!hitType) {
       if (name.includes('laptop') || name.includes('macbook') || LAPTOP_PARTS.some(p => name.includes(p.toLowerCase()))) hitType = 'laptop'
       else if (name.includes('phone') || name.startsWith(PHONE_PREFIX.toLowerCase())) hitType = 'phone'
@@ -1983,16 +2499,34 @@ const getInteractiveData = (mesh) => {
 // 🔍 Clic sur un objet
 const onModelClick = (event) => {
   if (animating.value) return
-  if (activeElement.value !== null) {
-    emit('background-click') // Zoom out si on clique n'importe où alors qu'un élément est ouvert
-    return
-  }
 
   const data = getInteractiveData(event.object || event.intersection?.object)
+
+  // 📱 En mobile dans le drawer, autoriser le clic sur les dossiers
+  if (activeElement.value !== null) {
+    if (props.mobileMode && activeElement.value === 'drawer' && data && data.type === 'folder') {
+      // On continue vers la logique folder ci-dessous
+    } else if (props.mobileMode && activeElement.value === 'bookshelf' && data && data.type === 'book') {
+      // On continue vers la logique book ci-dessous
+    } else if (props.mobileMode && activeElement.value === 'socials' && data && data.isSocial) {
+      // On continue vers la logique social ci-dessous
+    } else {
+      emit('background-click')
+      return
+    }
+  }
+
   if (!data) return
 
   // --- GESTION DES CLICS ---
   if (data.isSocial && data.url) {
+    // 📱 Mobile : premier clic = close-up + lévitation, deuxième clic = ouvrir lien
+    if (props.mobileMode && activeElement.value !== 'socials') {
+      zoomTo('socials')
+      // Faire léviter toutes les social cards
+      nextTick(() => levitateSocialCards(true))
+      return
+    }
     window.open(data.url, '_blank')
     return
   }
@@ -2010,7 +2544,12 @@ const onModelClick = (event) => {
     zoomTo('phone')
   } else if (type === 'drawer') {
     toggleDrawer(group)
+    // 📱 En mobile, zoomer dans le tiroir quand il s'ouvre
+    if (props.mobileMode && group.userData?.isOpen) {
+      setTimeout(() => zoomTo('drawer'), 400)
+    }
   } else if (type === 'folder') {
+    // 📱 Garder activeElement='drawer' pour que zoomTo sache d'où on vient (transition fluide)
     activeFolderBase = group
     if (!activeFolderBase.userData.originalPos) {
       activeFolderBase.userData.originalPos = activeFolderBase.position.clone()
@@ -2031,7 +2570,18 @@ const onModelClick = (event) => {
     if (match && match[1]) emit('select-project', match[1].toLowerCase())
 
     zoomTo('folder')
+  } else if (type === 'bookshelf') {
+    // 📱 Close-up sur l'étagère de livres
+    if (props.mobileMode) {
+      zoomTo('bookshelf')
+    }
   } else if (type === 'book') {
+    // 📱 Sur mobile, si pas en close-up bookshelf → déclencher le close-up d'abord
+    if (props.mobileMode && activeElement.value !== 'bookshelf') {
+      zoomTo('bookshelf')
+      return
+    }
+    // 📱 Garder activeElement='bookshelf' pour que zoomTo sache d'où on vient (transition fluide)
     activeBookBase = group
     if (!activeBookBase.userData.originalPos) {
       activeBookBase.userData.originalPos = activeBookBase.position.clone()
@@ -2257,6 +2807,68 @@ const onPointerOut = () => {
   }
 }
 
+// 📱 Lévitation des social cards
+// Ordre front → back : la première reste en place, chaque suivante monte d'un cran de plus
+const SOCIAL_CARD_ORDER = ['linkedin', 'github', 'facebook'] // front → back
+const SOCIAL_CARD_STEP = 0.12 // écart Y entre chaque carte
+
+const levitateSocialCards = (up) => {
+  let rootScene = cameraRef.value
+  while (rootScene?.parent) rootScene = rootScene.parent
+  if (!rootScene) return
+
+  // Collecter les cards individuelles
+  const cards = []
+  rootScene.traverse((child) => {
+    if (!child.name) return
+    const name = child.name.toLowerCase()
+    if (!name.includes('_card')) return
+    const matchIdx = SOCIAL_CARD_ORDER.findIndex(c => name.includes(c))
+    if (matchIdx === -1) return
+    if (cards.some(c => c.mesh === child)) return
+    if (!child.userData.originalPos) child.userData.originalPos = child.position.clone()
+    cards.push({ mesh: child, order: matchIdx })
+  })
+
+  cards.forEach(({ mesh, order }) => {
+    if (up) {
+      const FIRST_OFFSET = 0.04
+      const offset = FIRST_OFFSET + order * SOCIAL_CARD_STEP
+      gsap.to(mesh.position, {
+        y: mesh.userData.originalPos.y + offset,
+        duration: 0.8, ease: 'power2.out', delay: order * 0.08
+      })
+    } else {
+      gsap.to(mesh.position, {
+        y: mesh.userData.originalPos.y,
+        duration: 0.5, ease: 'power2.inOut'
+      })
+    }
+  })
+}
+
+// 📚 Sélection d'un livre depuis le menu bookshelf mobile
+const selectBookFromShelf = (bookId) => {
+  emit('select-book', bookId)
+  activeElement.value = null
+  animating.value = false
+  nextTick(() => {
+    activateItemByName('books', bookId)
+  })
+}
+
+// 📦 Sélection d'un projet depuis le menu drawer mobile
+const selectProjectFromDrawer = (projectId) => {
+  emit('select-project', projectId)
+  // Réinitialiser l'état du drawer d'abord
+  activeElement.value = null
+  animating.value = false
+  // Puis activer le dossier correspondant
+  nextTick(() => {
+    activateItemByName('folder', projectId)
+  })
+}
+
 // Clic dans le vide
 const onPointerMissed = () => {
   if (activeElement.value && !animating.value) {
@@ -2379,6 +2991,7 @@ const activateItemByName = (type, id) => {
 const zoomTo = (target) => {
   if (animating.value) return
   animating.value = true
+  const prevActiveElement = activeElement.value
   activeElement.value = target
   showPhoneContent.value = false
   showBookContent.value = false
@@ -2399,7 +3012,20 @@ const zoomTo = (target) => {
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
 
-  const lookAtProxy = { x: controls?.target?.x ?? 0, y: controls?.target?.y ?? 0, z: controls?.target?.z ?? 0 }
+  // 📱 Sur mobile, déterminer le lookAt de départ depuis la direction réelle de la caméra
+  let lookAtProxy
+  if (props.mobileMode && cameraRef.value) {
+    const camPos = cameraRef.value.position
+    const targetPt = new THREE.Vector3(setting.lookX, setting.lookY, setting.lookZ)
+    const targetDist = camPos.distanceTo(targetPt)
+    // Lire la vraie direction de la caméra (pas un setting potentiellement décalé)
+    const dir = new THREE.Vector3()
+    cameraRef.value.getWorldDirection(dir)
+    const projected = camPos.clone().addScaledVector(dir, targetDist)
+    lookAtProxy = { x: projected.x, y: projected.y, z: projected.z }
+  } else {
+    lookAtProxy = { x: controls?.target?.x ?? 0, y: controls?.target?.y ?? 0, z: controls?.target?.z ?? 0 }
+  }
 
   if (target === 'phone') {
     const pg = getPhoneGroup()
@@ -2519,7 +3145,68 @@ const zoomTo = (target) => {
 
 const resetZoom = () => {
   if (animating.value) return
+
+  // 📱 Sur mobile, quitter les socials → redescendre les cards
+  if (props.mobileMode && activeElement.value === 'socials') {
+    levitateSocialCards(false)
+  }
+
+  // 📱 Sur mobile, quitter le drawer → refermer le tiroir
+  if (props.mobileMode && activeElement.value === 'drawer') {
+    let rootScene = cameraRef.value
+    while (rootScene?.parent) rootScene = rootScene.parent
+    if (rootScene) {
+      rootScene.traverse((child) => {
+        if (child.name && child.name.toLowerCase().includes('drawer_bottom') && child.userData?.isOpen) {
+          toggleDrawer(child)
+        }
+      })
+    }
+  }
+
+  // 📱 Sur mobile, quitter un livre → retour au bookshelf
+  if (props.mobileMode && activeElement.value === 'books') {
+    if (activeBookBase && activeBookBase.userData.originalPos) {
+      showBookContent.value = false
+      gsap.killTweensOf(activeBookBase.position)
+      gsap.killTweensOf(activeBookBase.rotation)
+      gsap.to(activeBookBase.position, { x: activeBookBase.userData.originalPos.x, y: activeBookBase.userData.originalPos.y, z: activeBookBase.userData.originalPos.z, duration: 1, ease: 'power2.inOut' })
+      gsap.to(activeBookBase.rotation, { x: activeBookBase.userData.originalRot.x, y: activeBookBase.userData.originalRot.y, z: activeBookBase.userData.originalRot.z, duration: 1, ease: 'power2.inOut' })
+    }
+    if (activeBookCover && activeBookCover.userData.originalRot) {
+      gsap.killTweensOf(activeBookCover.rotation)
+      gsap.to(activeBookCover.rotation, { x: activeBookCover.userData.originalRot.x, y: activeBookCover.userData.originalRot.y, z: activeBookCover.userData.originalRot.z, duration: 1, ease: 'power2.inOut' })
+    }
+    // Garder activeElement = 'books' pour que zoomTo sache d'où on vient
+    animating.value = false
+    zoomTo('bookshelf')
+    return
+  }
+
+  // 📱 Sur mobile, quitter un folder → retour au drawer
+  if (props.mobileMode && activeElement.value === 'folder') {
+    // Restaurer le dossier d'abord
+    if (activeFolderBase && activeFolderBase.userData.originalPos) {
+      showFolderContent.value = false
+      gsap.killTweensOf(activeFolderBase.position)
+      gsap.killTweensOf(activeFolderBase.rotation)
+      gsap.to(activeFolderBase.position, { x: activeFolderBase.userData.originalPos.x, y: activeFolderBase.userData.originalPos.y, z: activeFolderBase.userData.originalPos.z, duration: 1, ease: 'power2.inOut' })
+      gsap.to(activeFolderBase.rotation, { x: activeFolderBase.userData.originalRot.x, y: activeFolderBase.userData.originalRot.y, z: activeFolderBase.userData.originalRot.z, duration: 1, ease: 'power2.inOut' })
+    }
+    if (activeFolderCover && activeFolderCover.userData.originalRot) {
+      gsap.killTweensOf(activeFolderCover.rotation)
+      gsap.to(activeFolderCover.rotation, { x: activeFolderCover.userData.originalRot.x, y: activeFolderCover.userData.originalRot.y, z: activeFolderCover.userData.originalRot.z, duration: 1, ease: 'power2.inOut' })
+    }
+    // Garder activeElement = 'folder' pour que zoomTo sache d'où on vient
+    animating.value = false
+    zoomTo('drawer')
+    return
+  }
+
   animating.value = true
+  // 📱 Capturer le setting de l'élément actif AVANT de le réinitialiser
+  const prevElement = activeElement.value
+  const prevSetting = prevElement ? settings.value[prevElement] : null
   activeElement.value = null
 
   if (phoneGroup && phoneGroup.userData.originalPos) {
@@ -2611,32 +3298,44 @@ const resetZoom = () => {
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
 
   const resetTarget = { x: defaultLookAt.value.x, y: defaultLookAt.value.y, z: defaultLookAt.value.z }
-  const lookAtProxy = {
-    x: controls?.target?.x ?? 0,
-    y: controls?.target?.y ?? 0,
-    z: controls?.target?.z ?? 0
+  // 📱 Sur mobile, partir de la direction réelle de la caméra
+  let lookAtProxy
+  if (props.mobileMode && cameraRef.value) {
+    const camPos = cameraRef.value.position
+    const lookTarget = new THREE.Vector3(mobileLookAtInit.value.x, mobileLookAtInit.value.y, mobileLookAtInit.value.z)
+    const targetDist = camPos.distanceTo(lookTarget)
+    const dir = new THREE.Vector3()
+    cameraRef.value.getWorldDirection(dir)
+    const projected = camPos.clone().addScaledVector(dir, targetDist)
+    lookAtProxy = { x: projected.x, y: projected.y, z: projected.z }
+  } else {
+    lookAtProxy = { x: controls?.target?.x ?? 0, y: controls?.target?.y ?? 0, z: controls?.target?.z ?? 0 }
   }
 
+  const camTarget = props.mobileMode ? mobileCamPos.value : defaultCamPos.value
+  const lookTarget = props.mobileMode ? mobileLookAtInit.value : resetTarget
+
   gsap.to(cameraRef.value.position, {
-    x: defaultCamPos.value.x, y: defaultCamPos.value.y, z: defaultCamPos.value.z,
+    x: camTarget.x, y: camTarget.y, z: camTarget.z,
     duration: 1.5, ease: "power2.inOut",
     onUpdate: () => {
       cameraRef.value.lookAt(lookAtProxy.x, lookAtProxy.y, lookAtProxy.z)
     },
     onComplete: () => {
-      // 🔓 ON RÉACTIVE LES CONTRÔLES SEULEMENT QUAND LE RETOUR EST FINI
-      if (controls) {
+      // 🟢 Mettre à jour la target du contrôleur QUE sur Desktop
+      if (controls && !props.mobileMode) {
         controls.target.set(lookAtProxy.x, lookAtProxy.y, lookAtProxy.z)
-        controls.enabled = true
       }
     }
   })
 
   gsap.to(lookAtProxy, {
-    x: resetTarget.x, y: resetTarget.y, z: resetTarget.z,
+    x: lookTarget.x, y: lookTarget.y, z: lookTarget.z,
     duration: 1.5, ease: "power2.inOut",
     onComplete: () => {
       animating.value = false
+      // 📱 Réinitialiser le look-around mobile
+      if (props.mobileMode) initMobileLookAngles()
     }
   })
 }
@@ -2856,5 +3555,53 @@ defineExpose({
 
 .tooltip-fade-leave-to {
   opacity: 0;
+}
+
+/* 📱 LABELS FLOTTANTS MOBILE */
+.mobile-label {
+  font-family: 'Inter Variable', 'Inter', -apple-system, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  user-select: none;
+  animation: label-pulse 2.5s ease-in-out infinite;
+}
+
+.mobile-label--clickable {
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-label--clickable:active {
+  transform: scale(0.93);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mobile-label::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid rgba(0, 0, 0, 0.6);
+}
+
+@keyframes label-pulse {
+  0%, 100% { opacity: 0.85; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
 }
 </style>
