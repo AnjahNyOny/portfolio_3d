@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-screen w-full bg-zinc-950 overflow-hidden">
+  <div class="relative h-svh w-full bg-zinc-950 overflow-hidden">
 
     <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
     <button v-if="ENABLE_CALIBRATION_UI" @click="calibrationMode = !calibrationMode"
@@ -446,8 +446,10 @@
     </div>
 
     <!-- 🛠️ INTERFACE DE CALIBRATION (à activer via le flag calibrationMode) -->
-    <div v-if="calibrationMode && activeElement"
-      class="absolute top-10 right-10 z-[100] bg-zinc-800/90 text-white p-4 rounded text-xs w-[300px] pointer-events-auto max-h-[80vh] overflow-y-auto">
+    <Teleport to="body">
+      <div v-if="calibrationMode && activeElement"
+        class="fixed top-10 right-10 z-[99999] bg-zinc-800/90 text-white p-4 rounded text-xs w-[300px] pointer-events-auto max-h-[80vh] overflow-y-auto shadow-2xl border border-orange-500/30"
+        style="transform: translateZ(1000px); -webkit-transform: translateZ(1000px);">
       <h3 class="font-bold mb-2 text-orange-400">Calibration : {{ activeElement }}</h3>
 
       <button @click="copyCurrentCamera"
@@ -457,46 +459,111 @@
 
       <div class="mb-4">
         <label class="block font-bold mt-2">Caméra Pos</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].camX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].camY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].camZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">x</span>
+          <button @click="adjustValue('camX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].camX"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('camX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">y</span>
+          <button @click="adjustValue('camY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].camY"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('camY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">z</span>
+          <button @click="adjustValue('camZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].camZ"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('camZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
       </div>
 
       <div class="mb-4">
         <label class="block font-bold">LookAt Target</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].lookX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].lookY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].lookZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateCalibration" />
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">x</span>
+          <button @click="adjustValue('lookX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].lookX"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('lookX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">y</span>
+          <button @click="adjustValue('lookY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].lookY"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('lookY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">z</span>
+          <button @click="adjustValue('lookZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].lookZ"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
+          <button @click="adjustValue('lookZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
       </div>
 
       <div class="mt-4 pt-2 border-t border-zinc-600">
         <label class="block font-bold text-blue-300">HTML Pos (TresGroup)</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">x</span>
+          <button @click="adjustValue('htmlPosX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosX"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlPosX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">y</span>
+          <button @click="adjustValue('htmlPosY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosY"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlPosY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">z</span>
+          <button @click="adjustValue('htmlPosZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosZ"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlPosZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
       </div>
       <div class="mb-4">
         <label class="block font-bold text-blue-300">HTML Rot</label>
-        x: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        y: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        z: <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">x</span>
+          <button @click="adjustValue('htmlRotX', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotX"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlRotX', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">y</span>
+          <button @click="adjustValue('htmlRotY', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotY"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlRotY', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-xs w-4">z</span>
+          <button @click="adjustValue('htmlRotZ', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotZ"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('htmlRotZ', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
       </div>
       <div class="mb-4">
         <label class="block font-bold text-blue-300">Scale</label>
-        scale: <input type="number" step="0.001" v-model.number="settings[activeElement].scale"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
+        <div class="flex items-center gap-1">
+          <span class="text-xs w-4">s</span>
+          <button @click="adjustValue('scale', -0.001)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
+          <input type="number" step="0.001" v-model.number="settings[activeElement].scale"
+            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
+          <button @click="adjustValue('scale', 0.001)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
+        </div>
       </div>
       <div>
         <label class="block font-bold text-purple-400">Dimensions HTML (px)</label>
@@ -607,7 +674,8 @@
         Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ"
           class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
       </div>
-    </div>
+      </div>
+    </Teleport>
 
     <!-- TOOLTIP INTERACTIF (style jeu vidéo) -->
     <Transition name="tooltip-fade">
@@ -747,7 +815,14 @@
           </div>
         </div>
 
-        <!-- 3. MODE PAR DÉFAUT : SITE WEB / IFRAME -->
+        <!-- 3. MODE CALIBRATION : GHOST BOX -->
+        <div v-else-if="calibrationMode && activeElement === 'laptop'"
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }"
+          class="bg-fuchsia-500/40 border-8 border-fuchsia-400 flex items-center justify-center font-black text-[100px] text-white backdrop-blur-sm pointer-events-none rounded-md">
+          TARGET LAPTOP
+        </div>
+
+        <!-- 4. MODE PAR DÉFAUT : SITE WEB / IFRAME -->
         <iframe v-else src="https://portfolio.anjahnyony.com"
           :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }"
           class="border-none bg-white rounded-md pointer-events-auto"></iframe>
@@ -1285,9 +1360,9 @@ const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'back
 
 const settings = ref({
   laptop: {
-    camX: 1.54, camY: 1.91, camZ: 1,
+    camX: 1.40, camY: 1.91, camZ: 1.8,
     lookX: 1.53, lookY: 1.5, lookZ: 0.07,
-    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
+    htmlPosX: 1.45, htmlPosY: 2, htmlPosZ: 0.1,
     htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
     scale: 0.0175,
     width: 1400,
@@ -1295,7 +1370,7 @@ const settings = ref({
   },
   phone: {
     camX: 1.75, camY: 1.929, camZ: 1.401,
-    lookX: 1.19, lookY: 1.73, lookZ: 0.55,
+    lookX: 0.99, lookY: 1.89, lookZ: 0.46,
     htmlPosX: 0.9, htmlPosY: 1.57, htmlPosZ: 0.46,
     htmlRotX: -0.17, htmlRotY: 0.54, htmlRotZ: 0.07,
     scale: 0.023,
@@ -1305,7 +1380,7 @@ const settings = ref({
   books: {
     camX: 1.34, camY: 1.84, camZ: 1.29,
     lookX: 0.73, lookY: 1.5, lookZ: 0.31,
-    htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
+    htmlPosX: 0.952, htmlPosY: 1.864, htmlPosZ: 0.68,
     htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
     scale: 0.014,
     width: 770,
@@ -1326,14 +1401,14 @@ const settings = ref({
   folder: {
     camX: 1.84, camY: 2.03, camZ: 1.64,
     lookX: 1, lookY: 1.68, lookZ: 0.45,
-    htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
+    htmlPosX: 1.5, htmlPosY: 2.22, htmlPosZ: 1.121,
     htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
-    scale: 0.014,
+    scale: 0.013,
     width: 800,
     height: 1200
   },
   usb: {
-    camX: 1.54, camY: 1.91, camZ: 1,
+    camX: 1.54, camY: 1.91, camZ: 1.5,
     lookX: 1.53, lookY: 1.5, lookZ: 0.07,
     posX: -0.096, posY: 0, posZ: 0,
     rotX: 0, rotY: 0, rotZ: 0,
@@ -2172,7 +2247,7 @@ watch(() => [cameraRef.value, props.mobileMode], ([cam, mobile]) => {
     nextTick(() => {
       initMobileLookAngles(true)
       // Trouver le canvas DOM element
-      const sceneDiv = document.querySelector('.relative.h-screen')
+      const sceneDiv = document.querySelector('.relative.h-svh')
       mobileCanvasEl = sceneDiv?.querySelector('canvas')
       if (mobileCanvasEl) {
         mobileCanvasEl.addEventListener('touchstart', onMobileTouchStart, { passive: false })
@@ -2285,6 +2360,13 @@ const updateCalibration = () => {
       controls.target.set(s.lookX, s.lookY, s.lookZ)
     }
   }
+}
+
+// 📱 Ajuster une valeur avec les flèches (pour calibration mobile)
+const adjustValue = (key, delta) => {
+  if (!activeElement.value) return
+  const s = settings.value[activeElement.value]
+  s[key] = Number((s[key] + delta).toFixed(4))
 }
 
 // 📸 Capture la position actuelle de la souris

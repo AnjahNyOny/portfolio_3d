@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-screen bg-zinc-950 overflow-hidden">
+  <div class="h-svh w-screen bg-zinc-950 overflow-hidden">
 
     <ClientOnly>
       <TheScene 
