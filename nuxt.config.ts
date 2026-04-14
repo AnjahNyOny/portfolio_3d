@@ -11,6 +11,19 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'fr' },
       title: 'Anjah Rakotovao — Développeur Web Fullstack | Portfolio 3D',
+      style: [
+        { innerHTML: `
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            touch-action: none;
+          }
+        ` }
+      ],
       meta: [
         { name: 'description', content: 'Portfolio interactif 3D de Anjah Rakotovao, développeur web fullstack spécialisé Vue.js, Nuxt, Node.js. Basé au Québec, Canada.' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover' },
