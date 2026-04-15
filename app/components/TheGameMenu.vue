@@ -170,6 +170,13 @@ const menuStructure = computed(() => [
     id: 'contact',
     label: 'Contact',
     action: 'phone'
+  },
+  {
+    id: 'portfolio2d',
+    label: 'Portfolio 2D',
+    action: 'external',
+    url: 'https://portfolio.anjahnyony.com',
+    badge: 'globe'
   }
 ])
 

@@ -606,9 +606,9 @@
               <a href="/CV-ANJAH.pdf" download="CV_Anjah_Rakotovao.pdf" class="flex items-center gap-2 px-6 py-3 rounded-full font-bold bg-cyan-500 hover:bg-cyan-400 text-zinc-950 transition-all hover:scale-105" style="font-size: 16px;">
                 <span style="width: 20px; height: 20px;" v-html="projectIcons['download']"></span> Télécharger CV
               </a>
-              <button @click="showIntro = false; activeElement = 'laptop'" class="flex items-center gap-2 px-8 py-3 rounded-full font-bold bg-white text-black transition-all hover:scale-105" style="font-size: 16px;">
-                 Commencer
-              </button>
+              <a href="https://portfolio.anjahnyony.com" target="_blank" class="flex items-center gap-2 px-8 py-3 rounded-full font-bold bg-white text-black transition-all hover:scale-105" style="font-size: 16px;">
+                 Portfolio 2D ↗
+              </a>
             </div>
           </div>
         </div>
@@ -639,15 +639,25 @@
           TARGET LAPTOP
         </div>
 
-        <!-- 4. MODE PAR DÉFAUT : SITE WEB / IFRAME -->
-        <div v-else :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }">
-          <iframe
-            src="https://portfolio.anjahnyony.com"
-            :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }"
-            class="rounded-md block pointer-events-auto bg-white"
-            scrolling="yes"
-            frameborder="0">
-          </iframe>
+        <!-- 4. MODE PAR DÉFAUT : Afficher l'intro -->
+        <div v-else
+          :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+          class="rounded-md pointer-events-auto overflow-hidden flex items-center justify-center">
+          <div class="p-16 max-w-2xl text-center">
+            <div class="flex items-center justify-center gap-4 mb-12">
+              <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
+              <span class="tracking-[0.3em] uppercase font-light" :style="{ color: ot.textFaint, fontSize: '18px' }">Portfolio</span>
+              <div class="h-px w-20" :style="{ background: ot.textFaint }"></div>
+            </div>
+            <h1 class="font-black tracking-wide mb-6" :style="{ color: ot.text, fontSize: '72px' }">ANJAH Rakotovao</h1>
+            <p class="font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-12" style="font-size: 32px;">Développeur Web Fullstack</p>
+            <p class="leading-relaxed mb-12" :style="{ color: ot.textMuted, fontSize: '20px' }">Passionné par l'innovation numérique, je conçois des solutions web modernes, fluides et performantes.</p>
+            <div class="flex items-center justify-center gap-6">
+              <a href="/CV-ANJAH.pdf" download="CV_Anjah_Rakotovao.pdf" class="flex items-center gap-2 px-6 py-3 rounded-full font-bold bg-cyan-500 hover:bg-cyan-400 text-zinc-950 transition-all hover:scale-105" style="font-size: 16px;">
+                <span style="width: 20px; height: 20px;" v-html="projectIcons['download']"></span> Télécharger CV
+              </a>
+            </div>
+          </div>
         </div>
 
         </div></Html>
@@ -1506,7 +1516,7 @@ const TOOLTIP_LABELS = {
   drawer: 'Mes Projets',
   switch: 'Changer l\'éclairage',
   usb: 'Télécharger le CV',
-  rubik: 'Easter Egg',
+  rubik: 'Portfolio 2D',
   github: 'GitHub',
   linkedin: 'LinkedIn',
   facebook: 'Facebook',
@@ -1557,7 +1567,7 @@ async function submitContact() {
 
 // 🪄 Passe à 'true' pour faire apparaître les panneaux de configuration
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
-const ENABLE_CALIBRATION_UI = true
+const ENABLE_CALIBRATION_UI = false
 const calibrationMode = ref(false)
 const activeCalibPanel = ref(null)
 const calibButtons = [
@@ -1590,7 +1600,7 @@ const mobileLabels = ref([
   { id: 'folder',   name: 'PROJETS',   x: 0.69, y: 0.99, z: 0.9 },
   { id: 'usb',      name: 'CV',        x: 1.88, y: 1.59, z: 0.39 },
   { id: 'socials',  name: 'SOCIALS',   x: 0.5,  y: 1.79, z: 0.23 },
-  { id: 'rubik',    name: 'RUBIK',     x: 2.16, y: 1.64, z: 0.36 },
+  { id: 'rubik',    name: 'PORTFOLIO 2D', x: 2.16, y: 1.64, z: 0.36 },
   { id: 'darkmode', name: 'DARK MODE', x: 2.72, y: 2.99, z: -0.53 },
 ])
 
@@ -1646,7 +1656,7 @@ const onLabelClick = (labelId) => {
       toggleLight()
       break
     case 'rubik':
-      // Pas d'action pour l'instant
+      window.open('https://portfolio.anjahnyony.com', '_blank')
       break
   }
 }
@@ -2641,6 +2651,8 @@ const onModelClick = (event) => {
     window.open('https://github.com/AnjahNyOny', '_blank')
   } else if (type === 'linkedin') {
     window.open('https://linkedin.com/in/anjahnyony', '_blank')
+  } else if (type === 'rubik') {
+    window.open('https://portfolio.anjahnyony.com', '_blank')
   }
 }
 

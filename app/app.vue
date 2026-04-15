@@ -167,6 +167,7 @@ const handleMenuNavigate = (payload) => {
       sceneRef.value.toggleLight()
       break
     case 'social':
+    case 'external':
       if (payload.url) {
         window.open(payload.url, '_blank')
       }
