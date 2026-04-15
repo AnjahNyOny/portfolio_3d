@@ -1,75 +1,31 @@
 <template>
   <div ref="sceneRootEl" class="fixed top-0 left-0 w-full bg-zinc-950 overflow-hidden" :style="{ height: appHeight }">
 
-    <!-- 🔧 TOGGLE CALIBRATION MODE (toujours visible, coin bas-droite) -->
+    <!-- 🔧 TOGGLE CALIBRATION MODE -->
     <button v-if="ENABLE_CALIBRATION_UI" @click="calibrationMode = !calibrationMode"
-      class="absolute bottom-20 right-4 z-[200] p-3 rounded-lg text-sm font-bold border-2 transition-all pointer-events-auto shadow-lg"
-      :class="calibrationMode ? 'bg-green-600/90 hover:bg-green-500 border-green-400 text-white' : 'bg-zinc-800/90 hover:bg-zinc-700 border-zinc-600 text-zinc-300'">
-      {{ calibrationMode ? '🔓 ON' : '🔒 Calibration' }}
+      class="absolute top-2 right-2 z-[220] w-10 h-10 rounded-full text-lg border-2 transition-all pointer-events-auto shadow-lg flex items-center justify-center"
+      :class="calibrationMode ? 'bg-green-600/90 border-green-400' : 'bg-zinc-800/80 border-zinc-600'">
+      {{ calibrationMode ? '🔓' : '🔒' }}
     </button>
 
-    <div v-if="calibrationMode" class="absolute top-20 left-3 right-3 z-[210] pointer-events-none sm:top-4 sm:left-4 sm:right-4">
-      <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-700/70 bg-black/55 p-2 backdrop-blur-md shadow-2xl pointer-events-auto">
-
-    <!-- 💡 BOUTON POUR AFFICHER LA CALIBRATION LUMIÈRE -->
-    <button v-if="!showLightCalibration" @click="showLightCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-zinc-600 shrink-0">
-      💡 Régler Lumières
-    </button>
-
-    <!-- 📷 BOUTON POUR AFFICHER LA CALIBRATION CAMÉRA -->
-    <button v-if="!showCameraCalibration" @click="showCameraCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-cyan-600 shrink-0">
-      📷 Régler Caméra
-    </button>
-
-    <!-- 📱 BOUTON CALIBRATION LABELS MOBILE -->
-    <button v-if="!showLabelCalibration" @click="showLabelCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-pink-600 shrink-0">
-      📱 Labels
-    </button>
-
-    <!-- 📱 BOUTON CALIBRATION CAMÉRA MOBILE -->
-    <button v-if="!showMobileCamCalibration" @click="showMobileCamCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-orange-600 shrink-0">
-      📱 Cam Mobile
-    </button>
-
-    <!-- 📱 BOUTON CALIBRATION DRAWER -->
-    <button v-if="!showDrawerCamCalibration" @click="showDrawerCamCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-amber-600 shrink-0">
-      📦 Cam Drawer
-    </button>
-
-    <!-- 📚 BOUTON CALIBRATION BOOKSHELF -->
-    <button v-if="!showBookshelfCamCalibration" @click="showBookshelfCamCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-purple-600 shrink-0">
-      📚 Cam Bookshelf
-    </button>
-
-    <!-- 🃏 BOUTON CALIBRATION SOCIALS -->
-    <button v-if="!showSocialsCamCalibration" @click="showSocialsCamCalibration = true"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border border-teal-600 shrink-0">
-      🃏 Cam Socials
-    </button>
-
-    <!-- 🔍 BOUTON DEBUG MESHS -->
-    <button @click="showMeshNames = !showMeshNames"
-      class="bg-zinc-800/90 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-[11px] font-bold border shrink-0"
-      :class="showMeshNames ? 'border-green-500 text-green-400' : 'border-zinc-600'">
-      {{ showMeshNames ? '👁️ Cacher Noms Meshs' : '🔍 Afficher Noms Meshs' }}
-    </button>
-
+    <!-- 🔧 TOOLBAR CALIBRATION -->
+    <div v-if="calibrationMode" class="absolute top-14 left-2 z-[215] pointer-events-auto">
+      <div class="flex flex-wrap gap-1 max-w-[calc(100vw-4rem)]">
+        <button v-for="btn in calibButtons" :key="btn.key" @click="toggleCalibPanel(btn.key)"
+          class="w-9 h-9 rounded-lg text-base flex items-center justify-center border transition-all shadow"
+          :class="activeCalibPanel === btn.key ? 'bg-white/20 border-white/50 scale-110' : 'bg-black/50 border-zinc-700 hover:bg-black/70'">
+          {{ btn.icon }}
+        </button>
       </div>
     </div>
 
     <!-- 🃏 PANNEAU CALIBRATION SOCIALS -->
-    <div v-if="showSocialsCamCalibration"
-      class="absolute top-[11.5rem] left-3 z-[205] pointer-events-none sm:top-20 sm:left-4">
-      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-teal-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto space-y-2">
+    <div v-if="activeCalibPanel === 'socials'"
+      class="absolute top-24 left-2 z-[210] pointer-events-none">
+      <div class="bg-black/40 backdrop-blur-md text-white p-3 rounded-lg border border-teal-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto space-y-2">
         <div class="flex justify-between items-center">
-          <span class="font-bold text-teal-400">🃏 Cam Socials</span>
-          <button @click="showSocialsCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+          <span class="font-bold text-teal-400">🃏 Socials</span>
+          <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-base">✕</button>
         </div>
         <div class="text-teal-300 font-bold">Position</div>
         <div v-for="axis in ['x','y','z']" :key="'scp'+axis" class="flex gap-1 items-center">
@@ -91,12 +47,12 @@
     </div>
 
     <!-- 📚 PANNEAU CALIBRATION BOOKSHELF -->
-    <div v-if="showBookshelfCamCalibration"
-      class="absolute top-[11.5rem] right-3 z-[205] pointer-events-none sm:top-20 sm:right-4">
-      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-purple-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto space-y-2">
+    <div v-if="activeCalibPanel === 'bookshelf'"
+      class="absolute top-24 left-2 z-[210] pointer-events-none">
+      <div class="bg-black/40 backdrop-blur-md text-white p-3 rounded-lg border border-purple-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto space-y-2">
         <div class="flex justify-between items-center">
-          <span class="font-bold text-purple-400">📚 Cam Bookshelf</span>
-          <button @click="showBookshelfCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+          <span class="font-bold text-purple-400">📚 Bookshelf</span>
+          <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-base">✕</button>
         </div>
         <div class="text-purple-300 font-bold">Position</div>
         <div v-for="axis in ['x','y','z']" :key="'bsp'+axis" class="flex gap-1 items-center">
@@ -118,12 +74,12 @@
     </div>
 
     <!-- 📱 PANNEAU CALIBRATION CAMÉRA MOBILE -->
-    <div v-if="showMobileCamCalibration"
-      class="absolute top-[11.5rem] right-3 z-[205] pointer-events-none sm:top-20 sm:right-4">
-      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-orange-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto space-y-2">
+    <div v-if="activeCalibPanel === 'mobile'"
+      class="absolute top-24 left-2 z-[210] pointer-events-none">
+      <div class="bg-black/40 backdrop-blur-md text-white p-3 rounded-lg border border-orange-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto space-y-2">
         <div class="flex justify-between items-center">
-          <span class="font-bold text-orange-400">📱 Cam Mobile</span>
-          <button @click="showMobileCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+          <span class="font-bold text-orange-400">📱 Mobile</span>
+          <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-base">✕</button>
         </div>
         <div class="text-orange-300 font-bold">Position</div>
         <div v-for="axis in ['x','y','z']" :key="'mcp'+axis" class="flex gap-1 items-center">
@@ -140,7 +96,7 @@
         <div class="text-orange-300 font-bold">Offset Laptop/Folder Y</div>
         <div class="flex gap-1 items-center">
           <button @click="mobileHtmlWorldOffsetY = Number((mobileHtmlWorldOffsetY - 0.01).toFixed(2))" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">-0.01</button>
-          <input type="range" min="-0.5" max="0.5" step="0.01" v-model.number="mobileHtmlWorldOffsetY" class="flex-1 accent-orange-500 h-4" />
+          <input type="range" min="-1" max="1" step="0.01" v-model.number="mobileHtmlWorldOffsetY" class="flex-1 accent-orange-500 h-4" />
           <button @click="mobileHtmlWorldOffsetY = Number((mobileHtmlWorldOffsetY + 0.01).toFixed(2))" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">+0.01</button>
         </div>
         <div class="flex gap-1 items-center">
@@ -150,7 +106,7 @@
         <div class="text-orange-300 font-bold">Offset Books Y</div>
         <div class="flex gap-1 items-center">
           <button @click="mobileBooksWorldOffsetY = Number((mobileBooksWorldOffsetY - 0.01).toFixed(2))" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">-0.01</button>
-          <input type="range" min="-0.5" max="0.5" step="0.01" v-model.number="mobileBooksWorldOffsetY" class="flex-1 accent-orange-500 h-4" />
+          <input type="range" min="-1" max="1" step="0.01" v-model.number="mobileBooksWorldOffsetY" class="flex-1 accent-orange-500 h-4" />
           <button @click="mobileBooksWorldOffsetY = Number((mobileBooksWorldOffsetY + 0.01).toFixed(2))" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">+0.01</button>
         </div>
         <div class="flex gap-1 items-center">
@@ -165,12 +121,12 @@
     </div>
 
     <!-- 📦 PANNEAU CALIBRATION CAMÉRA DRAWER -->
-    <div v-if="showDrawerCamCalibration"
-      class="absolute top-[11.5rem] left-3 z-[205] pointer-events-none sm:top-20 sm:left-4">
-      <div class="bg-black/50 backdrop-blur-md text-white p-3 rounded-lg border border-amber-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto space-y-2">
+    <div v-if="activeCalibPanel === 'drawer'"
+      class="absolute top-24 left-2 z-[210] pointer-events-none">
+      <div class="bg-black/40 backdrop-blur-md text-white p-3 rounded-lg border border-amber-500/40 text-[11px] font-mono pointer-events-auto w-56 max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto space-y-2">
         <div class="flex justify-between items-center">
-          <span class="font-bold text-amber-400">📦 Cam Drawer</span>
-          <button @click="showDrawerCamCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+          <span class="font-bold text-amber-400">📦 Drawer</span>
+          <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-base">✕</button>
         </div>
         <div class="text-amber-300 font-bold">Position</div>
         <div v-for="axis in ['x','y','z']" :key="'dcp'+axis" class="flex gap-1 items-center">
@@ -192,15 +148,15 @@
     </div>
 
     <!-- 📱 PANNEAU CALIBRATION LABELS MOBILE -->
-    <div v-if="showLabelCalibration"
-      class="absolute bottom-12 left-2 right-2 z-[100] pointer-events-none">
+    <div v-if="activeCalibPanel === 'labels'"
+      class="absolute bottom-12 left-2 right-2 z-[210] pointer-events-none">
       <div class="bg-black/50 backdrop-blur-md text-white p-2 rounded-lg border border-pink-500/40 text-[10px] font-mono pointer-events-auto max-h-[40vh] overflow-y-auto"
         style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
         <div class="flex justify-between items-center mb-1 sticky top-0 bg-black/80 py-1 -mx-2 px-2 z-10">
           <span class="font-bold text-pink-400">📱 Labels</span>
           <div class="flex gap-2">
             <button @click="copyLabelPositions" class="px-2 py-0.5 bg-pink-600/80 rounded text-white font-bold">📋 Copier</button>
-            <button @click="showLabelCalibration = false" class="text-zinc-400 hover:text-white text-base">✕</button>
+            <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-base">✕</button>
           </div>
         </div>
         <div class="space-y-1.5">
@@ -269,12 +225,12 @@
     </div>
 
     <!-- 🛠️ INTERFACE DE CALIBRATION LUMIÈRES -->
-    <div v-if="calibrationMode && showLightCalibration"
-      class="absolute top-[11.5rem] left-3 z-[205] bg-zinc-800/90 text-white p-4 rounded text-xs w-[250px] max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto pointer-events-auto shadow-2xl sm:top-20 sm:left-4">
+    <div v-if="activeCalibPanel === 'light'"
+      class="absolute top-24 left-2 z-[210] bg-zinc-800/60 backdrop-blur-md text-white p-4 rounded-lg text-xs w-[250px] max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto pointer-events-auto shadow-2xl">
       <div class="flex justify-between items-center mb-2">
-        <h3 class="font-bold text-yellow-400">Calibration Lumières</h3>
-        <button @click="showLightCalibration = false"
-          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
+        <h3 class="font-bold text-yellow-400">💡 Lumières</h3>
+        <button @click="activeCalibPanel = null"
+          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">✕</button>
       </div>
       <div class="mb-2 border-b border-zinc-600 pb-2">
         <label class="block font-bold">☀️ Soleil Pos (Jour)</label>
@@ -324,12 +280,12 @@
     </div>
 
     <!-- 📷 INTERFACE DE CALIBRATION CAMÉRA -->
-    <div v-if="calibrationMode && showCameraCalibration"
-      class="absolute top-[11.5rem] left-3 z-[205] bg-zinc-900/95 text-white p-4 rounded-lg text-xs w-[280px] max-w-[calc(100vw-1.5rem)] max-h-[70vh] overflow-y-auto pointer-events-auto shadow-2xl border border-cyan-700/50 sm:top-20 sm:left-[290px]">
+    <div v-if="activeCalibPanel === 'camera'"
+      class="absolute top-24 left-2 z-[210] bg-zinc-900/60 backdrop-blur-md text-white p-4 rounded-lg text-xs w-[280px] max-w-[calc(100vw-1rem)] max-h-[55vh] overflow-y-auto pointer-events-auto shadow-2xl border border-cyan-700/50">
       <div class="flex justify-between items-center mb-3">
-        <h3 class="font-bold text-cyan-400 text-sm">📷 Calibration Caméra</h3>
-        <button @click="showCameraCalibration = false"
-          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">X</button>
+        <h3 class="font-bold text-cyan-400 text-sm">📷 Caméra</h3>
+        <button @click="activeCalibPanel = null"
+          class="text-red-400 font-bold px-2 hover:bg-zinc-700 rounded">✕</button>
       </div>
 
       <!-- LIVE READOUT -->
@@ -471,240 +427,70 @@
       </div>
     </div>
 
-    <!-- 🛠️ INTERFACE DE CALIBRATION (à activer via le flag calibrationMode) -->
-    <!-- DÉSACTIVÉ POUR TEST -->
-    <Teleport to="body" v-if="false">
-      <div v-if="calibrationMode && activeElement"
-        class="fixed top-10 left-10 z-[99999] bg-zinc-800/95 text-white p-4 rounded text-xs w-[300px] pointer-events-auto max-h-[80vh] overflow-y-auto shadow-2xl border border-orange-500/30"
-        style="transform: translateZ(1000px); -webkit-transform: translateZ(1000px); touch-action: pan-y;">
-      <h3 class="font-bold mb-2 text-orange-400">Calibration : {{ activeElement }}</h3>
-
-      <div>
-      <button @click="copyCurrentCamera"
-        class="w-full bg-blue-600 hover:bg-blue-500 transition-colors p-2 rounded mb-3 font-bold text-white shadow-lg">
-        📸 Utiliser la vue actuelle (Souris)
-      </button>
-
-      <div class="mb-4">
-        <label class="block font-bold mt-2">Caméra Pos</label>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">x</span>
-          <button @click="adjustValue('camX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].camX"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('camX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">y</span>
-          <button @click="adjustValue('camY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].camY"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('camY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">z</span>
-          <button @click="adjustValue('camZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].camZ"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('camZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block font-bold">LookAt Target</label>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">x</span>
-          <button @click="adjustValue('lookX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].lookX"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('lookX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">y</span>
-          <button @click="adjustValue('lookY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].lookY"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('lookY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">z</span>
-          <button @click="adjustValue('lookZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].lookZ"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" @input="updateCalibration" />
-          <button @click="adjustValue('lookZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-      </div>
-
-      <div class="mt-4 pt-2 border-t border-zinc-600">
-        <label class="block font-bold text-blue-300">HTML Pos (TresGroup)</label>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">x</span>
-          <button @click="adjustValue('htmlPosX', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosX"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlPosX', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">y</span>
-          <button @click="adjustValue('htmlPosY', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosY"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlPosY', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">z</span>
-          <button @click="adjustValue('htmlPosZ', -0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlPosZ"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlPosZ', 0.01)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label class="block font-bold text-blue-300">HTML Rot</label>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">x</span>
-          <button @click="adjustValue('htmlRotX', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotX"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlRotX', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">y</span>
-          <button @click="adjustValue('htmlRotY', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotY"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlRotY', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-xs w-4">z</span>
-          <button @click="adjustValue('htmlRotZ', -0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.01" v-model.number="settings[activeElement].htmlRotZ"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('htmlRotZ', 0.05)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label class="block font-bold text-blue-300">Scale</label>
-        <div class="flex items-center gap-1">
-          <span class="text-xs w-4">s</span>
-          <button @click="adjustValue('scale', -0.001)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▼</button>
-          <input type="number" step="0.001" v-model.number="settings[activeElement].scale"
-            class="flex-1 bg-black/50 text-white p-1 focus:outline-none" />
-          <button @click="adjustValue('scale', 0.001)" class="bg-zinc-700 text-white px-2 py-1 rounded text-xs">▲</button>
-        </div>
-      </div>
-      <div>
-        <label class="block font-bold text-purple-400">Dimensions HTML (px)</label>
-        width: <input type="number" step="1" v-model.number="settings[activeElement].width"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-        height: <input type="number" step="1" v-model.number="settings[activeElement].height"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" />
-      </div>
-      <!-- SECTION USB / OBJETS 3D -->
-      <div v-if="activeElement === 'usb' || activeElement === 'github' || activeElement === 'linkedin'" class="mt-4 border-t border-zinc-600 pt-2">
-        <label class="block font-bold text-yellow-400 mb-2">Objet 3D : {{ activeElement }}</label>
-        <div class="space-y-3">
-          <div>
-            <label class="block text-zinc-400 font-mono">X Pos: {{ settings[activeElement].posX }}</label>
-            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posX" class="w-full" />
-            <input type="number" step="0.001" v-model.number="settings[activeElement].posX" class="w-full bg-black/40 p-1" />
+    <!-- 🎯 INTERFACE DE CALIBRATION PAR ÉLÉMENT -->
+    <Teleport to="body">
+      <div v-if="activeCalibPanel === 'element' && activeElement && calibrationMode"
+        class="fixed top-0 left-0 right-0 z-[999999] pointer-events-none" style="transform: translateZ(10000px); -webkit-transform: translateZ(10000px);">
+        <div class="mx-2 mt-2 bg-zinc-900/60 backdrop-blur-md text-white rounded-xl border border-orange-500/50 pointer-events-auto shadow-2xl max-h-[45vh] overflow-y-auto"
+          style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+          <div class="sticky top-0 z-10 bg-zinc-900/80 px-3 py-2 border-b border-zinc-700 flex justify-between items-center">
+            <span class="font-bold text-orange-400 text-sm">🎯 {{ activeElement }}</span>
+            <div class="flex gap-2">
+              <button @click="copyCurrentCamera" class="px-2 py-1 bg-blue-600 rounded text-[10px] font-bold">📸 Snap</button>
+              <button @click="activeCalibPanel = null" class="text-zinc-400 hover:text-white text-lg leading-none">✕</button>
+            </div>
           </div>
-          <div>
-            <label class="block text-zinc-400 font-mono">Y Pos: {{ settings[activeElement].posY }}</label>
-            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posY" class="w-full" />
-            <input type="number" step="0.001" v-model.number="settings[activeElement].posY" class="w-full bg-black/40 p-1" />
-          </div>
-          <div>
-            <label class="block text-zinc-400 font-mono">Z Pos: {{ settings[activeElement].posZ }}</label>
-            <input type="range" min="-1" max="3" step="0.001" v-model.number="settings[activeElement].posZ" class="w-full" />
-            <input type="number" step="0.001" v-model.number="settings[activeElement].posZ" class="w-full bg-black/40 p-1" />
-          </div>
-          <div class="pt-2 border-t border-zinc-700">
-             <label class="block text-zinc-400 font-mono">X Rot (deg): {{ settings[activeElement].rotX }}</label>
-             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotX" class="w-full" />
-          </div>
-          <div>
-             <label class="block text-zinc-400 font-mono">Y Rot (deg): {{ settings[activeElement].rotY }}</label>
-             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotY" class="w-full" />
-          </div>
-          <div>
-             <label class="block text-zinc-400 font-mono">Z Rot (deg): {{ settings[activeElement].rotZ }}</label>
-             <input type="range" min="-180" max="180" step="1" v-model.number="settings[activeElement].rotZ" class="w-full" />
+          <div class="p-3 space-y-3 text-[11px] font-mono">
+            <div>
+              <div class="text-orange-300 font-bold mb-1">Cam Position</div>
+              <div v-for="a in ['camX','camY','camZ']" :key="a" class="flex items-center gap-1 mb-0.5">
+                <span class="w-7 text-zinc-500 text-[10px]">{{ a.slice(3) }}</span>
+                <input type="range" :min="-1" :max="5" step="0.01" v-model.number="settings[activeElement][a]" class="flex-1 accent-orange-500 h-3" @input="updateCalibration" />
+                <input type="number" step="0.01" v-model.number="settings[activeElement][a]" class="w-14 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" @input="updateCalibration" />
+              </div>
+            </div>
+            <div>
+              <div class="text-orange-300 font-bold mb-1">LookAt</div>
+              <div v-for="a in ['lookX','lookY','lookZ']" :key="a" class="flex items-center gap-1 mb-0.5">
+                <span class="w-7 text-zinc-500 text-[10px]">{{ a.slice(4) }}</span>
+                <input type="range" :min="-1" :max="5" step="0.01" v-model.number="settings[activeElement][a]" class="flex-1 accent-orange-500 h-3" @input="updateCalibration" />
+                <input type="number" step="0.01" v-model.number="settings[activeElement][a]" class="w-14 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" @input="updateCalibration" />
+              </div>
+            </div>
+            <div class="border-t border-zinc-700 pt-2">
+              <div class="text-blue-300 font-bold mb-1">HTML Pos</div>
+              <div v-for="a in ['htmlPosX','htmlPosY','htmlPosZ']" :key="a" class="flex items-center gap-1 mb-0.5">
+                <span class="w-7 text-zinc-500 text-[10px]">{{ a.slice(7) }}</span>
+                <input type="range" :min="-1" :max="5" step="0.01" v-model.number="settings[activeElement][a]" class="flex-1 accent-blue-500 h-3" />
+                <input type="number" step="0.01" v-model.number="settings[activeElement][a]" class="w-14 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" />
+              </div>
+            </div>
+            <div class="border-t border-zinc-700 pt-2">
+              <div class="text-blue-300 font-bold mb-1">HTML Rot / Scale / Size</div>
+              <div v-for="a in ['htmlRotX','htmlRotY','htmlRotZ']" :key="a" class="flex items-center gap-1 mb-0.5">
+                <span class="w-7 text-zinc-500 text-[10px]">R{{ a.slice(7) }}</span>
+                <input type="range" :min="-3.14" :max="3.14" step="0.01" v-model.number="settings[activeElement][a]" class="flex-1 accent-blue-500 h-3" />
+                <input type="number" step="0.01" v-model.number="settings[activeElement][a]" class="w-14 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" />
+              </div>
+              <div class="flex items-center gap-1 mb-0.5">
+                <span class="w-7 text-zinc-500 text-[10px]">Sc</span>
+                <input type="range" min="0.001" max="0.1" step="0.001" v-model.number="settings[activeElement].scale" class="flex-1 accent-purple-500 h-3" />
+                <input type="number" step="0.001" v-model.number="settings[activeElement].scale" class="w-14 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" />
+              </div>
+              <div class="flex gap-2 mt-1">
+                <div class="flex items-center gap-1 flex-1">
+                  <span class="text-zinc-500 text-[10px]">W</span>
+                  <input type="number" step="1" v-model.number="settings[activeElement].width" class="flex-1 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" />
+                </div>
+                <div class="flex items-center gap-1 flex-1">
+                  <span class="text-zinc-500 text-[10px]">H</span>
+                  <input type="number" step="1" v-model.number="settings[activeElement].height" class="flex-1 bg-black/50 text-white p-0.5 text-center text-[10px] rounded" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- SECTON TÉLÉPHONE 3D (Seulement si le téléphone est zoomé) -->
-      <div v-if="activeElement === 'phone'" class="mt-4 border-t border-zinc-600 pt-2">
-        <h3 class="font-bold text-green-400 mb-2">📱 Animation Téléphone 3D</h3>
-        Décalage (X): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Lévitation (Y): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Décalage (Z): <input type="number" step="0.1" v-model.number="phoneAnimConfig.posZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation X (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation Y (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-        Rotation Z (deg): <input type="number" step="5" v-model.number="phoneAnimConfig.rotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updatePhoneAnim" />
-      </div>
-
-      <!-- SECTON LIVRE 3D -->
-      <div v-if="activeElement === 'books'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
-        <h3 class="font-bold text-blue-400 mb-2">📚 Animation Livre 3D</h3>
-        <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
-        Pos Cible X: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Pos Cible Y: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Pos Cible Z: <input type="number" step="0.1" v-model.number="bookAnimConfig.targetPosZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale X: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale Y: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Rot Globale Z: <input type="number" step="5" v-model.number="bookAnimConfig.baseRotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-
-        <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
-        Ouvrir Axe X: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Ouvrir Axe Y: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-        Ouvrir Axe Z: <input type="number" step="5" v-model.number="bookAnimConfig.coverRotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateBookAnim" />
-      </div>
-
-      <!-- SECTON DOSSIER 3D -->
-      <div v-if="activeElement === 'folder'" class="mt-4 border-t border-zinc-600 pt-2 max-h-[300px] overflow-y-auto">
-        <h3 class="font-bold text-yellow-400 mb-2">📁 Animation Dossier 3D</h3>
-        <h4 class="font-bold text-xs text-zinc-300">Position Finale (Absolue)</h4>
-        Pos Cible X: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Pos Cible Y: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Pos Cible Z: <input type="number" step="0.1" v-model.number="folderAnimConfig.targetPosZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale X: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale Y: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Rot Globale Z: <input type="number" step="5" v-model.number="folderAnimConfig.baseRotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-
-        <h4 class="font-bold text-xs text-pink-300 mt-2">Ouverture (Couverture)</h4>
-        Ouvrir Axe X: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotX"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Ouvrir Axe Y: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotY"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-        Ouvrir Axe Z: <input type="number" step="5" v-model.number="folderAnimConfig.coverRotZ"
-          class="w-full bg-black/50 text-white p-1 mb-1 focus:outline-none" @input="updateFolderAnim" />
-      </div>
-      </div>
-      </div>
-
     </Teleport>
 
     <!-- TOOLTIP INTERACTIF (style jeu vidéo) -->
@@ -798,11 +584,10 @@
 
       <!-- ECRAN LAPTOP -->
       <TresGroup v-if="activeElement === 'laptop' || activeElement === 'usb' || showIntro"
-        :position="getHtmlSurfacePosition(settings.laptop, { applyMobileOffset: true })">
+        :position="getHtmlSurfacePosition('laptop', true)">
         <Html transform wrapper-class="ecran-virtuel" :rotation-x="settings.laptop.htmlRotX"
           :rotation-y="settings.laptop.htmlRotY" :rotation-z="settings.laptop.htmlRotZ" :scale="settings.laptop.scale">
-        <!-- DEBUG: Zone VERTE = conteneur Html -->
-        <div :style="{ backgroundColor: 'lime', border: '5px solid green', width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }">
+        <div :style="{ width: settings.laptop.width + 'px', height: settings.laptop.height + 'px' }">
 
         <!-- 1. MODE INTRODUCTION (Toujours prioritaire au début) -->
         <div v-if="showIntro"
@@ -884,7 +669,7 @@
 
       <!-- ECRAN TELEPHONE -->
       <TresGroup v-if="activeElement === 'phone'"
-        :position="getHtmlSurfacePosition(settings.phone)">
+        :position="getHtmlSurfacePosition('phone')">
         <Html key="html-phone" transform wrapper-class="ecran-phone" :rotation-x="settings.phone.htmlRotX"
           :rotation-y="settings.phone.htmlRotY" :rotation-z="settings.phone.htmlRotZ" :scale="settings.phone.scale">
         <Transition enter-active-class="transition-opacity duration-700" enter-from-class="opacity-0"
@@ -989,7 +774,7 @@
 
       <!-- CONTENU DES LIVRES -->
       <TresGroup v-if="activeElement === 'books'"
-        :position="getHtmlSurfacePosition(settings.books, { mobileOffsetY: mobileBooksWorldOffsetY })">
+        :position="getHtmlSurfacePosition('books', false, true)">
         <Html key="html-books" transform wrapper-class="livre-content" :rotation-x="settings.books.htmlRotX"
           :rotation-y="settings.books.htmlRotY" :rotation-z="settings.books.htmlRotZ" :scale="settings.books.scale">
         <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0"
@@ -1257,7 +1042,7 @@
 
       <!-- PANNEAU LIVRES -->
       <TresGroup v-if="activeElement === 'books'"
-        :position="getHtmlSurfacePosition(settings.books, { mobileOffsetY: mobileBooksWorldOffsetY })">
+        :position="getHtmlSurfacePosition('books', false, true)">
         <Html transform wrapper-class="ecran-books" :rotation-x="settings.books.htmlRotX"
           :rotation-y="settings.books.htmlRotY" :rotation-z="settings.books.htmlRotZ" :scale="settings.books.scale">
 
@@ -1265,7 +1050,7 @@
       </TresGroup>
       <!-- CONTENU DES DOSSIERS (Projets) -->
       <TresGroup v-if="activeElement === 'folder'"
-        :position="getHtmlSurfacePosition(settings.folder, { applyMobileOffset: true })">
+        :position="getHtmlSurfacePosition('folder', true)">
         <Html key="html-folder" transform wrapper-class="folder-content" :rotation-x="settings.folder.htmlRotX"
           :rotation-y="settings.folder.htmlRotY" :rotation-z="settings.folder.htmlRotZ" :scale="settings.folder.scale">
         <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0"
@@ -1413,28 +1198,23 @@ const props = defineProps({
 
 const emit = defineEmits(['select-project', 'select-book', 'drawer-state', 'background-click', 'theme-toggled', 'mobile-activate'])
 
-const getHtmlSurfacePosition = (surfaceSettings, options = {}) => {
-  const { applyMobileOffset = false, mobileOffsetY = null } = options
-  const offsetY = !props.mobileMode
-    ? 0
-    : mobileOffsetY !== null
-      ? mobileOffsetY
-      : applyMobileOffset
-        ? mobileHtmlWorldOffsetY.value
-        : 0
-
-  return [
-  surfaceSettings.htmlPosX,
-  surfaceSettings.htmlPosY + offsetY,
-  surfaceSettings.htmlPosZ
-  ]
+const getHtmlSurfacePosition = (elemKey, applyMainOffset = false, applyBooksOffset = false) => {
+  const s = settings.value[elemKey]
+  const mo = props.mobileMode ? mobileOverrides.value[elemKey] : null
+  const posX = mo?.htmlPosX ?? s.htmlPosX
+  const posZ = mo?.htmlPosZ ?? s.htmlPosZ
+  let posY = mo?.htmlPosY ?? s.htmlPosY
+  if (props.mobileMode) {
+    posY += applyBooksOffset ? mobileBooksWorldOffsetY.value : applyMainOffset ? mobileHtmlWorldOffsetY.value : 0
+  }
+  return [posX, posY, posZ]
 }
 
 const settings = ref({
   laptop: {
-    camX: 1.40, camY: 1.91, camZ: 1.8,
+    camX: 1.54, camY: 1.91, camZ: 1,
     lookX: 1.53, lookY: 1.5, lookZ: 0.07,
-    htmlPosX: 1.45, htmlPosY: 2, htmlPosZ: 0.1,
+    htmlPosX: 1.45, htmlPosY: 1.66, htmlPosZ: 0.1,
     htmlRotX: -0.33, htmlRotY: 0, htmlRotZ: 0,
     scale: 0.0175,
     width: 1400,
@@ -1442,7 +1222,7 @@ const settings = ref({
   },
   phone: {
     camX: 1.75, camY: 1.929, camZ: 1.401,
-    lookX: 0.99, lookY: 1.89, lookZ: 0.46,
+    lookX: 1.25, lookY: 1.73, lookZ: 0.55,
     htmlPosX: 0.9, htmlPosY: 1.57, htmlPosZ: 0.46,
     htmlRotX: -0.17, htmlRotY: 0.54, htmlRotZ: 0.07,
     scale: 0.023,
@@ -1452,7 +1232,7 @@ const settings = ref({
   books: {
     camX: 1.34, camY: 1.84, camZ: 1.29,
     lookX: 0.73, lookY: 1.5, lookZ: 0.31,
-    htmlPosX: 0.952, htmlPosY: 1.864, htmlPosZ: 0.68,
+    htmlPosX: 0.972, htmlPosY: 1.704, htmlPosZ: 0.71,
     htmlRotX: 0, htmlRotY: 0.62, htmlRotZ: 0,
     scale: 0.014,
     width: 770,
@@ -1473,14 +1253,14 @@ const settings = ref({
   folder: {
     camX: 1.84, camY: 2.03, camZ: 1.64,
     lookX: 1, lookY: 1.68, lookZ: 0.45,
-    htmlPosX: 1.5, htmlPosY: 2.222, htmlPosZ: 1.121,
+    htmlPosX: 1.5, htmlPosY: 1.882, htmlPosZ: 1.121,
     htmlRotX: 0, htmlRotY: 0.55, htmlRotZ: 0,
     scale: 0.014,
     width: 800,
     height: 1200
   },
   usb: {
-    camX: 1.54, camY: 1.91, camZ: 1.5,
+    camX: 1.54, camY: 1.91, camZ: 1,
     lookX: 1.53, lookY: 1.5, lookZ: 0.07,
     posX: -0.096, posY: 0, posZ: 0,
     rotX: 0, rotY: 0, rotZ: 0,
@@ -1503,6 +1283,26 @@ const settings = ref({
     rotX: 0, rotY: 0, rotZ: 0
   }
 })
+
+// 📱 Overrides mobile : seules les valeurs qui diffèrent de desktop
+const mobileOverrides = ref({
+  laptop: { camX: 1.40, camZ: 1.8, htmlPosY: 2 },
+  phone: { camX: 1.74, camY: 1.91, camZ: 1.4, lookX: 1.18, lookY: 1.69, lookZ: 0.79 },
+  books: { camX: 1.49, camY: 1.87, camZ: 1.54, htmlPosY: 1.864, htmlPosX: 0.952, htmlPosZ: 0.68 },
+  bookshelf: { camX: 1.14, camZ: 1.56 },
+  folder: { camX: 2.15, camY: 2.07, camZ: 2.18, lookY: 1.45, scale: 0.015, htmlPosY: 2.222 },
+  usb: { camZ: 2.4 },
+})
+
+// Retourne les settings effectifs pour un élément (desktop ou desktop+mobile merge)
+const getEffectiveSettings = (target) => {
+  const base = settings.value[target]
+  if (!base) return base
+  if (!props.mobileMode) return base
+  const overrides = mobileOverrides.value[target]
+  if (!overrides) return base
+  return { ...base, ...overrides }
+}
 
 // --- ICÔNES SVG (Lucide-style) ---
 const ico = (d, size = 24) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
@@ -1759,13 +1559,30 @@ async function submitContact() {
 // 🔧 FLAG POUR AFFICHER/CACHER LE BOUTON DE CALIBRATION EN PRODUCTION
 const ENABLE_CALIBRATION_UI = true
 const calibrationMode = ref(false)
-const showLightCalibration = ref(false)
-const showCameraCalibration = ref(false)
+const activeCalibPanel = ref(null)
+const calibButtons = [
+  { key: 'element', icon: '🎯' },
+  { key: 'light', icon: '💡' },
+  { key: 'camera', icon: '📷' },
+  { key: 'labels', icon: '🏷️' },
+  { key: 'mobile', icon: '📱' },
+  { key: 'drawer', icon: '📦' },
+  { key: 'bookshelf', icon: '📚' },
+  { key: 'socials', icon: '🃏' },
+  { key: 'mesh', icon: '🔍' },
+]
+const toggleCalibPanel = (key) => {
+  if (key === 'mesh') {
+    showMeshNames.value = !showMeshNames.value
+    return
+  }
+  activeCalibPanel.value = activeCalibPanel.value === key ? null : key
+}
 const showMeshNames = ref(false)
 const hoveredMeshName = ref('')
 
 // 📱 Positions des labels mobiles (calibrables)
-const showLabelCalibration = ref(false)
+const showLabelCalibration = computed(() => activeCalibPanel.value === 'labels')
 const mobileLabels = ref([
   { id: 'intro',    name: 'INTRO',     x: 1.46, y: 1.97, z: 0.1 },
   { id: 'phone',    name: 'CONTACT',   x: 0.81, y: 1.59, z: 0.46 },
@@ -1847,7 +1664,7 @@ const defaultLookAt = ref({ x: 1.31, y: 1.62, z: 0.06 })
 // 📱 Position caméra mobile (look-around)
 const mobileCamPos = ref({ x: 0.3, y: 1.99, z: 4 })
 const mobileLookAtInit = ref({ x: 0.86, y: 1.83, z: 1.78 })
-const showMobileCamCalibration = ref(false)
+const showMobileCamCalibration = computed(() => activeCalibPanel.value === 'mobile')
 
 const applyMobileCamCalibration = () => {
   initMobileLookAngles(true)
@@ -1860,7 +1677,7 @@ const copyMobileCamPositions = () => {
 }
 
 // 🃏 Calibration caméra socials
-const showSocialsCamCalibration = ref(false)
+const showSocialsCamCalibration = computed(() => activeCalibPanel.value === 'socials')
 
 const applySocialsCamCalibration = () => {
   if (cameraRef.value && activeElement.value === 'socials') {
@@ -1878,7 +1695,7 @@ const copySocialsCamPositions = () => {
 }
 
 // 📚 Calibration caméra bookshelf
-const showBookshelfCamCalibration = ref(false)
+const showBookshelfCamCalibration = computed(() => activeCalibPanel.value === 'bookshelf')
 
 const applyBookshelfCamCalibration = () => {
   if (cameraRef.value && activeElement.value === 'bookshelf') {
@@ -1896,7 +1713,7 @@ const copyBookshelfCamPositions = () => {
 }
 
 // 📦 Calibration caméra drawer
-const showDrawerCamCalibration = ref(false)
+const showDrawerCamCalibration = computed(() => activeCalibPanel.value === 'drawer')
 
 const applyDrawerCamCalibration = () => {
   if (cameraRef.value && activeElement.value === 'drawer') {
@@ -2312,20 +2129,6 @@ const onMobileTouchEnd = () => {
   mobileTouchState.value.pinchDist = 0
 }
 
-const lockAppHeight = () => {
-  if (typeof window === 'undefined') return
-  if (props.mobileMode || window.innerWidth <= 768) {
-    appHeight.value = `${window.innerHeight}px`
-    return
-  }
-  appHeight.value = '100vh'
-}
-
-const onOrientationChange = () => {
-  window.setTimeout(() => {
-    lockAppHeight()
-  }, 150)
-}
 
 // Attacher les touch events au canvas quand il est prêt
 let mobileCanvasEl = null
@@ -2344,14 +2147,18 @@ watch(() => [cameraRef.value, props.mobileMode], ([cam, mobile]) => {
   }
 }, { immediate: true })
 
+const lockAppHeight = () => {
+  if (typeof window === 'undefined') return
+  if (props.mobileMode || window.innerWidth <= 768) {
+    appHeight.value = `${window.screen.height}px`
+    return
+  }
+  appHeight.value = '100vh'
+}
+
 watch(() => props.mobileMode, () => {
   lockAppHeight()
 }, { immediate: true })
-
-onMounted(() => {
-  lockAppHeight()
-  window.addEventListener('orientationchange', onOrientationChange)
-})
 
 onUnmounted(() => {
   if (mobileCanvasEl) {
@@ -2359,7 +2166,6 @@ onUnmounted(() => {
     mobileCanvasEl.removeEventListener('touchmove', onMobileTouchMove)
     mobileCanvasEl.removeEventListener('touchend', onMobileTouchEnd)
   }
-  window.removeEventListener('orientationchange', onOrientationChange)
 })
 
 const toggleLight = () => {
@@ -2488,20 +2294,33 @@ const onManualScrollMove = (e) => {
   }
 }
 
-// 📸 Capture la position actuelle de la souris
+// 📸 Capture la position actuelle de la caméra
 const copyCurrentCamera = () => {
   if (!activeElement.value || !cameraRef.value) return
-  const s = settings.value[activeElement.value]
-  s.camX = Number(cameraRef.value.position.x.toFixed(3))
-  s.camY = Number(cameraRef.value.position.y.toFixed(3))
-  s.camZ = Number(cameraRef.value.position.z.toFixed(3))
+  const camX = Number(cameraRef.value.position.x.toFixed(3))
+  const camY = Number(cameraRef.value.position.y.toFixed(3))
+  const camZ = Number(cameraRef.value.position.z.toFixed(3))
 
+  let lookX, lookY, lookZ
   const rawRef = controlsRef.value
   const controls = rawRef?.value ?? rawRef?.instance ?? rawRef
   if (controls && controls.target) {
-    s.lookX = Number(controls.target.x.toFixed(3))
-    s.lookY = Number(controls.target.y.toFixed(3))
-    s.lookZ = Number(controls.target.z.toFixed(3))
+    lookX = Number(controls.target.x.toFixed(3))
+    lookY = Number(controls.target.y.toFixed(3))
+    lookZ = Number(controls.target.z.toFixed(3))
+  }
+
+  if (props.mobileMode) {
+    // 📱 Écrire dans mobileOverrides (ne touche pas aux valeurs desktop)
+    if (!mobileOverrides.value[activeElement.value]) mobileOverrides.value[activeElement.value] = {}
+    const mo = mobileOverrides.value[activeElement.value]
+    mo.camX = camX; mo.camY = camY; mo.camZ = camZ
+    if (lookX !== undefined) { mo.lookX = lookX; mo.lookY = lookY; mo.lookZ = lookZ }
+  } else {
+    // 🖥️ Écrire dans settings (desktop)
+    const s = settings.value[activeElement.value]
+    s.camX = camX; s.camY = camY; s.camZ = camZ
+    if (lookX !== undefined) { s.lookX = lookX; s.lookY = lookY; s.lookZ = lookZ }
   }
 }
 
@@ -3209,7 +3028,7 @@ const zoomTo = (target) => {
   showBookContent.value = false
   showFolderContent.value = false
 
-  const setting = settings.value[target]
+  const setting = getEffectiveSettings(target)
   if (!setting) return
 
   isHovered.value = false
