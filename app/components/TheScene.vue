@@ -175,7 +175,7 @@
     <!-- 📦 MINI MENU PROJETS (Drawer ouvert, mobile) -->
     <Transition name="fade">
       <div v-if="mobileMode && activeElement === 'drawer'"
-        class="absolute bottom-6 left-3 right-3 z-150 pointer-events-auto">
+        class="absolute bottom-[194px] left-3 right-3 z-150 pointer-events-auto">
         <div class="bg-black/60 backdrop-blur-lg rounded-2xl border border-zinc-700/50 p-3 space-y-2">
           <div class="text-center text-zinc-400 text-[11px] font-semibold uppercase tracking-widest mb-1">Choisir un projet</div>
           <div class="space-y-1.5">
@@ -183,7 +183,7 @@
               @click="selectProjectFromDrawer(key)"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]"
               :style="{ background: proj.color + '15', border: '1px solid ' + proj.color + '40' }">
-              <span class="text-xl shrink-0">{{ proj.badge }}</span>
+              <span class="shrink-0 w-5 h-5 [&>svg]:w-full [&>svg]:h-full" :style="{ color: proj.color }" v-html="projectIcons[proj.icon]"></span>
               <div class="text-left flex-1 min-w-0">
                 <div class="text-white text-sm font-bold truncate">{{ proj.title }}</div>
                 <div class="text-zinc-400 text-[10px] truncate">{{ proj.tagline }}</div>
@@ -198,7 +198,7 @@
     <!-- 📚 MINI MENU LIVRES (Bookshelf close-up, mobile) -->
     <Transition name="fade">
       <div v-if="mobileMode && activeElement === 'bookshelf'"
-        class="absolute bottom-6 left-3 right-3 z-150 pointer-events-auto">
+        class="absolute bottom-[194px] left-3 right-3 z-150 pointer-events-auto">
         <div class="bg-black/60 backdrop-blur-lg rounded-2xl border border-zinc-700/50 p-3 space-y-2">
           <div class="text-center text-zinc-400 text-[11px] font-semibold uppercase tracking-widest mb-1">Choisir un livre</div>
           <div class="space-y-1.5">
@@ -206,7 +206,7 @@
               @click="selectBookFromShelf(key)"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]"
               :style="{ background: book.color + '15', border: '1px solid ' + book.color + '40' }">
-              <span class="text-xl shrink-0">{{ book.badge }}</span>
+              <span class="shrink-0 w-5 h-5 [&>svg]:w-full [&>svg]:h-full" :style="{ color: book.color }" v-html="projectIcons[book.icon]"></span>
               <div class="text-left flex-1 min-w-0">
                 <div class="text-white text-sm font-bold truncate">{{ book.title }}</div>
                 <div class="text-zinc-400 text-[10px] truncate">{{ book.desc }}</div>
@@ -1061,15 +1061,15 @@
       <!-- CONTENU DES DOSSIERS (Projets) -->
       <TresGroup v-if="activeElement === 'folder'"
         :position="getHtmlSurfacePosition('folder', true)">
-        <Html key="html-folder" transform wrapper-class="folder-content" :rotation-x="settings.folder.htmlRotX"
-          :rotation-y="settings.folder.htmlRotY" :rotation-z="settings.folder.htmlRotZ" :scale="settings.folder.scale">
+        <Html key="html-folder" transform wrapper-class="folder-content" :rotation-x="getEffectiveSettings('folder').htmlRotX"
+          :rotation-y="getEffectiveSettings('folder').htmlRotY" :rotation-z="getEffectiveSettings('folder').htmlRotZ" :scale="getEffectiveSettings('folder').scale">
         <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0"
           leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0">
           <div v-show="showFolderContent"
             @touchstart.stop="onManualScrollStart"
             @touchmove.stop.prevent="onManualScrollMove"
             @touchend.stop @pointerdown.stop @pointerup.stop @click.stop @wheel.stop
-            :style="{ width: settings.folder.width + 'px', height: settings.folder.height + 'px', backgroundColor: ot.bg, color: ot.text }"
+            :style="{ width: getEffectiveSettings('folder').width + 'px', height: getEffectiveSettings('folder').height + 'px', backgroundColor: ot.bg, color: ot.text }"
             class="relative pointer-events-auto overflow-y-auto"
             style="scrollbar-width: thin;">
 
@@ -1353,6 +1353,7 @@ const projectIcons = {
 const projects = {
   monopoly: {
     title: 'Monopoly Madagascar',
+    icon: 'dice',
     badge: '🎲',
     color: '#e74c3c',
     image: '/projetc_img/monopoly_board.webp',
@@ -1377,6 +1378,7 @@ const projects = {
   },
   cms: {
     title: 'CMS Sur-Mesure & Admin',
+    icon: 'monitor',
     badge: '📝',
     color: '#3498db',
     image: '/projetc_img/CMS.webp',
@@ -1400,6 +1402,7 @@ const projects = {
   },
   portfolio: {
     title: 'Site Vitrine SAP',
+    icon: 'globe',
     badge: '💼',
     color: '#10b981',
     image: '/projetc_img/site_vitrine_SAP.webp',
@@ -1423,6 +1426,7 @@ const projects = {
   },
   movie: {
     title: 'Perfect Movie',
+    icon: 'star',
     badge: '🎬',
     color: '#9b59b6',
     image: '/projetc_img/movie.webp',
@@ -1447,6 +1451,7 @@ const projects = {
   },
   soccer: {
     title: 'Soccer Interculturel Bellechasse',
+    icon: 'share',
     badge: '⚽',
     color: '#f39c12',
     image: '/projetc_img/soccer.webp',
