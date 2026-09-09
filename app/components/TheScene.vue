@@ -1328,6 +1328,7 @@ const projectIcons = {
   'database': ico('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>'),
   'monitor': ico('<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>'),
   'zap': ico('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>'),
+  'mic': ico('<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>'),
   'mail': ico('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
   'settings': ico('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
   'wrench': ico('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
@@ -1471,6 +1472,73 @@ const projects = {
     ],
     stack: ['HTML5', 'CSS3 Vanilla', 'JavaScript ES6+', 'Schema.org', 'Google Maps API', 'FormSubmit', 'Font Awesome'],
   },
+  madapoly: {
+    title: 'Monopoly Madagascar',
+    icon: 'dice',
+    badge: '🎲',
+    color: '#e74c3c',
+    image: '/projetc_img/madapoly.png',
+    link: 'https://madapoly.com',
+    github: 'https://github.com/AnjahNyOny/mobile-madapoly',
+    tagline: 'Adaptation mobile du célèbre jeu de plateau Monopoly, entièrement thématisée sur Madagascar.',
+    description: 'Une expérience immersive permettant à un joueur humain d\'affronter des intelligences artificielles (bots) dans un environnement hors ligne. Le jeu propose un plateau 100% malgache avec des lieux emblématiques (Tsingy, Nosy Be) et une architecture performante séparant strictement la logique métier du rendu visuel.',
+    features: [
+      { icon: 'globe', title: 'Plateau 100% Malgache', desc: '40 cases repensées avec des lieux emblématiques, des gares locales et des services publics (JIRAMA).' },
+      { icon: 'settings', title: 'Joueur vs IA', desc: 'Affrontez des bots dotés d\'un comportement déterministe intelligent pour les achats et les constructions.' },
+      { icon: 'camera', title: 'Caméra Dynamique', desc: 'Une interface utilisateur fluide qui centre la vue automatiquement sur l\'action en cours.' },
+      { icon: 'zap', title: 'Moteur Robuste', desc: 'Gestion complète des règles fondamentales (dés, déplacements, achats, loyers, prison, faillite).' }
+    ],
+    challenges: [
+      { problem: 'Séparer la logique complexe du jeu de l\'affichage sur mobile.', solution: 'Architecture performante avec une séparation stricte entre la logique métier (Store Zustand) et le rendu visuel (React).' },
+      { problem: 'Animer les pions de façon organique.', solution: 'Utilisation de React Native Reanimated pour des mouvements de pions fluides et naturels.' }
+    ],
+    stack: ['React Native', 'Expo', 'TypeScript', 'Zustand', 'Reanimated', 'react-native-tcp-socket'],
+  },
+  doobleo: {
+    title: 'Doobleo',
+    icon: 'mic',
+    badge: '🎙️',
+    color: '#9b59b6',
+    image: '/projetc_img/doobleo.png',
+    link: 'https://doobleo.anjahnyony.com',
+    github: 'https://github.com/AnjahNyOny/doobleo',
+    tagline: 'Application web de doublage collaboratif en temps réel.',
+    description: 'Redoublez vos scènes de films préférées entre amis ! Une plateforme ludique permettant à un groupe de se réunir dans un salon virtuel, de s\'attribuer des personnages, et d\'enregistrer leurs voix en direct. Le tout est mixé instantanément avec une IA pour exporter la vidéo finale.',
+    features: [
+      { icon: 'globe', title: 'Jeu Multijoueur', desc: 'Salons privés jusqu\'à 6 joueurs gérés en temps réel via WebSockets (Socket.io).' },
+      { icon: 'camera', title: 'Zéro Installation', desc: 'Enregistrement vocal directement via la Web Audio API du navigateur.' },
+      { icon: 'film', title: 'Mixage Vidéo Automatique', desc: 'Utilisation de FFmpeg et BullMQ pour fusionner les pistes vocales avec la vidéo originale.' },
+      { icon: 'zap', title: 'IA Intégrée (Whisper)', desc: 'Génération de sous-titres via OpenAI Whisper et séparation vocale automatique.' },
+      { icon: 'settings', title: 'CMS Sur-mesure', desc: 'Panneau d\'administration sécurisé pour gérer les scènes et corriger les répliques.' }
+    ],
+    challenges: [
+      { problem: 'Gérer l\'enregistrement et la synchronisation audio de plusieurs joueurs en direct.', solution: 'Implémentation des WebSockets avec Socket.io couplé à la Web Audio API.' },
+      { problem: 'Traiter des vidéos lourdes pour le mixage sans bloquer le serveur.', solution: 'Pipeline asynchrone utilisant BullMQ et FFmpeg côté serveur pour générer le résultat.' }
+    ],
+    stack: ['Nuxt 3', 'Vue.js', 'PostgreSQL', 'FFmpeg', 'OpenAI Whisper', 'Socket.io', 'BullMQ', 'Replicate'],
+  },
+  knighty: {
+    title: 'Knighty',
+    icon: 'shield',
+    badge: '⚔️',
+    color: '#f39c12',
+    image: '/projetc_img/kmighty.png',
+    link: 'https://knighty.anjahnyony.com',
+    github: 'https://github.com/AnjahNyOny/knighty',
+    tagline: 'Jeu d\'aventure 2D développé avec le moteur Godot.',
+    description: 'Knighty est un petit jeu de plateforme 2D réalisé en suivant le célèbre tutoriel de Brackeys "How to make a Video Game - Godot Beginner Tutorial". Le joueur contrôle un chevalier, récolte des pièces, affronte des ennemis et navigue à travers un niveau composé de Tilemaps.',
+    features: [
+      { icon: 'rocket', title: 'Contrôles Fluides', desc: 'Système de déplacement et de saut réactif pour le personnage principal.' },
+      { icon: 'map', title: 'Level Design en Tilemap', desc: 'Environnement de jeu construit à l\'aide de Tilemaps 2D et de collisions précises.' },
+      { icon: 'star', title: 'Collectibles', desc: 'Pièces à récolter dispersées dans le niveau avec un système de score.' },
+      { icon: 'shield', title: 'Ennemis & Dangers', desc: 'IA basique pour les ennemis et gestion de la zone de mort (Killzone).' }
+    ],
+    challenges: [
+      { problem: 'Découverte d\'un nouveau moteur de jeu (Godot) et de son langage GDScript.', solution: 'Apprentissage des concepts de Nœuds (Nodes) et de Scènes pour structurer le jeu.' },
+      { problem: 'Gérer les animations et les états du joueur.', solution: 'Utilisation de l\'AnimationPlayer et des scripts pour synchroniser les actions.' }
+    ],
+    stack: ['Godot Engine', 'GDScript', '2D Physics', 'Tilemap'],
+  }
 }
 
 // --- DONNÉES DES LIVRES ---
@@ -2924,6 +2992,15 @@ const onPointerMissed = () => {
   }
 }
 
+const getPhysicalFolderId = (vid) => {
+  if (['doobleo', 'madapoly', 'knighty'].includes(vid)) {
+    const existingFolders = ['monopoly', 'cms', 'portfolio', 'movie', 'soccer']
+    const index = vid ? vid.charCodeAt(0) % existingFolders.length : 0
+    return existingFolders[index]
+  }
+  return vid
+}
+
 // Simule un clic sur un élément 3D depuis le menu
 const activateItemByName = (type, id) => {
   let rootScene = cameraRef.value
@@ -2968,8 +3045,9 @@ const activateItemByName = (type, id) => {
       }
     }
 
-    const baseName = `folder_${id}`
-    const coverName = `folder_${id}_cover`
+    const pId = getPhysicalFolderId(id)
+    const baseName = `folder_${pId}`
+    const coverName = `folder_${pId}_cover`
 
     let base = null
     let cover = null
@@ -3506,10 +3584,12 @@ const previewItem = (item) => {
     if (foundMesh) return
     const name = child.name ? child.name.toLowerCase() : ''
     
+    const pId = getPhysicalFolderId(id)
+
     if (lookupType === 'phone' && name.startsWith(PHONE_PREFIX.toLowerCase())) foundMesh = child
     else if (lookupType === 'drawer' && name.includes('drawer_bottom')) foundMesh = child
-    else if (lookupType === 'folder' && id && name.startsWith(`folder_${id}`.toLowerCase()) && !name.includes('cover') && !name.includes('paper')) foundMesh = child
-    else if (lookupType === 'folder' && !id && name.includes('folder')) foundMesh = child
+    else if (lookupType === 'folder' && pId && name.startsWith(`folder_${pId}`.toLowerCase()) && !name.includes('cover') && !name.includes('paper')) foundMesh = child
+    else if (lookupType === 'folder' && !pId && name.includes('folder')) foundMesh = child
     else if (lookupType === 'switch' && LIGHT_SWITCH.some(p => name.includes(p.toLowerCase()))) foundMesh = child
     else if (lookupType === 'book' && book && name === `book_${book}`) foundMesh = child
     else if (lookupType === 'book' && !book && (BOOK_PARTS.some(p => name.includes(p.toLowerCase())) || name.includes('book'))) {

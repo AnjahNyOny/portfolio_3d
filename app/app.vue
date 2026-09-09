@@ -107,6 +107,9 @@ const projects = {
   babacode: { id: 'babacode', name: 'Babacode', description: 'Site vitrine & portfolio dynamique' },
   monopoly: { id: 'monopoly', name: 'Monopoly', description: 'Jeu de plateau en ligne multijoueur' },
   eni: { id: 'eni', name: 'ENI', description: "Plateforme de gestion d'école" },
+  doobleo: { id: 'doobleo', name: 'Doobleo', description: 'Doublage collaboratif IA' },
+  madapoly: { id: 'madapoly', name: 'Madapoly', description: 'Monopoly Madagascar Mobile' },
+  knighty: { id: 'knighty', name: 'Knighty', description: 'Jeu plateforme Godot 2D' }
 }
 
 const openMobileOverlay = (section, data = {}) => {
